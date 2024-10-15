@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить прогресс</title>
+</head>
+<body>
+    <h1>Добавить прогресс восстановления</h1>
+    <form method="POST" action="/progress">
+        <label for="injury_id">Выберите травму:</label>
+        <select name="injury_id" id="injury_id" required>
+            {% for injury in injuries %}
+                <option value="{{ injury[0] }}">{{ injury[1] }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label for="date">Дата:</label>
+        <input type="date" name="date" id="date" required><br><br>
+
+        <label for="pain_level">Уровень боли (0-10):</label>
+        <input type="number" name="pain_level" id="pain_level" min="0" max="10" required><br><br>
+
+        <label for="exercise_completed">Упражнения выполнены (0-1):</label>
+        <input type="number" name="exercise_completed" id="exercise_completed" min="0" max="1" required><br><br>
+
+        <button type="submit">Добавить прогресс</button>
+    </form>
+</body>
+</html>

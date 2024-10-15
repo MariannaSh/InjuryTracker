@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Травмы</title>
+</head>
+<body>
+    <h1>Введите информацию о травме:</h1>
+    <form action="/submit" method="POST">
+        <label for="injury_type">Выберите травму:</label>
+        <select name="injury_type" id="injury_type">
+            {% for injury in injuries %}
+                <option value="{{ injury }}">{{ injury }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="age">Возраст:</label>
+        <input type="number" name="age" id="age" required>
+
+        <label for="fitness_level">Уровень физической подготовки:</label>
+        <select name="fitness_level" id="fitness_level">
+            <option value="Низкий">Низкий</option>
+            <option value="Средний">Средний</option>
+            <option value="Высокий">Высокий</option>
+        </select>
+
+        <label for="injury_date">Дата травмы:</label>
+        <input type="date" name="injury_date" id="injury_date" required> 
+        
+        <br>
+        <label>
+            <input type="checkbox" name="diagnosis_confirmed"> Диагноз подтверждён у врача
+        </label>
+        <br>
+
+        <button type="submit">Получить рекомендации</button>
+    </form>
+    <a href="/progress">Записать прогресс восстановления</a>
+</body>
+</html>
