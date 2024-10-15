@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for
-from database import create_tables, add_injury, add_progress, get_injuries, get_distinct_injury_types
+from database import create_tables, add_injury, add_progress, get_injuries, get_distinct_injury_types, get_progress_data
 from recommendations import recommendations  # Импортируйте ваши рекомендации
+import matplotlib.pyplot as plt
+import os
 
 app = Flask(__name__)
 
@@ -47,7 +49,41 @@ def progress():
 def generate_recommendations(injury_type):
     return recommendations.get(injury_type.lower(), ["Нет доступных рекомендаций для этой травмы."])
 
+@app.route('/add_progress', methods=['POST'])
+def add_progress_route():
+    injury_id = request.form.get('injury_id')
+    date = request.form.get('date')
+    pain_level = int(request.form.get('pain_level'))
+    exercise_completed = int(request.form.get('exercise_completed'))
 
+    # Добавляем данные о прогрессе в базу данных
+    add_progress(injury_id, date, pain_level, exercise_completed)
+    return redirect(url_for('index'))
+
+@app.route('/chart')
+def chart():
+    data = get_progress_data()  # Эта функция должна возвращать данные о прогрессе
+    if not data:  # Проверка, есть ли данные для построения диаграммы
+        return "Нет данных для отображения диаграммы.", 404
+
+    pain_levels = [row[0] for row in data]
+    counts = [row[1] for row in data]
+
+    plt.figure(figsize=(8, 8))
+    plt.pie(counts, labels=pain_levels, autopct='%1.1f%%', startangle=140)
+    plt.title('Распределение уровней боли')
+    plt.axis('equal')
+
+    # Убедимся, что папка static существует
+    if not os.path.exists('static'):
+        os.makedirs('static')
+
+    # Сохраняем диаграмму как файл в папку static
+    chart_path = 'static/chart.png'
+    plt.savefig(chart_path)
+    plt.close()
+
+    return render_template('chart.html', chart_url=chart_path)
 
 if __name__ == '__main__':
     create_tables()  # Создаем таблицы при запуске

@@ -1,33 +1,26 @@
-import sqlite3
 import matplotlib.pyplot as plt
+import os
+from database import get_progress_data
 
-DB_PATH = 'db/database.db'
-
-def get_progress_data():
-    with sqlite3.connect(DB_PATH) as db:
-        cursor = db.cursor()
-        cursor.execute('''
-            SELECT pain_level, COUNT(*) as count FROM progress GROUP BY pain_level
-        ''')
-        return cursor.fetchall()
-
-def plot_pie_chart():
-    data = get_progress_data()
-    
+def create_pie_chart():
+    data = get_progress_data()  # Получаем данные о прогрессе
     if not data:
-        print("Нет данных для построения диаграммы.")
-        return
+        return None  # Возвращаем None, если нет данных для построения
 
-    # Разделим данные на уровни боли и их количество
-    labels = [f"Уровень боли {row[0]}" for row in data]
+    pain_levels = [row[0] for row in data]
     counts = [row[1] for row in data]
 
-    # Построение круговой диаграммы
-    plt.figure(figsize=(6,6))
-    plt.pie(counts, labels=labels, autopct='%1.1f%%', startangle=90)
-    plt.title("Распределение уровня боли")
-    plt.axis('equal')  # Для того, чтобы диаграмма выглядела как круг
-    plt.show()
+    plt.figure(figsize=(8, 8))
+    plt.pie(counts, labels=pain_levels, autopct='%1.1f%%', startangle=140)
+    plt.title('Распределение уровней боли')
+    plt.axis('equal')
 
-if __name__ == '__main__':
-    plot_pie_chart()
+    # Убедимся, что папка static существует
+    if not os.path.exists('static'):
+        os.makedirs('static')
+
+    chart_path = 'static/chart.png'
+    plt.savefig(chart_path)
+    plt.close()
+
+    return chart_path  # Возвращаем путь к созданной диаграмме

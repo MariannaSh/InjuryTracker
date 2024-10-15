@@ -6,6 +6,17 @@
     <title>Травмы</title>
 </head>
 <body>
+    <form action="/register_user" method="post">
+        <label for="username">Имя пользователя:</label>
+        <input type="text" name="username" id="username" required><br><br>
+    
+        <label for="password">Пароль:</label>
+        <input type="password" name="password" id="password" required><br><br>
+    
+        <button type="submit">Зарегистрироваться</button>
+    </form>
+
+
     <h1>Введите информацию о травме:</h1>
     <form action="/submit" method="POST">
         <label for="injury_type">Выберите травму:</label>
@@ -16,26 +27,20 @@
         </select>
 
         <label for="age">Возраст:</label>
-        <input type="number" name="age" id="age" required>
-
+        <input type="number" name="age" id="age" min="1" max="100" required><br><br>
+    
         <label for="fitness_level">Уровень физической подготовки:</label>
-        <select name="fitness_level" id="fitness_level">
-            <option value="Низкий">Низкий</option>
-            <option value="Средний">Средний</option>
-            <option value="Высокий">Высокий</option>
-        </select>
-
-        <label for="injury_date">Дата травмы:</label>
-        <input type="date" name="injury_date" id="injury_date" required> 
-        
-        <br>
-        <label>
-            <input type="checkbox" name="diagnosis_confirmed"> Диагноз подтверждён у врача
-        </label>
-        <br>
-
+        <select name="fitness_level" id="fitness_level" required>
+            <option value="low">Низкий</option>
+            <option value="medium">Средний</option>
+            <option value="high">Высокий</option>
+        </select><br><br>
+    
         <button type="submit">Получить рекомендации</button>
     </form>
+    
+     <br>
     <a href="/progress">Записать прогресс восстановления</a>
+
 </body>
 </html>

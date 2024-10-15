@@ -54,3 +54,10 @@ def get_distinct_injury_types():
         cursor = db.cursor()
         cursor.execute('SELECT DISTINCT injury_type FROM injuries')
         return cursor.fetchall()
+
+
+def get_progress_data():
+    with create_connection() as db:
+        cursor = db.cursor()
+        cursor.execute('SELECT pain_level, COUNT(*) FROM progress GROUP BY pain_level')
+        return cursor.fetchall()
