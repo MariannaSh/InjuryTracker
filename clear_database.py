@@ -1,6 +1,6 @@
 import os
 
-db_path = 'db/database.db'
+db_path = 'injuries.db'
 
 if os.path.exists(db_path):
     os.remove(db_path)

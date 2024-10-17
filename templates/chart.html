@@ -1,16 +1,18 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Круговая диаграмма</title>
+    <title>Pain Level Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/chart.js') }}"></script>  <!-- Include the chart.js file -->
 </head>
 <body>
-    <h1>Круговая диаграмма прогресса</h1>
-
-    <img src="static/chart.png" alt="Круговая диаграмма" style="max-width: 100%; height: auto;">
+    <h1>Pain Level Over Time</h1>
+    <canvas id="painLevelChart" width="400" height="200"></canvas>
     
-    <br>
-    <a href="/">Вернуться на главную страницу</a>
+    <!-- Hidden elements to pass data from Flask to JavaScript -->
+    <script type="application/json" id="painLevels" style="display: none;">{{ pain_levels|tojson|safe }}</script>
+    <script type="application/json" id="dates" style="display: none;">{{ dates|tojson|safe }}</script>
 </body>
 </html>

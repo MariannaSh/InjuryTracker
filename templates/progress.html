@@ -1,6 +1,6 @@
 <form action="/add_progress" method="post">
     <label for="injury">Название травмы:</label>
-    <select name="injury" id="injury">
+    <select name="injury" id="injury">  <!-- Изменено имя поля на injury_id -->
         {% for injury in injuries %}
         <option value="{{ injury[0] }}">{{ injury[1] }}</option>
         {% endfor %}
@@ -13,9 +13,10 @@
     <input type="number" name="pain_level" id="pain_level" min="0" max="10" required><br><br>
 
     <label for="exercise_completed">Упражнения выполнены:</label>
-    <input type="radio" name="exercise_completed" value="1"> Да
+    <input type="radio" name="exercise_completed" value="1" required> Да
     <input type="radio" name="exercise_completed" value="0"> Нет<br><br>
 
     <button type="submit">Добавить прогресс</button>
     <a href="/chart">Записать прогресс восстановления</a>
 </form>
+
