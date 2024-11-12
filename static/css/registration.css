@@ -1,0 +1,79 @@
+/* Basic styles for the entire site */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #000000; /* Black background */
+    color: #ffffff; /* White text */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+}
+
+.container {
+    background-color: #1e1e1e; /* Dark gray for the container */
+    padding: 30px; /* Padding around the form */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Shadow effect for depth */
+    width: 300px; /* Fixed width for the container */
+}
+
+h1 {
+    font-size: 2.5em; /* Adjusted header size */
+    margin-bottom: 20px;
+    color: #FF4757; /* Bright red color for the title */
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* Stretch elements to fill width */
+    gap: 15px; /* Spacing between form elements */
+}
+
+label {
+    font-size: 1.1em; /* Font size for labels */
+    color: #ffffff; /* White color for labels */
+}
+
+input[type="text"],
+input[type="password"] {
+    padding: 12px; /* Padding for input fields */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Round corners */
+    background-color: #333333; /* Dark background for input fields */
+    color: #ffffff; /* White text */
+    font-size: 1em; /* Font size */
+    transition: background-color 0.3s; /* Smooth transition */
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    background-color: #444444; /* Change background color on focus */
+    outline: none; /* Remove default outline */
+}
+
+input[type="submit"].small-button { /* Styles for the smaller button */
+    background-color: #FF4757; /* Red button color */
+    border: none; /* Remove border */
+    padding: 10px 20px; /* Adjusted padding for a smaller button */
+    border-radius: 5px; /* Round corners */
+    font-size: 1em; /* Adjusted font size */
+    color: #ffffff; /* White text */
+    cursor: pointer; /* Pointer on hover */
+    transition: background-color 0.3s, transform 0.3s; /* Smooth transition */
+}
+
+input[type="submit"].small-button:hover {
+    background-color: #FF6B81; /* Lighter red on hover */
+    transform: scale(1.05); /* Slightly enlarge button on hover */
+}
+
+a {
+    text-decoration: none; /* Remove underline */
+    color: #FF4757; /* Link color matching the button */
+    margin-top: 20px; /* Top margin */
+    font-size: 1.1em; /* Font size */
+}

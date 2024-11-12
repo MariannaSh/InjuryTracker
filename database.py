@@ -1,5 +1,6 @@
 import sqlite3
 import os
+from flask_bcrypt import Bcrypt
 
 # Путь к базам данных
 DB_PATH_INJURIES = 'db/database.db'  # База данных для травм
@@ -65,7 +66,7 @@ def get_distinct_injury_types():
     with create_connection_injuries() as db:
         cursor = db.cursor()
         cursor.execute('SELECT DISTINCT injury_type FROM injuries')
-        return cursor.fetchall()
+        return [injury for injury in cursor.fetchall()]
 
 def get_progress_data():
     with create_connection_progress() as db:
@@ -78,3 +79,66 @@ def get_progress_data():
 
 # Вызовите эту функцию при старте приложения
 create_tables()
+
+bcrypt = Bcrypt()
+
+def connect_user_db():
+    """Создание соединения с базой данных users.db."""
+    return sqlite3.connect('instance/users.db')
+
+def create_user_tables():
+    """Создание таблицы пользователей, если она не существует."""
+    conn = connect_user_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password_hash TEXT  
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+def add_user(username, password):
+    """Добавление нового пользователя в базу данных."""
+    conn = connect_user_db()
+    cursor = conn.cursor()
+    password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+    try:
+        cursor.execute('''INSERT INTO users (username, password_hash) 
+                          VALUES (?, ?)''', (username, password_hash))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        print(f"User {username} already exists.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        conn.close()
+
+def get_user(username):
+    """Получение пользователя по имени пользователя."""
+    conn = connect_user_db()
+    cursor = conn.cursor()
+    cursor.execute('''SELECT * FROM users WHERE username = ?''', (username,))
+    user = cursor.fetchone()
+    conn.close()
+    return user
+
+def get_user_by_id(user_id):
+    """Получение пользователя по его ID."""
+    conn = connect_user_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
+    user = cursor.fetchone()
+    conn.close()
+    return user
+
+def show_users():
+    """Вывод всех пользователей для отладки."""
+    conn = connect_user_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM users')
+    users = cursor.fetchall()
+    conn.close()
+    return users

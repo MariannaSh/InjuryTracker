@@ -12,13 +12,7 @@
             <li>{{ recommendation }}</li>
         {% endfor %}
     </ul>
-    <p>
-        {% if request.form.get('diagnosis_confirmed') %}
-            Диагноз подтверждён у врача.
-        {% else %}
-            Диагноз не подтверждён.
-        {% endif %}
-    </p>
-    <a href="/">Назад</a>
+    
+    <a href="/home">Назад</a>
 </body>
 </html>

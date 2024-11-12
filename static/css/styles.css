@@ -1,0 +1,115 @@
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(180deg, #000000, #1a1a1a); /* Плавный переход к темно-серому */
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Добавляем анимацию звезд */
+.star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    animation: twinkling 3s infinite ease-in-out;
+}
+
+@keyframes twinkling {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}
+
+
+h1 {
+    font-size: 3em; /* Увеличенный размер заголовка */
+    margin-bottom: 20px;
+    background: linear-gradient(90deg, #00FFAB, #FF007F, #00FFAB);
+    background-size: 200%; /* Увеличиваем размер градиента для анимации */
+    -webkit-background-clip: text; /* Обрезаем фон под текст */
+    -webkit-text-fill-color: transparent; /* Делаем цвет текста прозрачным */
+    animation: rainbow 4s linear infinite; /* Анимация */
+}
+
+a {
+    text-decoration: none;
+    color: #ffffff; /* Белый текст ссылки */
+    padding: 15px 30px; /* Увеличенные отступы для кнопки */
+    border-radius: 5px;
+    font-size: 1.2em;
+    transition: background-color 0.3s, transform 0.3s; /* Плавные переходы */
+    position: relative; /* Позиционирование для псевдоэлементов */
+    overflow: hidden; /* Скрытие переполненных элементов */
+    display: block; /* Отображение как блок для расположения кнопок друг под другом */
+    margin-bottom: 15px; /* Отступ между кнопками */
+    width: 200px; /* Ограничиваем ширину кнопок для выравнивания */
+    text-align: center;
+}
+
+.register-button {
+    background-color: #ff4757; /* Ярко-красный цвет кнопки регистрации */
+}
+
+.login-button {
+    background-color: #007BFF; /* Синий цвет кнопки входа */
+}
+
+a::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%; /* Устанавливаем ширину в пределах кнопки */
+    height: 100%; /* Устанавливаем высоту в пределах кнопки */
+    background: rgba(255, 255, 255, 0.3); /* Светлый цвет с прозрачностью */
+    border-radius: 5px; /* Закругляем края */
+    transform: translate(-50%, -50%) scale(0); /* Начальная позиция скрыта */
+    transition: transform 0.5s ease; /* Плавный переход для волны */
+}
+
+/* Эффекты при наведении */
+.register-button:hover::before,
+.login-button:hover::before {
+    transform: translate(-50%, -50%) scale(1); /* Эффект нажатия */
+}
+
+.register-button {
+    background-color: #e14e7f; /* Светло-розовый цвет кнопки регистрации */
+}
+
+.login-button {
+    background-color: #17c3b2; /* Ярко-бирюзовый цвет кнопки входа */
+}
+
+/* Изменение эффекта при нажатии */
+a:active {
+    transform: translateY(2px); /* Уменьшение перемещения вниз при нажатии */
+    box-shadow: none; /* Убираем тень при нажатии */
+}
+
+footer {
+    position: absolute;
+    bottom: 10px;
+    font-size: 0.9em;
+    color: #bdc3c7; /* Серый цвет для текста внизу */
+}
+
+/* Генерируем несколько случайных звезд на фоне */
+.star:nth-child(1) { top: 10%; left: 20%; }
+.star:nth-child(2) { top: 30%; left: 80%; }
+.star:nth-child(3) { top: 50%; left: 50%; }
+.star:nth-child(4) { top: 70%; left: 30%; }
+.star:nth-child(5) { top: 90%; left: 70%; }

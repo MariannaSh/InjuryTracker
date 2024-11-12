@@ -38,3 +38,27 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Добавляем обработчик событий для кнопки
+    const clearDbButton = document.getElementById('clear-db-btn');
+    
+    if (clearDbButton) {
+        clearDbButton.addEventListener('click', function() {
+            if (confirm("Are you sure you want to clear the database?")) {
+                fetch('/clear_db', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+    } else {
+        console.error('Button with id "clear-db-btn" not found');
+    }
+});
