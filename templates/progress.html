@@ -1,22 +1,55 @@
-<form action="/add_progress" method="post">
-    <label for="injury">Название травмы:</label>
-    <select name="injury" id="injury">  <!-- Изменено имя поля на injury_id -->
-        {% for injury in injuries %}
-        <option value="{{ injury[0] }}">{{ injury[1] }}</option>
-        {% endfor %}
-    </select><br><br>
 
-    <label for="date">Дата:</label>
-    <input type="date" name="date" id="date" required><br><br>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/progress.css') }}">
+<br>
 
-    <label for="pain_level">Уровень боли:</label>
-    <input type="number" name="pain_level" id="pain_level" min="0" max="10" required><br><br>
+<!-- Navigation Menu -->
+<nav class="menu">
+    <ul>
+        <li><a href="/chart">Profile</a></li>
+        <li><a href="/home">Home</a></li>
+        <li><a href="/progress">Progress</a></li>
+    </ul>
+</nav>
 
-    <label for="exercise_completed">Упражнения выполнены:</label>
-    <input type="radio" name="exercise_completed" value="1" required> Да
-    <input type="radio" name="exercise_completed" value="0"> Нет<br><br>
 
-    <button type="submit">Добавить прогресс</button>
-    <a href="/chart">Записать прогресс восстановления</a>
+<br>
+
+<!-- Progress Form -->
+<form action="/add_progress" method="post" class="progress-form">
+    <h2>Record Recovery Progress</h2>
+
+    <div class="form-group">
+        <label for="injury">Injury Type:</label>
+        <select name="injury" id="injury" class="form-control">
+            {% for injury in injuries %}
+            <option value="{{ injury[0] }}">{{ injury[1] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="date">Date:</label>
+        <input type="date" name="date" id="date" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+        <label for="pain_level">Pain Level:</label>
+        <input type="number" name="pain_level" id="pain_level" class="form-control" min="0" max="10" required>
+    </div>
+
+    <div class="form-group">
+        <label for="exercise_completed">Exercises Completed:</label><br>
+        <input type="radio" name="exercise_completed" value="1" id="exercise_completed_yes" required> <label for="exercise_completed_yes">Yes</label>
+        <input type="radio" name="exercise_completed" value="0" id="exercise_completed_no"> <label for="exercise_completed_no">No</label>
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="submit-btn">Add Progress</button>
+    </div>
+
+    <br>
+    <a href="/chart" class="link-btn">View Recovery Progress</a>
+
+    
+
 </form>
-
