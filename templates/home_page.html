@@ -11,12 +11,13 @@
     <!-- Navigation Menu -->
     <nav class="menu">
         <ul>
-            <li><a href="base.html">Profile</a></li>
+            <li><a href="/profile">Profile</a></li>
             <li><a href="/home">Home</a></li>
             <li><a href="/progress">Progress</a></li>
         </ul>
     </nav>
 
+    <!-- Form Container -->
     <main class="form-container">
         <h1>Enter Injury Details</h1>
 
@@ -33,7 +34,7 @@
 
             <div class="form-group">
                 <label for="age">Age:</label>
-                <input type="number" name="age" id="age" min="1" max="100" required>
+                <input type="number" name="age" id="age" min="0" max="1000" required>
             </div>
 
             <div class="form-group">
@@ -45,11 +46,12 @@
                 </select>
             </div>
 
+            
             <div class="form-group checkbox-group">
-                <input type="checkbox" name="diagnosis_confirmed" id="diagnosis_confirmed">
-                <label for="diagnosis_confirmed">Diagnosis confirmed by doctor</label>
+                    <input type="checkbox" id="diagnosis_confirmed" name="diagnosis_confirmed">
+                    <label for="diagnosis_confirmed">Diagnosis confirmed by doctor</label>
             </div>
-
+        
             <button type="submit" class="submit-btn">Get Recommendations</button>
         </form>
 
@@ -57,9 +59,16 @@
             <a href="/progress" class="link-btn">Record Recovery Progress</a>
             <a href="{{ url_for('logout') }}" class="link-btn">Logout</a>
         </div>
-        
     </main>
 
+    <!-- Calendar Container -->
+    <div id="calendar-container">
+        <div id="calendar"></div>
+    </div>
+
     <script src="/static/js/script.js"></script>
+
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js'></script>
 </body>
 </html>

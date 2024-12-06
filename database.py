@@ -56,6 +56,21 @@ def add_progress(injury_id, date, pain_level, exercise_completed):
                        (injury_id, date, pain_level, exercise_completed))
         db.commit()
 
+def calculate_progress():
+    # Получите количество записей в таблице injuries
+    with create_connection_progress() as db:
+        cursor = db.cursor()
+        cursor.execute("SELECT COUNT(*) FROM progress")
+        current_count = cursor.fetchone()[0]  # Получаем количество записей
+        
+        # Укажите максимальное количество записей, которое вы хотите отслеживать
+        max_count = 100  # Например, предполагается, что максимум 100 записей
+        
+        # Рассчитываем прогресс в процентах
+        progress = (current_count / max_count) * 10
+        return progress
+
+
 def get_injuries():
     with create_connection_injuries() as db:
         cursor = db.cursor()
