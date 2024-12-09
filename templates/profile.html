@@ -27,6 +27,11 @@
             <img src="{{ url_for('static', filename='uploads/' + profile_image) }}" alt="Profile Picture" width="150">
         {% endif %}
 
+        <form method="POST" action="{{ url_for('change_username') }}">
+            <label for="new_username">Новое имя пользователя:</label>
+            <input type="text" id="new_username" name="new_username" required>
+            <button type="submit">Изменить имя пользователя</button>
+        </form>
         
         <div class="profile-actions">
             <a href="{{ url_for('home_page') }}">Go to Home</a><br>

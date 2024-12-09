@@ -36,13 +36,24 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        
         user = get_user(username)
-        if user and bcrypt.check_password_hash(user[2], password):  # Проверка пароля
-            session['username'] = username  # Сохранение имени пользователя в сессии
-            return redirect(url_for('home_page'))  # Перенаправление на домашнюю страницу
-        else:
-            return "Invalid username or password", 401  # Сообщение об ошибке (необязательно)
+        
+        if not user:
+            flash("User does not exist", "error")
+            return redirect(url_for('auth.login'))
+        
+        if not bcrypt.check_password_hash(user[2], password):
+            flash("Invalid password", "error")
+            return redirect(url_for('auth.login'))
+        
+        # Если все проверки пройдены
+        session['user_id'] = user[0]
+        session['username'] = username
+        return redirect(url_for('home_page'))
+
     return render_template('login.html')
+
 
 @auth_bp.route('/logout')
 def logout():

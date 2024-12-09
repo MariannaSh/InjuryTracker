@@ -150,10 +150,19 @@ def get_user_by_id(user_id):
     return user
 
 def show_users():
-    """Вывод всех пользователей для отладки."""
-    conn = connect_user_db()
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM users')
-    users = cursor.fetchall()
-    conn.close()
-    return users
+    """Вывод всех пользователей для проверки данных."""
+    with connect_user_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM users')
+        users = cursor.fetchall()
+        for user in users:
+            print(user)  # Проверить, изменилось ли имя пользователя
+
+def test_connection():
+    try:
+        with connect_user_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute('SELECT name FROM sqlite_master WHERE type="table"')
+            print(cursor.fetchall())  # Убедитесь, что таблица "users" существует
+    except Exception as e:
+        print(f"Ошибка подключения к базе данных: {e}")

@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
-from database import calculate_progress, create_tables, add_injury, get_user, get_distinct_injury_types, get_progress_data, create_user_tables
+from database import calculate_progress, create_tables, connect_user_db,add_injury, get_user, get_distinct_injury_types, get_progress_data, create_user_tables
 from recommendations import recommendations 
 from werkzeug.utils import secure_filename
 import sqlite3
@@ -118,6 +118,48 @@ def update_image():
 
     return redirect(url_for('user_profile'))  # Если файл не был загружен, возвращаем на профиль
 
+@app.route('/change_username', methods=['POST'])
+def change_username():
+    print(f"Полученные данные: {request.form}")
+    if "user_id" not in session:
+        app.logger.error("Пользователь не авторизован.")
+        return redirect(url_for("auth.login"))  # Перенаправить на страницу входа, если пользователь не авторизован
+
+    new_username = request.form.get("new_username")
+    user_id = session["user_id"]
+
+    if not new_username or len(new_username) < 3:
+        app.logger.warning("Некорректное имя пользователя.")
+        return "Имя пользователя должно содержать не менее 3 символов.", 400
+
+    # Проверка существования пользователя
+    with connect_user_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT id FROM users WHERE username = ?', (new_username,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            app.logger.warning(f"Имя пользователя '{new_username}' уже занято.")
+            return "Имя пользователя уже занято. Пожалуйста, выберите другое.", 409
+
+        # Выполнение обновления имени пользователя
+        cursor.execute('UPDATE users SET username = ? WHERE id = ?', (new_username, user_id))
+        conn.commit()
+
+    # Проверяем, обновилось ли имя
+    with connect_user_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT username FROM users WHERE id = ?', (user_id,))
+        updated_username = cursor.fetchone()
+        app.logger.info(f"Имя пользователя успешно обновлено: {updated_username}")
+
+    # Обновляем сессию
+    session["username"] = new_username
+    return redirect(url_for("user_profile"))
+
+@app.route('/debug_session')
+def debug_session():
+    return f"Сессия: {session}"
 
 
 @app.route('/chart')
