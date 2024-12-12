@@ -12,7 +12,6 @@
 
         <h2>Your Profile</h2>
 
-        <!-- Image upload form -->
         <div class="image-upload">
             <h3>Upload Profile Picture:</h3>
             <form action="{{ url_for('update_image') }}" method="POST" enctype="multipart/form-data">
@@ -28,9 +27,17 @@
         {% endif %}
 
         <form method="POST" action="{{ url_for('change_username') }}">
-            <label for="new_username">Новое имя пользователя:</label>
+            <label for="new_username">New username:</label>
             <input type="text" id="new_username" name="new_username" required>
-            <button type="submit">Изменить имя пользователя</button>
+            <button type="submit">Change username</button>
+        </form>
+
+        <form method="POST" action="{{ url_for('auth.change_password') }}">
+            <label for="current_password">Current password:</label>
+            <input type="password" id="current_password" name="current_password" required><br>
+            <label for="new_password">New Password:</label>
+            <input type="password" id="new_password" name="new_password" required><br>
+            <button type="submit">Change password</button>
         </form>
         
         <div class="profile-actions">

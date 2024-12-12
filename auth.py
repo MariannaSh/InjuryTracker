@@ -1,13 +1,15 @@
-# auth.py
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+
+from flask import Blueprint, logging, render_template, request, redirect, url_for, flash, session
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from flask_bcrypt import Bcrypt
-from database import add_user, get_user, get_user_by_id  # Не забудьте импортировать функции работы с пользователями
+from database import add_user, get_user, get_user_by_id , connect_user_db 
+import logging
 
 auth_bp = Blueprint('auth', __name__)
 bcrypt = Bcrypt()
 login_manager = LoginManager()
-login_manager.login_view = 'auth.login'  # Укажите на маршрут входа
+login_manager.login_view = 'auth.login'  
+logger = logging.getLogger(__name__)
 
 class User(UserMixin):
     def __init__(self, id, username):
@@ -16,7 +18,7 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    user_data = get_user_by_id(user_id)  # Реализуйте эту функцию
+    user_data = get_user_by_id(user_id)  
     if user_data:
         return User(user_data[0], user_data[1])
     return None
@@ -26,9 +28,9 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        add_user(username, password)  # Добавление пользователя в базу данных
-        session['username'] = username  # Сохранение имени пользователя в сессии
-        return redirect(url_for('home_page'))  # Перенаправление на домашнюю страницу после регистрации
+        add_user(username, password)  
+        session['username'] = username  
+        return redirect(url_for('home_page'))  
     return render_template('register.html')
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -54,6 +56,35 @@ def login():
 
     return render_template('login.html')
 
+@auth_bp.route('/change_password', methods=['POST'])
+def change_password():
+    if "user_id" not in session:
+        auth_bp.logger.error("The user is not authorized.")
+        return redirect(url_for("auth.login"))  
+
+    current_password = request.form.get("current_password")
+    new_password = request.form.get("new_password")
+    user_id = session["user_id"]
+
+    if not new_password or len(new_password) < 6:
+        auth_bp.logger.warning("Invalid password.")
+        return "The password must be at least 6 characters long.", 400
+
+    with connect_user_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT password_hash FROM users WHERE id = ?', (user_id,))
+        stored_password = cursor.fetchone()
+
+        if not stored_password or not bcrypt.check_password_hash(stored_password[0], current_password):
+            auth_bp.logger.warning("The current password is invalid.")
+            return "The current password is invalid.", 401
+
+        hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
+        cursor.execute('UPDATE users SET password_hash = ? WHERE id = ?', (hashed_password, user_id))
+        conn.commit()
+
+    logger.info("Password successfully updated.")
+    return redirect(url_for("user_profile"))
 
 @auth_bp.route('/logout')
 def logout():

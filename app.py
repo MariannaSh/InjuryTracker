@@ -1,7 +1,7 @@
 import os
-
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
-from database import calculate_progress, create_tables, connect_user_db,add_injury, get_user, get_distinct_injury_types, get_progress_data, create_user_tables
+import bcrypt
+from flask import Flask, render_template, request, redirect, url_for, session
+from database import calculate_progress, create_tables, connect_user_db,add_injury, get_distinct_injury_types, get_progress_data, create_user_tables
 from recommendations import recommendations 
 from werkzeug.utils import secure_filename
 import sqlite3
@@ -13,7 +13,7 @@ app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
 app.register_blueprint(auth_bp)
 
-# Функция для подключения к базе данных через SQLAlchemy
+
 def connect_db():
     return sqlite3.connect('db/database.db')
 
@@ -24,9 +24,8 @@ def index():
 @app.route('/home')
 def home_page():
     if 'username' in session:
-        # Получаем список типов травм из базы данных
         injuries = get_distinct_injury_types()
-        injuries = [injury[0] for injury in injuries]  # Преобразуем кортежи в список
+        injuries = [injury[0] for injury in injuries]  
         return render_template('home_page.html', username=session['username'], injuries=injuries)
     return redirect(url_for('index'))
 
@@ -81,79 +80,71 @@ def submit():
 
 @app.route('/progress', methods=['GET', 'POST'])
 def progress():
-    progress_data = calculate_progress()  # Пожалуйста, уточните логику этой функции, чтобы использовать SQLAlchemy
+    progress_data = calculate_progress() 
     if 'username' in session:
         injuries = get_distinct_injury_types()
-        injuries = [injury[0] for injury in injuries]  # Преобразуем кортежи в список
+        injuries = [injury[0] for injury in injuries]  
         return render_template('progress.html', username=session['username'], injuries=injuries, progress_data=progress_data)
     return render_template('progress.html', progress_data=progress_data)
 
 
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
-# Допустимые расширения файлов
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
-# Функция для проверки допустимых расширений
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 @app.route('/profile')
 def user_profile():
-    # Получаем имя пользователя и путь к изображению из сессии
     username = session.get('username', 'Guest')
     profile_image = session.get('profile_image', None)
     return render_template('profile.html', username=username, profile_image=profile_image)
 
 @app.route('/update_image', methods=['POST'])
 def update_image():
-    # Проверяем, есть ли файл в запросе
     if 'profile_image' in request.files:
         file = request.files['profile_image']
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)  # Делаем имя файла безопасным
+            filename = secure_filename(file.filename)  
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(file_path)  # Сохраняем файл
-            session['profile_image'] = filename  # Сохраняем имя файла в сессии
-            return redirect(url_for('user_profile'))  # Перенаправляем на страницу профиля
-
-    return redirect(url_for('user_profile'))  # Если файл не был загружен, возвращаем на профиль
+            file.save(file_path)  
+            session['profile_image'] = filename  
+            return redirect(url_for('user_profile'))  
+        
+    return redirect(url_for('user_profile'))  
 
 @app.route('/change_username', methods=['POST'])
 def change_username():
-    print(f"Полученные данные: {request.form}")
+    print(f"Received data: {request.form}")
     if "user_id" not in session:
-        app.logger.error("Пользователь не авторизован.")
-        return redirect(url_for("auth.login"))  # Перенаправить на страницу входа, если пользователь не авторизован
+        app.logger.error("User is not authorized.")
+        return redirect(url_for("auth.login"))  \
 
     new_username = request.form.get("new_username")
     user_id = session["user_id"]
 
     if not new_username or len(new_username) < 3:
-        app.logger.warning("Некорректное имя пользователя.")
-        return "Имя пользователя должно содержать не менее 3 символов.", 400
+        app.logger.warning("Invalid username.")
+        return "The username must be at least 3 characters long.", 400
 
-    # Проверка существования пользователя
     with connect_user_db() as conn:
         cursor = conn.cursor()
         cursor.execute('SELECT id FROM users WHERE username = ?', (new_username,))
         existing_user = cursor.fetchone()
 
         if existing_user:
-            app.logger.warning(f"Имя пользователя '{new_username}' уже занято.")
-            return "Имя пользователя уже занято. Пожалуйста, выберите другое.", 409
+            app.logger.warning(f"The username '{new_username}' is already taken.")
+            return "The username is already taken. Please select another one..", 409
 
-        # Выполнение обновления имени пользователя
         cursor.execute('UPDATE users SET username = ? WHERE id = ?', (new_username, user_id))
         conn.commit()
 
-    # Проверяем, обновилось ли имя
     with connect_user_db() as conn:
         cursor = conn.cursor()
         cursor.execute('SELECT username FROM users WHERE id = ?', (user_id,))
         updated_username = cursor.fetchone()
-        app.logger.info(f"Имя пользователя успешно обновлено: {updated_username}")
+        app.logger.info(f"Username has been successfully updated: {updated_username}")
 
-    # Обновляем сессию
     session["username"] = new_username
     return redirect(url_for("user_profile"))
 
@@ -161,15 +152,14 @@ def change_username():
 def debug_session():
     return f"Сессия: {session}"
 
-
 @app.route('/chart')
 def chart():
     data = get_progress_data()
     if not data:
         return render_template('chart.html', pain_levels=[], dates=[])
 
-    pain_levels = [row[0] for row in data]  # Уровни боли
-    dates = [row[1] for row in data]        # Даты
+    pain_levels = [row[0] for row in data]  
+    dates = [row[1] for row in data]       
 
     return render_template('chart.html', pain_levels=pain_levels, dates=dates)
 
@@ -186,6 +176,6 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    create_tables()  # Создаем таблицы для травм
-    create_user_tables()  # Создаем таблицы для пользователей
+    create_tables() 
+    create_user_tables() 
     app.run(debug=True)
