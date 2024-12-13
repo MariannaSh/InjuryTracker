@@ -109,7 +109,8 @@ def create_user_tables():
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE,
-            password_hash TEXT  
+            password_hash TEXT,
+            profile_image TEXT DEFAULT NULL
         )
     ''')
     conn.commit()
@@ -156,7 +157,42 @@ def show_users():
         cursor.execute('SELECT * FROM users')
         users = cursor.fetchall()
         for user in users:
-            print(user)  # Проверить, изменилось ли имя пользователя
+            print(user)  
+
+def add_profile_image_column():
+    """Добавление столбца profile_image в таблицу users, если он отсутствует."""
+    conn = connect_user_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('ALTER TABLE users ADD COLUMN profile_image TEXT DEFAULT NULL')
+        conn.commit()
+    except sqlite3.OperationalError:
+        print("Колонка 'profile_image' уже существует.")
+    finally:
+        conn.close()
+
+def update_profile_image(user_id, filename):
+    """Обновляет изображение профиля пользователя."""
+    conn = connect_user_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('UPDATE users SET profile_image = ? WHERE id = ?', (filename, user_id))
+        conn.commit()
+        print(f"Profile image for user ID {user_id} updated to {filename}.")
+    except Exception as e:
+        print(f"An error occurred while updating profile image: {e}")
+    finally:
+        conn.close()
+
+def get_profile_image(user_id):
+    """Возвращает путь к изображению профиля пользователя."""
+    conn = connect_user_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT profile_image FROM users WHERE id = ?', (user_id,))
+    profile_image = cursor.fetchone()
+    conn.close()
+    return profile_image[0] if profile_image else None
+
 
 def test_connection():
     try:

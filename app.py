@@ -1,7 +1,7 @@
 import os
 import bcrypt
 from flask import Flask, render_template, request, redirect, url_for, session
-from database import calculate_progress, create_tables, connect_user_db,add_injury, get_distinct_injury_types, get_progress_data, create_user_tables
+from database import add_profile_image_column, calculate_progress, create_tables, connect_user_db,add_injury, get_distinct_injury_types, get_profile_image, get_progress_data, create_user_tables, get_user_by_id, update_profile_image
 from recommendations import recommendations 
 from werkzeug.utils import secure_filename
 import sqlite3
@@ -94,24 +94,38 @@ app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
-@app.route('/profile')
-def user_profile():
-    username = session.get('username', 'Guest')
-    profile_image = session.get('profile_image', None)
-    return render_template('profile.html', username=username, profile_image=profile_image)
 
-@app.route('/update_image', methods=['POST'])
-def update_image():
+@app.route('/upload_profile_image', methods=['POST'])
+def upload_profile_image():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+
     if 'profile_image' in request.files:
         file = request.files['profile_image']
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)  
+            filename = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(file_path)  
-            session['profile_image'] = filename  
-            return redirect(url_for('user_profile'))  
-        
-    return redirect(url_for('user_profile'))  
+            file.save(file_path)
+
+            # Обновляем фото в базе
+            update_profile_image(user_id, filename)
+            return redirect(url_for('user_profile'))
+    return "Invalid file or no file uploaded", 400
+
+@app.route('/profile')
+def user_profile():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+
+    user = get_user_by_id(user_id)
+    if not user:
+        return "User not found", 404
+
+    profile_image = get_profile_image(user_id)
+    return render_template('profile.html', username=user[1], profile_image=profile_image)
+
 
 @app.route('/change_username', methods=['POST'])
 def change_username():
@@ -176,6 +190,7 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
+    # add_profile_image_column()
     create_tables() 
     create_user_tables() 
     app.run(debug=True)
