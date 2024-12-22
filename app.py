@@ -1,7 +1,7 @@
 import os
 import bcrypt
 from flask import Flask, render_template, request, redirect, url_for, session
-from database import add_profile_image_column, calculate_progress, create_tables, connect_user_db,add_injury, get_distinct_injury_types, get_profile_image, get_progress_data, create_user_tables, get_user_by_id, update_profile_image
+from database import add_progress, calculate_progress, create_tables, connect_user_db,add_injury, get_distinct_injury_types, get_profile_image, get_progress_data, create_user_tables, get_user_by_id, update_profile_image
 from recommendations import recommendations 
 from werkzeug.utils import secure_filename
 import sqlite3
@@ -64,19 +64,16 @@ def submit():
     generated_recommendations = generate_recommendations(injury_type)
     return render_template('recommendations.html', recommendations=generated_recommendations)
 
-# @app.route('/add_progress', methods=['POST'])
-# def add_progress_route():
-#     # Используем SQLAlchemy для добавления прогресса
-#     injury_id = request.form['injury']
-#     date = request.form['date']
-#     pain_level = request.form['pain_level']
-#     exercise_completed = request.form['exercise_completed']
-    
-#     new_progress = Progress(injury_id=injury_id, date=date, pain_level=pain_level, exercises_completed=exercise_completed)
-#     db.session.add(new_progress)
-#     db.session.commit()
+@app.route('/add_progress', methods=['POST'])
+def add_progress_route():
+    # Your existing code for handling the POST request
+    injury_id = request.form['injury_type']
+    date = request.form['date']
+    pain_level = request.form['pain_level']
+    exercise_completed = request.form['exercise_completed']
 
-#     return redirect(url_for('progress'))
+    add_progress(injury_id, date, pain_level, exercise_completed)
+    return redirect(url_for('progress'))
 
 @app.route('/progress', methods=['GET', 'POST'])
 def progress():
