@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition and BMI Calculator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bmi.css') }}"> 
+</head>
+<body>
+    <nav class="menu">
+        <ul>
+            <li><a href="/profile">Profile</a></li>
+            <li><a href="/test">BMI</a></li>
+            <li><a href="/home">Home</a></li>
+            <li><a href="/progress">Progress</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <h1>Nutrition and BMI Calculator</h1>
+        <form method="POST">
+            <label for="height_cm">Height (cm):</label>
+            <input type="number" id="height_cm" name="height_cm" required>
+            
+            <label for="weight_kg">Weight (kg):</label>
+            <input type="number" id="weight_kg" name="weight_kg" required>
+            
+            <label for="food_item">Food item (e.g., 1 apple):</label>
+            <input type="text" id="food_item" name="food_item">
+    
+            <div class="buttons">
+                <button type="submit">Calculate</button>
+            </div>
+        </form>
+    
+        {% if bmi %}
+            {% set bmi_rounded = bmi|float %}
+            {% if bmi_rounded %}
+                <div class="result {% 
+                    if bmi_rounded < 18.5 %}low-high{% 
+                    elif 18.5 <= bmi_rounded < 24.9 %}normal{% 
+                    elif 25 <= bmi_rounded < 29.9 %}overweight{% 
+                    else %}obesity{% 
+                    endif %}">
+                    <h2>BMI Calculation</h2>
+                    <p>Your BMI is: {{ bmi_rounded }}</p>
+                    <p>
+                        {% if bmi_rounded < 18.5 %}
+                            You are underweight.
+                        {% elif 18.5 <= bmi_rounded < 24.9 %}
+                            You have a healthy weight.
+                        {% elif 25 <= bmi_rounded < 29.9 %}
+                            You are overweight.
+                        {% else %}
+                            You are obese.
+                        {% endif %}
+                    </p>
+                </div>
+            {% endif %}
+        {% endif %}
+    
+        {% if nutrition_info %}
+            <div class="nutrition">
+                <h2>Nutrition Information for "{{ request.form['food_item'] }}"</h2>
+                <ul>
+                    {% for food in nutrition_info['foods'] %}
+                        <li><strong>{{ food['food_name'] }}</strong></li>
+                        <ul>
+                            <li>Calories: {{ food['full_nutrients'][0]['value'] }} kcal</li>
+                            <li>Fat: {{ food['full_nutrients'][1]['value'] }} g</li>
+                            <li>Carbs: {{ food['full_nutrients'][2]['value'] }} g</li>
+                            <li>Protein: {{ food['full_nutrients'][3]['value'] }} g</li>
+                        </ul>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>    
+</body>
+</html>

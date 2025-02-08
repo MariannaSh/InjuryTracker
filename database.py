@@ -46,6 +46,86 @@ def add_injury(injury_type, injury_date):
                        (injury_type, injury_date))
         db.commit()
 
+def get_injuries():
+    with create_connection_injuries() as db:
+        cursor = db.cursor()
+        cursor.execute('SELECT id, injury_type FROM injuries')
+        return cursor.fetchall()
+
+def get_distinct_injury_types():
+    with create_connection_injuries() as db:
+        cursor = db.cursor()
+        cursor.execute('SELECT DISTINCT injury_type FROM injuries')
+        return [injury for injury in cursor.fetchall()]
+    
+
+def get_recommendation(injury_type, activity_level):
+    with create_connection_injuries() as db:
+        cursor = db.cursor()
+
+        # Получаем id для травмы
+        cursor.execute('SELECT id FROM injuries WHERE injury_type = ?', (injury_type,))
+        injury_id = cursor.fetchone()
+        if not injury_id:
+            return [{"text": "Тип травмы не найден", "image_url": None, "video_url": None, "gif_url": None}]
+        injury_id = injury_id[0]
+
+        # # Получаем id для возрастной группы
+        # age_group_id = get_age_group(age)
+        # if not age_group_id:
+        #     return [{"text": "Возрастная группа не найдена", "image_url": None, "video_url": None, "gif_url": None}]
+
+        # Получаем id для уровня активности
+        cursor.execute('SELECT id FROM activity_levels WHERE activity_level = ?', (activity_level.lower(),))
+        activity_level_id = cursor.fetchone()
+        if not activity_level_id:
+            return [{"text": f"Уровень активности '{activity_level}' не найден", "image_url": None, "video_url": None, "gif_url": None}]
+        activity_level_id = activity_level_id[0]
+
+        # Получаем рекомендации
+        cursor.execute('''SELECT recommendation 
+                          FROM recommendations 
+                          WHERE injury_id = ?  AND activity_level_id = ?''',
+                       (injury_id, activity_level_id))
+        rows = cursor.fetchall()
+
+        recommendations = []
+        for row in rows:
+            try:
+                recommendation = row[0].decode('utf-8') if isinstance(row[0], bytes) else row[0]
+            except UnicodeDecodeError:
+                recommendation = "Некорректные данные в базе"  # Обработка ошибок
+
+            parts = recommendation.split("\n")  # Разделяем строки по новой строке
+            text = parts[0].strip() if len(parts) > 0 else "Текст не найден"
+            image_url = next((p.strip() for p in parts if p.strip().startswith("http") and (".jpg" in p or ".png" in p)), None)
+            video_url = next((p.strip() for p in parts if p.strip().startswith("http") and ".mp4" in p), None)
+            gif_url = next((p.strip() for p in parts if p.strip().startswith("http") and ".gif" in p), None)
+
+
+            recommendations.append({
+                "text": text,
+                "image_url": image_url,
+                "video_url": video_url,
+                "gif_url": gif_url  # Добавляем гифку в рекомендации
+            })
+
+        return recommendations if recommendations else [{"text": "Рекомендации не найдены.", "image_url": None, "video_url": None, "gif_url": None}]
+
+
+# def get_age_group(age):
+#     """Возвращает ID возрастной группы на основе возраста пользователя."""
+#     if 16 <= age <= 35:
+#         return 1  # Возрастная группа "16-35"
+#     elif 36 <= age <= 55:
+#         return 2  # Возрастная группа "36-55"
+#     elif age >= 56:
+#         return 3  # Возрастная группа "56+"
+#     else:
+#         return None  # Если возраст не подходит
+
+
+# все о добавлении прогресса
 def add_progress(injury_id, date, pain_level, exercise_completed):
     """Добавляет прогресс по травме в базу данных прогресса."""
     with create_connection_progress() as db:
@@ -70,19 +150,6 @@ def calculate_progress():
         progress = (current_count / max_count) * 10
         return progress
 
-
-def get_injuries():
-    with create_connection_injuries() as db:
-        cursor = db.cursor()
-        cursor.execute('SELECT id, injury_type FROM injuries')
-        return cursor.fetchall()
-
-def get_distinct_injury_types():
-    with create_connection_injuries() as db:
-        cursor = db.cursor()
-        cursor.execute('SELECT DISTINCT injury_type FROM injuries')
-        return [injury for injury in cursor.fetchall()]
-
 def get_progress_data():
     with create_connection_progress() as db:
         cursor = db.cursor()
@@ -92,9 +159,11 @@ def get_progress_data():
         data = cursor.fetchall()
         return data
 
-# Вызовите эту функцию при старте приложения
+
+
 create_tables()
 
+# создание базы users
 bcrypt = Bcrypt()
 
 def connect_user_db():

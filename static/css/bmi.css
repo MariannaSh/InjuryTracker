@@ -1,0 +1,138 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #000000; /* Черный фон */
+    color: #ffffff; /* Белые надписи */
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #222222; /* Темно-серый фон для контейнера */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6); /* Увеличена тень */
+}
+
+h1 {
+    text-align: center;
+    color: #ffffff; /* Белый цвет для заголовка */
+}
+
+label {
+    font-weight: bold;
+    color: #ffffff; /* Белый для меток */
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #555;
+    border-radius: 8px;
+    background-color: #333;
+    color: #ffffff; /* Белый текст в полях ввода */
+}
+
+input:focus {
+    border-color: #ffffff; /* Белый акцент при фокусе */
+    background-color: #444;
+}
+
+button {
+    background-color: #4a90e2; /* Ярко-голубой для кнопки */
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #357abd; /* Темно-голубой при наведении */
+}
+
+.result {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid;
+}
+.result.normal {
+    background-color: #a5d6a7; /* Нежно-зеленый для нормы */
+    border-color: #81c784;
+}
+
+.result.low-high {
+    background-color: #ffe082; /* Мягкий желтый для низкого/высокого */
+    border-color: #ffca28;
+}
+
+.result.overweight {
+    background-color: #ffcc80; /* Теплый светлый оранжевый для избыточного веса */
+    border-color: #ffb74d;
+}
+
+.result.obesity {
+    background-color: #ef9a9a; /* Мягкий розовый для ожирения */
+    border-color: #f44336;
+}
+
+
+.nutrition {
+    margin-top: 20px;
+}
+
+.nutrition ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.nutrition li {
+    padding: 5px 0;
+}
+
+.nutrition li strong {
+    color: #518ebf; /* Оранжевый для выделения продуктов */
+}
+/* Navigation Menu */
+.menu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #000;
+    padding: 10px 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 10;
+}
+
+.menu ul {
+    list-style-type: none;
+    display: flex;
+    padding: 0;
+    margin: 0;
+}
+
+.menu li {
+    margin: 0 15px;
+}
+
+.menu a {
+    text-decoration: none;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 10px 20px;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.menu a:hover {
+    color: #4a90e2;
+    transform: translateY(-3px);
+}

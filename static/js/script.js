@@ -7,12 +7,12 @@ function validateForm(event) {
 
     // Проверка возраста
     
-    const age = document.getElementById('age').value;
-    if (age < 1 || age > 100) {
-        alert("Are you sure you need a recommendation?");
-        event.preventDefault(); // Остановка отправки формы
-        return;
-    }
+    // const age = document.getElementById('age').value;
+    // if (age < 1 || age > 100) {
+    //     alert("Are you sure you need a recommendation?");
+    //     event.preventDefault(); // Остановка отправки формы
+    //     return;
+    // }
 
     // Проверка состояния чекбокса
     if (!diagnosisConfirmed) {

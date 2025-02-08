@@ -7,13 +7,19 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
 </head>
 <body>
+    <nav class="menu">
+        <ul>
+            <li><a href="/profile">Profile</a></li>
+            <li><a href="/test">BMI</a></li>
+            <li><a href="/home">Home</a></li>
+            <li><a href="/progress">Progress</a></li>
+        </ul>
+    </nav>
+    
     <div class="container">
-        <div class="profile-header">
-            <h1>Welcome, {{ username }}!</h1>
-        </div>
-
+        
         <div class="profile-container">
-            <h2>Your Profile</h2>
+            <h2>Welcome, {{ username }}!</h2>
 
             {% if profile_image %}
                 <div class="profile-picture">

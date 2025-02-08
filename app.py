@@ -1,8 +1,8 @@
 import os
-import bcrypt
-from flask import Flask, render_template, request, redirect, url_for, session
-from database import add_progress, calculate_progress, create_tables, connect_user_db,add_injury, get_distinct_injury_types, get_profile_image, get_progress_data, create_user_tables, get_user_by_id, update_profile_image
-from recommendations import recommendations 
+from flask import Flask, jsonify, render_template, request, redirect, url_for, session
+import requests
+from database import add_progress, calculate_progress,  create_tables, connect_user_db,add_injury,  get_distinct_injury_types, get_profile_image, get_progress_data, create_user_tables, get_recommendation, get_user_by_id, update_profile_image
+
 from werkzeug.utils import secure_filename
 import sqlite3
 from auth import auth_bp
@@ -16,6 +16,48 @@ app.register_blueprint(auth_bp)
 
 def connect_db():
     return sqlite3.connect('db/database.db')
+
+
+def calculate_bmi(weight_kg, height_cm):
+    height_meters = height_cm / 100  # Convert centimeters to meters
+    bmi = weight_kg / height_meters ** 2
+    return round(bmi, 1)
+
+def fetch_nutrition_info(food_item):
+    url = "https://trackapi.nutritionix.com/v2/natural/nutrients"
+    headers = {
+        'x-app-id': '2b5cce06',
+        'x-app-key': 'ad6d3675510d898b655722fe6f104dc1',
+        'Content-Type': 'application/json'
+    }
+    data = {
+        "query": food_item
+    }
+    response = requests.post(url, json=data, headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"error": "Unable to fetch nutrition info"}
+
+
+@app.route('/test',methods=['GET', 'POST'])
+def test():
+    if request.method == 'POST':
+
+        height_cm = int(request.form['height_cm'])  # Рост в сантиметрах
+        weight_kg = int(request.form['weight_kg'])  # Вес в килограммах
+        food_item = request.form['food_item']
+
+        # Рассчитываем ИМТ
+        bmi = calculate_bmi(weight_kg, height_cm)
+
+        # Fetch Nutrition Info
+        nutrition_info = fetch_nutrition_info(food_item)
+
+        return render_template('bmi.html', bmi=bmi, nutrition_info=nutrition_info)
+
+    return render_template('bmi.html', bmi=None, nutrition_info=None)
+
 
 @app.route('/')
 def index():
@@ -42,27 +84,35 @@ def add_injury_route():
 @app.route('/submit', methods=['POST'])
 def submit():
     injury_type = request.form.get('injury_type')
-    age = request.form.get('age')
+    # age = request.form.get('age')
     fitness_level = request.form.get('fitness_level')
 
+    # Валидация данных
     if not injury_type:
         error_message = "Не был выбран тип травмы."
         return render_template('home_page.html', username=session['username'], error=error_message, injuries=get_distinct_injury_types())
-    try:
-        age = int(age)
-        if age < 1 or age > 100:
-            error_message = "Вы точно нуждаетесь в рекомендациях?"
-            return render_template('home_page.html', username=session['username'], error=error_message, injuries=get_distinct_injury_types())
-    except ValueError:
-        error_message = "Пожалуйста, введите корректный возраст."
-        return render_template('home_page.html', username=session['username'], error=error_message, injuries=get_distinct_injury_types())
+    
+    # try:
+    #     age = int(age)
+    #     if age < 1 or age > 100:
+    #         error_message = "Вы точно нуждаетесь в рекомендациях?"
+    #         return render_template('home_page.html', username=session['username'], error=error_message, injuries=get_distinct_injury_types())
+    # except ValueError:
+    #     error_message = "Пожалуйста, введите корректный возраст."
+    #     return render_template('home_page.html', username=session['username'], error=error_message, injuries=get_distinct_injury_types())
 
     if fitness_level not in ['low', 'medium', 'high']:
         error_message = "Не был выбран уровень физической подготовки."
         return render_template('home_page.html', username=session['username'], error=error_message, injuries=get_distinct_injury_types())
 
-    generated_recommendations = generate_recommendations(injury_type)
-    return render_template('recommendations.html', recommendations=generated_recommendations)
+    # Получение рекомендации с помощью функции get_recommendation
+    recommendation = get_recommendation(injury_type, fitness_level)
+
+    # Передаем рекомендацию на страницу recommendations.html
+    return render_template('recommendations.html', recommendations=recommendation)
+
+
+
 
 @app.route('/add_progress', methods=['POST'])
 def add_progress_route():
@@ -174,8 +224,6 @@ def chart():
 
     return render_template('chart.html', pain_levels=pain_levels, dates=dates)
 
-def generate_recommendations(injury_type):
-    return recommendations.get(injury_type.lower(), ["Нет доступных рекомендаций для этой травмы."])
 
 @app.route('/register', methods=['GET'])
 def register():
