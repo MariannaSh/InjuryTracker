@@ -63,9 +63,44 @@
     </main>
 
     <!-- Calendar Container -->
-    <div id="calendar-container">
-        <div id="calendar"></div>
+    <div class="container">
+        <!-- Календарь -->
+        <div id="calendar-container">
+            <div id="calendar"></div>
+        </div>
+    
+        <!-- Блок заметок с видео -->
+        <div id="video-notes">
+            <h2>Favorite Workouts</h2>
+            <div class="add-video">
+                <input type="text" id="video_title" placeholder="Workout Name">
+                <input type="text" id="video_url" placeholder="Paste YouTube link">
+                <select id="video_category">
+                    <option value="Back">Back</option>
+                    <option value="Abs">Abs</option>
+                    <option value="Legs">Legs</option>
+                    <option value="Arms">Arms</option>
+                    <option value="Stretching">Stretching</option>
+                </select>
+                <button onclick="addVideo()">Add</button>
+            </div>
+        
+            <div class="video-filter">
+                <label for="filter_category">Filter by category:</label>
+                <select id="filter_category" onchange="filterVideos()">
+                    <option value="all">All</option>
+                    <option value="Back">Back</option>
+                    <option value="Abs">Abs</option>
+                    <option value="Legs">Legs</option>
+                    <option value="Arms">Arms</option>
+                    <option value="Stretching">Stretching</option>
+                </select>
+            </div>
+        
+            <div id="videos_list"></div>
+        </div>
     </div>
+    
 
     <script src="/static/js/script.js"></script>
 

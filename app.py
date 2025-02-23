@@ -1,7 +1,7 @@
 import os
 from flask import Flask, jsonify, render_template, request, redirect, url_for, session
 import requests
-from database import add_progress, calculate_progress,  create_tables, connect_user_db,add_injury,  get_distinct_injury_types, get_profile_image, get_progress_data, create_user_tables, get_recommendation, get_user_by_id, update_profile_image
+from database import add_progress, calculate_progress, create_notes_table,  create_tables, connect_user_db,add_injury,  get_distinct_injury_types, get_profile_image, get_progress_data, create_user_tables, get_recommendation, get_user_by_id, update_profile_image
 
 from werkzeug.utils import secure_filename
 import sqlite3
@@ -225,6 +225,18 @@ def chart():
     return render_template('chart.html', pain_levels=pain_levels, dates=dates)
 
 
+@app.route('/recommendations', methods=['GET', 'POST'])
+def show_recommendations():
+    injury_type = request.form.get('injury_type')  # Тип травмы
+    fitness_level = request.form.get('fitness_level')  # Уровень физической активности
+
+    # Получаем рекомендации из базы данных
+    recommendations = get_recommendation(injury_type, fitness_level)
+
+    # Передаем данные в шаблон
+    return render_template('recommendations.html', recommendations=recommendations)
+
+
 @app.route('/register', methods=['GET'])
 def register():
     return render_template('register.html')
@@ -234,8 +246,85 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('index'))
 
+# переделать чтобы в базе хранилось
+events = []
+
+@app.route('/get_events', methods=['GET'])
+def get_events():
+    return jsonify(events)
+
+@app.route('/add_event', methods=['POST'])
+def add_event():
+    data = request.json
+    if 'title' in data and 'date' in data:
+        events.append({'title': data['title'], 'start': data['date']})
+        return jsonify({'success': True})
+    return jsonify({'success': False})
+def connect_user_db():
+    """Создает соединение с users.db в папке instance."""
+    db_path = os.path.join(os.path.dirname(__file__), 'instance', 'users.db')
+    print(f"Подключение к БД: {db_path}")  # Проверяем путь
+    return sqlite3.connect(db_path)
+
+@app.route('/add_video', methods=['POST'])
+def add_video():
+    """Добавляет новое видео в БД."""
+    data = request.json
+    user_id = session.get("user_id", 1)  # Должен быть реальный ID из сессии
+    title = data.get('title')
+    link = data.get('link')
+    category = data.get('category')
+
+    print(f"Полученные данные: {title}, {link}, {category}")  # Лог для проверки
+
+    conn = connect_user_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO user_notes (user_id, title, link, category) VALUES (?, ?, ?, ?)",
+        (user_id, title, link, category)
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True})
+
+@app.route("/get_videos")
+def get_videos():
+    """Возвращает все сохраненные видео для отображения."""
+    conn = connect_user_db()  # Используем правильное подключение к users.db
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id, title, link, category FROM user_notes")
+    videos = cursor.fetchall()
+    conn.close()
+
+    video_list = [
+        {"id": video[0], "title": video[1], "link": video[2], "category": video[3]}
+        for video in videos
+    ]
+
+    return jsonify({"success": True, "videos": video_list})
+
+@app.route("/delete_video/<int:video_id>", methods=["DELETE"])
+def delete_video(video_id):
+    conn = connect_user_db()
+    cursor = conn.cursor()
+    
+    # Проверяем, есть ли видео с таким id
+    cursor.execute("SELECT * FROM user_notes WHERE id = ?", (video_id,))
+    video = cursor.fetchone()
+
+    if video:
+        cursor.execute("DELETE FROM user_notes WHERE id = ?", (video_id,))
+        conn.commit()
+        response = {"success": True, "message": "Видео удалено"}
+    else:
+        response = {"success": False, "message": "Видео не найдено"}
+    
+    conn.close()
+    return jsonify(response)
+
 if __name__ == '__main__':
-    # add_profile_image_column()
     create_tables() 
     create_user_tables() 
     app.run(debug=True)

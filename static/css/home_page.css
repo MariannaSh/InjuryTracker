@@ -79,82 +79,219 @@ h1, h2 {
     margin-bottom: 20px;
     color: #333;
 }
+.container {
+    display: flex;
+    align-items: flex-start;
+    gap: 50px; /* Расстояние между календарем и заметками */
+    justify-content: center;
+    margin-top: 20px;
+}
 
-
+/* Контейнер календаря */
 #calendar-container {
-    max-width: 1700px; /* Увеличим ширину контейнера */
-    margin: 80px auto;
-    padding: 40px;
-    background-color: #1e1e1e; /* Темный фон для контейнера */
-    border-radius: 16px; /* Увеличим скругление углов */
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); /* Более сильная тень */
-    border: 1px solid #444;
-    overflow: hidden;
+    max-width: 600px; /* Чуть увеличил ширину */
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
 }
 
-/* Обновленный календарь */
+/* Общие стили календаря */
 #calendar {
-    background-color: #2d2d2d; /* Темно-серый фон для самого календаря */
-    border-radius: 12px; /* Увеличим скругление углов */
-    padding: 30px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); /* Более яркая тень */
-    color: #f0f0f0; /* Светлый текст для контраста */
-    font-size: 1em; /* Увеличим шрифт */
-}
-
-/* Скрываем кнопку "Today" */
-#calendar .fc-button-today, 
-#calendar .fc-toolbar .fc-button.fc-button-today {
-    display: none !important;
-}
-
-/* Выделение только числа сегодняшнего дня в кружке */
-#calendar .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
-    background-color: #e9337c; /* Ярко-оранжевый фон */
-    color: #fff; /* Белый цвет для текста */
-    border-radius: 50%; /* Круглая форма */
-    padding: 6px 8px; /* Размер круга, можно уменьшить или увеличить */
-    font-weight: bold; /* Сделаем текст жирным */
-    box-shadow: none; /* Убираем тень вокруг дня */
-    font-size: 1.2em; /* Немного увеличиваем размер шрифта */
-}
-
-/* Убираем лишние стили для фона и подсветки */
-#calendar .fc-daygrid-day.fc-day-today {
-    background-color: transparent !important; /* Убираем фон для всего дня */
-    color: inherit !important; /* Убираем дополнительные стили для цвета */
-    border: none; /* Убираем рамки */
-    box-shadow: none; /* Убираем тень для всего дня */
-}
-
-/* Цвет для номеров дней */
-#calendar .fc-daygrid-day-number {
-    color: #ffffff; /* Белый цвет для номеров дней */
+    background-color: #fff;
+    border-radius: 6px;
+    padding: 10px;
+    color: #333;
+    font-size: 12px; /* Уменьшенный шрифт */
 }
 
 /* Заголовок календаря */
-#calendar .fc-toolbar-title {
-    font-size: 1.2em; /* Немного увеличиваем шрифт */
+.fc-toolbar-title {
+    font-size: 1.1em; /* Уменьшаем шрифт заголовка */
     font-weight: bold;
-    color: #f0f0f0; /* Светлый цвет текста */
-    text-transform: uppercase; /* Преобразуем текст в верхний регистр для лучшей читаемости */
+    color: #333;
 }
 
-/* Кнопки */
-#calendar .fc-button-primary {
-    background-color: #4a90e2; /* Яркий синий для кнопок */
-    color: #fff;
-    padding: 10px 20px;
-    font-size: 1em;
+/* Кнопки управления */
+.fc-button {
+    background-color: #007bff !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 4px 8px !important;
+    font-size: 12px !important; /* Уменьшаем шрифт кнопок */
 }
 
-#calendar .fc-button-primary:hover {
-    background-color: #357abd; /* Более темный синий при наведении */
+.fc-button:hover {
+    background-color: #0056b3 !important;
 }
 
-/* Убираем трансформацию при наведении, чтобы календарь не увеличивался */
-#calendar:hover {
-    transform: none; /* Убираем эффект scale() */
+/* Выделение сегодняшнего дня */
+.fc-daygrid-day.fc-day-today {
+    background: rgba(0, 123, 255, 0.1);
+    font-weight: bold;
+    color: #007bff;
+    font-size: 12px; /* Меньший шрифт */
+}
+
+/* Стили событий */
+.fc-event {
+    background-color: #090909 !important;
+    color: white !important;
+    border-radius: 4px;
+    padding: 2px;
+    font-size: 10px; /* Уменьшаем размер шрифта событий */
+}
+
+.fc-event:hover {
+    background-color: #007bff !important;
+}
+
+/* Сетка дней */
+.fc-daygrid-day {
+    border: 1px solid #eee;
+    font-size: 11px; /* Еще меньше шрифт внутри ячеек */
+    padding: 5px;
+}
+
+/* Подсветка при наведении */
+.fc-daygrid-day:hover {
+    background-color: #f1f1f1;
+}
+
+/* Уменьшаем размеры заголовков дней недели */
+.fc-col-header-cell {
+    font-size: 11px;
+}
+
+/* Контейнер для заметок */
+
+#video-notes {
+    max-width: 550px;
+    min-height: 420px;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    border: 1px solid #ddd;
+    font-family: 'Arial', sans-serif;
+}
+
+/* 🏷 Заголовок */
+#video-notes h2 {
+    font-size: 1.6em;
+    font-weight: bold;
+    color: #222;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 🎬 Форма добавления видео */
+.add-video {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.add-video input,
+.add-video select {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background: #f9f9f9;
+    transition: all 0.3s ease-in-out;
+}
+
+.add-video input:focus,
+.add-video select:focus {
+    border-color: #007bff;
+    background: white;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 86, 179, 0.3);
+}
+
+/* 🔘 Кнопка добавления */
+.add-video button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    font-weight: bold;
+}
+
+.add-video button:hover {
+    background-color: #0056b3;
+}
+
+/* 🎛 Фильтр */
+.video-filter {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+/* 📜 Список видео */
+#videos_list {
+    margin-top: 15px;
+}
+
+/* 🎥 Карточка видео */
+.video-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #000000;
+    padding: 12px;
+    border-radius: 10px;
+    margin: 8px 0;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+    border-left: 6px solid #007bff;
+}
+
+
+/* 🎬 Ссылка на видео */
+.video-info a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.video-info a:hover {
+    text-decoration: underline;
+}
+
+
+.delete-btn {
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+    font-size: 14px;
+}
+
+.delete-btn:hover {
+    background: #cc0000;
+}
+
+/* ⏳ Эффект при удалении */
+.video-item.removing {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: all 0.3s ease-in-out;
 }
 
 /* Form Styles */

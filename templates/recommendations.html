@@ -4,37 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Рекомендации</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 0;
-            background-color: #f9f9f9;
-            color: #333;
-        }
-        h1 {
-            text-align: center;
-            color: #0056b3;
-        }
-        .recommendation {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #fff;
-        }
-        .recommendation img, .recommendation video {
-            max-width: 100%;
-            height: auto;
-            margin-top: 10px;
-            border-radius: 5px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        video {
-            max-width: 300px;
-            margin-top: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/recommendation.css') }}">
 </head>
 <body>
     <h1>Рекомендации</h1>
@@ -42,16 +12,28 @@
     {% if recommendations %}
         {% for rec in recommendations %}
         <div class="recommendation">
-            <p>{{ rec.text }}</p>  <!-- Текст рекомендации -->
-            {% if rec.image_url %}
-                <img src="{{ rec.image_url }}" alt="Recommendation Image">  <!-- Изображение -->
-            {% endif %}
-            {% if rec.video_url %}
-                <video controls>
-                    <source src="{{ rec.video_url }}" type="video/mp4">
-                    Ваш браузер не поддерживает воспроизведение видео.
-                </video>  <!-- Видео -->
-            {% endif %}
+            <div class="recommendation-content">
+                <p>{{ rec.text | replace('\n', '<br>') | safe }}</p>
+            </div>
+
+            <div class="media-container">
+                {% if rec.image_url %}
+                    <img src="{{ rec.image_url }}" alt="Recommendation Image">
+                {% endif %}
+
+                {% if rec.video_url %}
+                <div class="video-wrapper">
+                    <a href="{{ rec.video_url }}" target="_blank">
+                        <div class="video-overlay">
+                            <video class="video-recommendation" controls>
+                                <source src="{{ rec.video_url }}" type="video/mp4">
+                            </video>
+                        </div>
+                        Смотреть видео
+                    </a>
+                </div>
+                {% endif %}
+            </div>
         </div>
         {% endfor %}
     {% else %}

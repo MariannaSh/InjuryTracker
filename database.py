@@ -58,8 +58,7 @@ def get_distinct_injury_types():
         cursor.execute('SELECT DISTINCT injury_type FROM injuries')
         return [injury for injury in cursor.fetchall()]
     
-
-def get_recommendation(injury_type, activity_level):
+def get_recommendation(injury_type, fitness_level):
     with create_connection_injuries() as db:
         cursor = db.cursor()
 
@@ -67,51 +66,38 @@ def get_recommendation(injury_type, activity_level):
         cursor.execute('SELECT id FROM injuries WHERE injury_type = ?', (injury_type,))
         injury_id = cursor.fetchone()
         if not injury_id:
-            return [{"text": "Тип травмы не найден", "image_url": None, "video_url": None, "gif_url": None}]
+            return [{"text": "Тип травмы не найден", "image_url": None, "video_url": None}]
         injury_id = injury_id[0]
 
-        # # Получаем id для возрастной группы
-        # age_group_id = get_age_group(age)
-        # if not age_group_id:
-        #     return [{"text": "Возрастная группа не найдена", "image_url": None, "video_url": None, "gif_url": None}]
-
         # Получаем id для уровня активности
-        cursor.execute('SELECT id FROM activity_levels WHERE activity_level = ?', (activity_level.lower(),))
+        cursor.execute('SELECT id FROM activity_levels WHERE activity_level = ?', (fitness_level.lower(),))
         activity_level_id = cursor.fetchone()
         if not activity_level_id:
-            return [{"text": f"Уровень активности '{activity_level}' не найден", "image_url": None, "video_url": None, "gif_url": None}]
+            return [{"text": f"Уровень активности '{fitness_level}' не найден", "image_url": None, "video_url": None}]
         activity_level_id = activity_level_id[0]
 
         # Получаем рекомендации
-        cursor.execute('''SELECT recommendation 
-                          FROM recommendations 
-                          WHERE injury_id = ?  AND activity_level_id = ?''',
-                       (injury_id, activity_level_id))
+        cursor.execute('''
+            SELECT recommendation, image_url, video_url 
+            FROM recommendations 
+            WHERE injury_id = ? AND activity_level_id = ?
+        ''', (injury_id, activity_level_id))
+        
         rows = cursor.fetchall()
 
         recommendations = []
         for row in rows:
-            try:
-                recommendation = row[0].decode('utf-8') if isinstance(row[0], bytes) else row[0]
-            except UnicodeDecodeError:
-                recommendation = "Некорректные данные в базе"  # Обработка ошибок
-
-            parts = recommendation.split("\n")  # Разделяем строки по новой строке
-            text = parts[0].strip() if len(parts) > 0 else "Текст не найден"
-            image_url = next((p.strip() for p in parts if p.strip().startswith("http") and (".jpg" in p or ".png" in p)), None)
-            video_url = next((p.strip() for p in parts if p.strip().startswith("http") and ".mp4" in p), None)
-            gif_url = next((p.strip() for p in parts if p.strip().startswith("http") and ".gif" in p), None)
-
+            text = row[0].strip() if row[0] else "Текст не найден"
+            image_url = row[1] if row[1] else None
+            video_url = row[2] if row[2] else None
 
             recommendations.append({
                 "text": text,
                 "image_url": image_url,
-                "video_url": video_url,
-                "gif_url": gif_url  # Добавляем гифку в рекомендации
+                "video_url": video_url
             })
 
-        return recommendations if recommendations else [{"text": "Рекомендации не найдены.", "image_url": None, "video_url": None, "gif_url": None}]
-
+        return recommendations if recommendations else [{"text": "Рекомендации не найдены.", "image_url": None, "video_url": None}]
 
 # def get_age_group(age):
 #     """Возвращает ID возрастной группы на основе возраста пользователя."""
@@ -271,3 +257,58 @@ def test_connection():
             print(cursor.fetchall())  # Убедитесь, что таблица "users" существует
     except Exception as e:
         print(f"Ошибка подключения к базе данных: {e}")
+
+def create_notes_table():
+    """Создает таблицу user_notes, если она отсутствует."""
+    conn = connect_user_db()  # Теперь используем правильное подключение
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS user_notes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            link TEXT NOT NULL,
+            category TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Функция для добавления новой записи
+def add_user_note(user_id, title, link, category):
+    """Добавляет новую запись для пользователя."""
+    conn = connect_user_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('''
+            INSERT INTO user_notes (user_id, title, link, category) 
+            VALUES (?, ?, ?, ?)
+        ''', (user_id, title, link, category))
+        conn.commit()
+        print(f"Note added for user ID {user_id}: {title}")
+    except Exception as e:
+        print(f"An error occurred while adding note: {e}")
+    finally:
+        conn.close()
+
+# Функция для получения всех записей пользователя
+def get_user_notes(user_id):
+    """Получает все сохраненные тренировки и заметки пользователя."""
+    conn = connect_user_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT title, link, category FROM user_notes WHERE user_id = ?', (user_id,))
+    notes = cursor.fetchall()
+    conn.close()
+    return notes  # Возвращает список кортежей (title, link, category)
+
+# Функция для удаления записи
+def delete_user_note(user_id, title):
+    """Удаляет конкретную запись пользователя по названию."""
+    conn = connect_user_db()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM user_notes WHERE user_id = ? AND title = ?', (user_id, title))
+    conn.commit()
+    conn.close()
+    print(f"Deleted note '{title}' for user ID {user_id}")
+
+create_notes_table()
