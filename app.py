@@ -224,6 +224,18 @@ def chart():
 
     return render_template('chart.html', pain_levels=pain_levels, dates=dates)
 
+@app.route('/clear_progress', methods=['POST'])
+def clear_progress():
+    try:
+        conn = sqlite3.connect('injuries.db')
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM progress")  # Очистка всех данных в таблице
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "success", "message": "Database cleared!"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
 
 @app.route('/recommendations', methods=['GET', 'POST'])
 def show_recommendations():

@@ -5,19 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pain Level Chart</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">
-    <script src="{{ url_for('static', filename='js/chart.js') }}"></script>  <!-- Include the chart.js file -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chart.css') }}">
+    <script src="{{ url_for('static', filename='js/chart.js') }}"></script>  
 </head>
 <body>
-    <br>
+
     <h1>Pain Level Over Time</h1>
-    <canvas id="painLevelChart" width="400" height="200"></canvas>
-    <button id="clear-db-btn">Clear Database</button>
-    <!-- Hidden elements to pass data from Flask to JavaScript -->
+
+    <div class="chart-container">
+        <canvas id="painLevelChart" width="400" height="200"></canvas>
+    </div>
+
+    <div class="button-container">
+        <button onclick="window.location.href='/progress';" class="button">Back to Progress</button>
+        <button id="clear-db-btn" class="button">Clear Database</button>
+    </div>
+
     <script type="application/json" id="painLevels" style="display: none;">{{ pain_levels|tojson|safe }}</script>
     <script type="application/json" id="dates" style="display: none;">{{ dates|tojson|safe }}</script>
     <script src="/static/js/chart.js"></script>
-
-    <br>
 </body>
 </html>

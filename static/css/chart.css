@@ -1,0 +1,39 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #121212;
+    color: #ffffff;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+/* Увеличенный график (максимально возможный размер) */
+.chart-container {
+    background: #1e1e1e;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 6px 12px rgba(255, 255, 255, 0.1);
+    margin: 40px auto;
+    width: 98%; /* Занимает 98% экрана */
+    max-width: 1200px; /* Увеличил максимальную ширину */
+    height: 500px; /* Увеличил высоту графика */
+}
+
+
+
+.button {
+    background-color: #03dac6; /* Нежно-бирюзовый */
+    color: #000; /* Темный текст для контраста */
+    border: none;
+    padding: 14px 22px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 10px;
+    margin: 10px;
+    transition: all 0.3s ease-in-out;
+}
+.button:hover {
+    background-color: #018786; /* Темный бирюзовый при наведении */
+    color: white;
+}

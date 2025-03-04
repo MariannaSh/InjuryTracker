@@ -6,7 +6,7 @@ html, body {
 
 body {
     font-family: Arial, sans-serif;
-    background: linear-gradient(180deg, #000000, #1a1a1a);
+    background: #0d0d0d;
     color: #ffffff;
     margin: 0;
     padding: 0;
@@ -17,44 +17,58 @@ body {
     position: relative;
 }
 
-/* Navigation Menu */
+
+/* Меню навигации */
 .menu {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #000;
-    padding: 10px 0;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 10;
+    background-color: #181818;
+    padding: 15px 0;
+    box-shadow: none;
 }
 
 .menu ul {
     list-style-type: none;
-    display: flex;
     padding: 0;
     margin: 0;
+    display: flex;
+    justify-content: center;
 }
 
-.menu li {
-    margin: 0 15px;
+.menu ul li {
+    margin: 0 20px;
 }
 
-.menu a {
+.menu ul li a {
     text-decoration: none;
-    color: #fff;
+    color: #ffffff; /* Белый текст по умолчанию */
     font-size: 18px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    padding: 10px 20px;
-    transition: color 0.3s ease, transform 0.3s ease;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 5px;
+    position: relative;
+    transition: color 0.3s ease-in-out;
 }
 
-.menu a:hover {
-    color: #4a90e2;
-    transform: translateY(-3px);
+.menu ul li a::after {
+    content: "";
+    display: block;
+    height: 2px;
+    width: 0;
+    background: #03dac6; /* Бирюзовое подчеркивание */
+    transition: width 0.3s ease-in-out;
+    position: absolute;
+    left: 0;
+    bottom: -3px;
 }
+
+.menu ul li a:hover {
+    color: #03dac6; /* Бирюзовый цвет текста при наведении */
+}
+
+.menu ul li a:hover::after {
+    width: 100%;
+}
+
+
 
 /* Main Container */
 .form-container {
@@ -115,7 +129,7 @@ h1, h2 {
 
 /* Кнопки управления */
 .fc-button {
-    background-color: #007bff !important;
+    background-color: #03dac6 !important;
     color: white !important;
     border: none !important;
     border-radius: 4px !important;
@@ -124,14 +138,14 @@ h1, h2 {
 }
 
 .fc-button:hover {
-    background-color: #0056b3 !important;
+    background-color: #03dac6 !important;
 }
 
 /* Выделение сегодняшнего дня */
 .fc-daygrid-day.fc-day-today {
     background: rgba(0, 123, 255, 0.1);
     font-weight: bold;
-    color: #007bff;
+    color: #03dac6;
     font-size: 12px; /* Меньший шрифт */
 }
 
@@ -145,7 +159,7 @@ h1, h2 {
 }
 
 .fc-event:hover {
-    background-color: #007bff !important;
+    background-color: #03dac6 !important;
 }
 
 /* Сетка дней */
@@ -164,25 +178,12 @@ h1, h2 {
 .fc-col-header-cell {
     font-size: 11px;
 }
-
 /* Контейнер для заметок */
-
-#video-notes {
-    max-width: 550px;
-    min-height: 420px;
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
-    border: 1px solid #ddd;
-    font-family: 'Arial', sans-serif;
-}
-
-/* 🏷 Заголовок */
-#video-notes h2 {
+/* Заголовок заметок */
+.notes-title {
     font-size: 1.6em;
     font-weight: bold;
-    color: #222;
+    color: #ffffff;
     margin-bottom: 15px;
     display: flex;
     align-items: center;
@@ -201,24 +202,25 @@ h1, h2 {
     width: 100%;
     padding: 12px;
     font-size: 15px;
-    border: 2px solid #ccc;
+    border: 2px solid #555;
     border-radius: 8px;
-    background: #f9f9f9;
+    background: #303030;
+    color: #ffffff;
     transition: all 0.3s ease-in-out;
 }
 
 .add-video input:focus,
 .add-video select:focus {
-    border-color: #007bff;
-    background: white;
+    border-color: #03dac6;
+    background: #424242;
     outline: none;
-    box-shadow: 0 0 8px rgba(0, 86, 179, 0.3);
+    box-shadow: 0 0 8px rgba(3, 218, 198, 0.5);
 }
 
 /* 🔘 Кнопка добавления */
 .add-video button {
-    background-color: #007bff;
-    color: white;
+    background-color: #03dac6;
+    color: #ffffff;
     border: none;
     padding: 12px;
     border-radius: 8px;
@@ -229,14 +231,14 @@ h1, h2 {
 }
 
 .add-video button:hover {
-    background-color: #0056b3;
+    background-color: #03dac6;
 }
 
 /* 🎛 Фильтр */
 .video-filter {
     margin-top: 10px;
     font-size: 14px;
-    color: #333;
+    color: #cccccc;
 }
 
 /* 📜 Список видео */
@@ -249,19 +251,18 @@ h1, h2 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #000000;
+    background: #242424;
     padding: 12px;
     border-radius: 10px;
     margin: 8px 0;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.05);
     transition: transform 0.2s;
-    border-left: 6px solid #007bff;
+    border-left: 6px solid #03dac6;
 }
-
 
 /* 🎬 Ссылка на видео */
 .video-info a {
-    color: #007bff;
+    color: #03dac6;
     text-decoration: none;
     font-weight: bold;
     font-size: 14px;
@@ -271,7 +272,7 @@ h1, h2 {
     text-decoration: underline;
 }
 
-
+/* Кнопка удаления */
 .delete-btn {
     background: #ff4d4d;
     color: white;
@@ -293,6 +294,8 @@ h1, h2 {
     transform: translateX(-30px);
     transition: all 0.3s ease-in-out;
 }
+
+
 
 /* Form Styles */
 .form-group {
@@ -319,7 +322,7 @@ select, input[type="number"] {
 }
 
 select:focus, input[type="number"]:focus {
-    border-color: #4a90e2;
+    border-color: #03dac6;
     background-color: #fff;
     box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
     outline: none;
@@ -335,7 +338,7 @@ select:focus, input[type="number"]:focus {
 
 input[type="checkbox"] {
     margin-right: 8px;
-    accent-color: #4a90e2;
+    accent-color: #03dac6;
 }
 
 /* Submit Button */
@@ -344,7 +347,7 @@ input[type="checkbox"] {
     padding: 14px;
     font-size: 16px;
     color: #ffffff;
-    background-color: #4a90e2;
+    background-color: #03dac6;
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -353,7 +356,7 @@ input[type="checkbox"] {
 }
 
 .submit-btn:hover {
-    background-color: #357abd;
+    background-color: #03dac6;
     box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
 }
 
@@ -365,7 +368,7 @@ input[type="checkbox"] {
 .link-btn {
     text-decoration: none;
     font-size: 16px;
-    color: #4a90e2;
+    color: #03dac6;
     display: inline-block;
     margin-top: 10px;
     width: 100%;
@@ -373,5 +376,5 @@ input[type="checkbox"] {
 }
 
 .link-btn:hover {
-    color: #357abd;
+    color: #03dac6;
 }

@@ -1,138 +1,212 @@
+/* Общий стиль страницы */
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #000000; /* Черный фон */
-    color: #ffffff; /* Белые надписи */
-    margin: 0;
-    padding: 20px;
-}
-
-.container {
-    max-width: 600px;
-    margin: 0 auto;
-    background-color: #222222; /* Темно-серый фон для контейнера */
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6); /* Увеличена тень */
-}
-
-h1 {
+    font-family: 'Roboto', sans-serif;
+    background-color: #0d0d0d; /* Более глубокий черный */
+    color: #ffffff;
     text-align: center;
-    color: #ffffff; /* Белый цвет для заголовка */
+    margin: 0;
+    padding: 0;
 }
 
-label {
+/* Меню навигации */
+.menu {
+    background-color: #181818;
+    padding: 15px 0;
+    box-shadow: none;
+}
+
+.menu ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.menu ul li {
+    margin: 0 20px;
+}
+
+.menu ul li a {
+    text-decoration: none;
+    color: #ffffff; /* Белый текст по умолчанию */
+    font-size: 18px;
     font-weight: bold;
-    color: #ffffff; /* Белый для меток */
+    padding: 10px 15px;
+    border-radius: 5px;
+    position: relative;
+    transition: color 0.3s ease-in-out;
 }
 
-input {
+.menu ul li a::after {
+    content: "";
+    display: block;
+    height: 2px;
+    width: 0;
+    background: #03dac6; /* Бирюзовое подчеркивание */
+    transition: width 0.3s ease-in-out;
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+}
+
+.menu ul li a:hover {
+    color: #03dac6; /* Бирюзовый цвет текста при наведении */
+}
+
+.menu ul li a:hover::after {
     width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    border: 1px solid #555;
-    border-radius: 8px;
-    background-color: #333;
-    color: #ffffff; /* Белый текст в полях ввода */
 }
 
-input:focus {
-    border-color: #ffffff; /* Белый акцент при фокусе */
-    background-color: #444;
+
+/* Контейнер формы */
+.container {
+    background: #181818;
+    padding: 30px;
+    margin: 40px auto;
+    width: 50%;
+    max-width: 600px;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(255, 255, 255, 0.05);
 }
 
-button {
-    background-color: #4a90e2; /* Ярко-голубой для кнопки */
-    color: white;
-    padding: 12px;
+/* Заголовок */
+h1 {
+    color: #03dac6; /* Бирюзовый */
+    font-size: 26px;
+    margin-bottom: 20px;
+}
+
+/* Поля ввода */
+form label {
+    display: block;
+    font-size: 18px;
+    margin: 10px 0 5px;
+}
+
+form input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
     border: none;
-    border-radius: 8px;
+    background: #222; /* Темнее */
+    color: #ffffff;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+/* Кнопка */
+.buttons button {
+    background-color: #03dac6;
+    color: #000;
+    border: none;
+    padding: 14px 22px;
+    font-size: 18px;
+    font-weight: bold;
     cursor: pointer;
-    width: 100%;
-    margin-top: 20px;
+    border-radius: 10px;
+    margin-top: 10px;
+    transition: all 0.3s ease-in-out;
 }
 
-button:hover {
-    background-color: #357abd; /* Темно-голубой при наведении */
+.buttons button:hover {
+    background-color: #018786;
+    color: white;
+    transform: scale(1.05);
 }
 
+/* Контейнер результатов BMI */
 .result {
-    margin-top: 20px;
+    background-color: #181818; /* Темнее */
     padding: 20px;
-    border-radius: 8px;
-    border: 1px solid;
-}
-.result.normal {
-    background-color: #a5d6a7; /* Нежно-зеленый для нормы */
-    border-color: #81c784;
-}
-
-.result.low-high {
-    background-color: #ffe082; /* Мягкий желтый для низкого/высокого */
-    border-color: #ffca28;
+    margin: 20px auto;
+    width: 60%;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.05);
+    border: 3px solid; /* Динамическая обводка */
+    text-align: center;
+    font-size: 18px;
 }
 
-.result.overweight {
-    background-color: #ffcc80; /* Теплый светлый оранжевый для избыточного веса */
-    border-color: #ffb74d;
+/* Заголовок и основной текст остаются белыми */
+.result h2,
+.result p:first-of-type {
+    color: #ffffff;
 }
 
-.result.obesity {
-    background-color: #ef9a9a; /* Мягкий розовый для ожирения */
+/* Нижний текст (категория BMI) меняет цвет */
+.result .bmi-category {
+    font-weight: bold;
+}
+
+/* Цвета BMI */
+.low-high {
+    border-color: #ffeb3b;
+}
+
+.low-high .bmi-category {
+    color: #ffeb3b;
+}
+
+.normal {
+    border-color: #4caf50;
+}
+
+.normal .bmi-category {
+    color: #4caf50;
+}
+
+.overweight {
+    border-color: #ff9800;
+}
+
+.overweight .bmi-category {
+    color: #ff9800;
+}
+
+.obesity {
     border-color: #f44336;
 }
 
-
-.nutrition {
-    margin-top: 20px;
+.obesity .bmi-category {
+    color: #f44336;
 }
 
+/* Блок нутриции */
+.nutrition {
+    background: #181818;
+    padding: 20px;
+    margin: 20px auto;
+    width: 70%;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.05);
+    text-align: left;
+    border: none; /* Без рамки */
+}
+
+/* Заголовок нутриции */
+.nutrition h2 {
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+/* Список нутриентов */
 .nutrition ul {
     list-style-type: none;
     padding: 0;
 }
 
-.nutrition li {
-    padding: 5px 0;
-}
-
-.nutrition li strong {
-    color: #518ebf; /* Оранжевый для выделения продуктов */
-}
-/* Navigation Menu */
-.menu {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #000;
-    padding: 10px 0;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 10;
-}
-
-.menu ul {
-    list-style-type: none;
-    display: flex;
-    padding: 0;
-    margin: 0;
-}
-
-.menu li {
-    margin: 0 15px;
-}
-
-.menu a {
-    text-decoration: none;
-    color: #fff;
+.nutrition ul li {
     font-size: 18px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    padding: 10px 20px;
-    transition: color 0.3s ease, transform 0.3s ease;
+    margin: 8px 0;
 }
 
-.menu a:hover {
-    color: #4a90e2;
-    transform: translateY(-3px);
+.nutrition ul ul {
+    margin-left: 20px;
+}
+
+.nutrition ul ul li {
+    font-size: 16px;
+    color: #cccccc;
 }

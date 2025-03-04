@@ -59,13 +59,13 @@ a {
     text-align: center;
 }
 
-.register-button {
-    background-color: #ff4757; /* Ярко-красный цвет кнопки регистрации */
+/* .register-button {
+    background-color: #ff4757; 
 }
 
 .login-button {
-    background-color: #007BFF; /* Синий цвет кнопки входа */
-}
+    background-color: #007BFF;
+} */
 
 a::before {
     content: '';

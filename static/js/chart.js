@@ -62,3 +62,19 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Button with id "clear-db-btn" not found');
     }
 });
+
+document.getElementById("clear-db-btn").addEventListener("click", function() {
+    fetch('/clear_progress', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);  // Показываем сообщение об успехе или ошибке
+    })
+    .catch(error => {
+        console.error("Error clearing database:", error);
+    });
+});

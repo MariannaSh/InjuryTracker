@@ -15,6 +15,19 @@ document.getElementById('modal-ok').onclick = function() {
     document.getElementById('modal').style.display = 'none';
 };
 
+document.addEventListener("DOMContentLoaded", function() {
+    const starCount = 30;
+    const body = document.body;
+
+    for (let i = 0; i < starCount; i++) {
+        const star = document.createElement("div");
+        star.classList.add("star");
+        star.style.top = Math.random() * 100 + "%";
+        star.style.left = Math.random() * 100 + "%";
+        body.appendChild(star);
+    }
+});
+
 // Проверяем наличие сообщений об ошибке
 const messages = JSON.parse('{{ get_flashed_messages(with_categories=true) | tojson | safe }}');
 if (messages.length > 0) {
