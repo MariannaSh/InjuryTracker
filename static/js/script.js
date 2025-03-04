@@ -61,7 +61,7 @@ function displayVideos(videos) {
     videoList.innerHTML = ""; // Очищаем перед добавлением новых видео
 
     if (videos.length === 0) {
-        videoList.innerHTML = "<p>Нет добавленных видео.</p>";
+        videoList.innerHTML = "<p>No videos added.</p>";
         return;
     }
 
@@ -71,7 +71,7 @@ function displayVideos(videos) {
         videoElement.innerHTML = `
             <p><strong>${video.title}</strong> (${video.category})</p>
             <a href="${video.link}" target="_blank">${video.link}</a>
-            <button onclick="deleteVideo(${video.id})">Удалить</button>
+            <button onclick="deleteVideo(${video.id})">Remove</button>
         `;
         videoList.appendChild(videoElement);
     });
@@ -84,7 +84,7 @@ function addVideo() {
     const category = document.getElementById("video_category").value;
 
     if (!title || !link) {
-        alert("Введите название и ссылку на видео!");
+        alert("Enter the title and link to the video!");
         return;
     }
 
@@ -101,7 +101,7 @@ function addVideo() {
                 document.getElementById("video_url").value = "";
             }
         })
-        .catch(error => console.error("Ошибка добавления:", error));
+        .catch(error => console.error("Add error:", error));
 }
 
 // Фильтр видео по категории
@@ -119,7 +119,7 @@ function filterVideos() {
                 displayVideos(filteredVideos);
             }
         })
-        .catch(error => console.error("Ошибка фильтрации:", error));
+        .catch(error => console.error("Filter Error:", error));
 }
 
 // Функция удаления видео
@@ -131,7 +131,7 @@ function deleteVideo(videoId) {
                 loadVideos(); // Обновляем список после удаления
             }
         })
-        .catch(error => console.error("Ошибка удаления:", error));
+        .catch(error => console.error("Delete Error:", error));
 }
 
 
