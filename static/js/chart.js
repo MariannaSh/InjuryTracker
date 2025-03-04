@@ -78,3 +78,17 @@ document.getElementById("clear-db-btn").addEventListener("click", function() {
         console.error("Error clearing database:", error);
     });
 });
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    const starCount = 30;
+    const body = document.body;
+
+    for (let i = 0; i < starCount; i++) {
+        const star = document.createElement("div");
+        star.classList.add("star");
+        star.style.top = Math.random() * 100 + "%";
+        star.style.left = Math.random() * 100 + "%";
+        body.appendChild(star);
+    }
+});

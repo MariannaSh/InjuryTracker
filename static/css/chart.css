@@ -37,3 +37,28 @@ body {
     background-color: #018786; /* Темный бирюзовый при наведении */
     color: white;
 }
+
+/* Генерируем несколько случайных звезд на фоне */
+.star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    animation: twinkling 3s infinite ease-in-out;
+}
+
+@keyframes twinkling {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}
+
+.star:nth-child(1) { top: 10%; left: 20%; }
+.star:nth-child(2) { top: 30%; left: 80%; }
+.star:nth-child(3) { top: 50%; left: 50%; }
+.star:nth-child(4) { top: 70%; left: 30%; }
+.star:nth-child(5) { top: 90%; left: 70%; }

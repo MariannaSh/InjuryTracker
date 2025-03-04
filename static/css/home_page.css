@@ -93,6 +93,9 @@ h1, h2 {
     margin-bottom: 20px;
     color: #333;
 }
+
+
+/* Улучшенный общий контейнер */
 .container {
     display: flex;
     align-items: flex-start;
@@ -178,97 +181,122 @@ h1, h2 {
 .fc-col-header-cell {
     font-size: 11px;
 }
-/* Контейнер для заметок */
-/* Заголовок заметок */
-.notes-title {
-    font-size: 1.6em;
-    font-weight: bold;
+/* Секция "Favorite Workouts" */
+#video-notes {
+    max-width: 350px;
+    background: #1e1e1e;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     color: #ffffff;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* 🎬 Форма добавления видео */
-.add-video {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    align-items: center;
 }
 
-.add-video input,
-.add-video select {
+#video-notes h2 {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #03dac6;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* Компактная форма добавления видео */
+.add-video {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+}
+
+.add-video input, .add-video select {
     width: 100%;
-    padding: 12px;
-    font-size: 15px;
-    border: 2px solid #555;
-    border-radius: 8px;
-    background: #303030;
+    padding: 8px;
+    font-size: 13px;
+    border: 2px solid #03dac6;
+    border-radius: 5px;
+    background: #222;
     color: #ffffff;
-    transition: all 0.3s ease-in-out;
+    transition: all 0.3s;
 }
 
-.add-video input:focus,
-.add-video select:focus {
-    border-color: #03dac6;
-    background: #424242;
+.add-video input:focus, .add-video select:focus {
+    background: #333;
     outline: none;
-    box-shadow: 0 0 8px rgba(3, 218, 198, 0.5);
+    box-shadow: 0 0 6px rgba(3, 218, 198, 0.5);
 }
 
-/* 🔘 Кнопка добавления */
+/* Улучшенная кнопка "Добавить" */
 .add-video button {
     background-color: #03dac6;
     color: #ffffff;
     border: none;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 16px;
+    padding: 8px;
+    border-radius: 5px;
+    font-size: 13px;
     cursor: pointer;
-    transition: all 0.3s ease-in-out;
+    transition: background 0.3s;
     font-weight: bold;
+    width: 100%;
 }
 
 .add-video button:hover {
-    background-color: #03dac6;
+    background-color: #02c2ad;
 }
 
-/* 🎛 Фильтр */
+/* Фильтр категории */
 .video-filter {
-    margin-top: 10px;
-    font-size: 14px;
+    margin-top: 8px;
+    font-size: 12px;
     color: #cccccc;
+    text-align: center;
 }
 
-/* 📜 Список видео */
+.video-filter select {
+    padding: 6px;
+    font-size: 12px;
+    border: 2px solid #03dac6;
+    border-radius: 5px;
+    background: #222;
+    color: #ffffff;
+    width: 100%;
+    margin-top: 4px;
+}
+
+/* Список видео */
 #videos_list {
-    margin-top: 15px;
+    margin-top: 8px;
+    max-height: 180px;
+    overflow-y: auto;
+    padding-right: 5px;
+    width: 100%;
 }
 
-/* 🎥 Карточка видео */
+/* Карточки видео */
 .video-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #242424;
-    padding: 12px;
-    border-radius: 10px;
-    margin: 8px 0;
-    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.05);
+    background: #2b2b2b;
+    padding: 6px;
+    border-radius: 6px;
+    margin: 4px 0;
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.1);
     transition: transform 0.2s;
-    border-left: 6px solid #03dac6;
+    border-left: 4px solid #03dac6;
+    color: #fff;
+    font-size: 11px;
 }
 
-/* 🎬 Ссылка на видео */
-.video-info a {
+.video-item a {
     color: #03dac6;
     text-decoration: none;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 11px;
 }
 
-.video-info a:hover {
+.video-item a:hover {
     text-decoration: underline;
 }
 
@@ -277,24 +305,16 @@ h1, h2 {
     background: #ff4d4d;
     color: white;
     border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
+    padding: 5px;
+    border-radius: 4px;
     cursor: pointer;
     transition: background 0.2s ease-in-out;
-    font-size: 14px;
+    font-size: 11px;
 }
 
 .delete-btn:hover {
     background: #cc0000;
 }
-
-/* ⏳ Эффект при удалении */
-.video-item.removing {
-    opacity: 0;
-    transform: translateX(-30px);
-    transition: all 0.3s ease-in-out;
-}
-
 
 
 /* Form Styles */
