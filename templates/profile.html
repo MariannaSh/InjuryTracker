@@ -17,48 +17,58 @@
     </nav>
     
     <div class="container">
-        
         <div class="profile-container">
             <h2>Welcome, {{ username }}!</h2>
 
-            {% if profile_image %}
-                <div class="profile-picture">
-                    <img src="{{ url_for('static', filename='uploads/' + profile_image) }}" alt="Profile Picture" class="profile-img">
+            <div class="profile-row">
+                <!-- Колонка 1: Изменение изображения -->
+                <div class="profile-column">
+                    {% if profile_image %}
+                        <div class="profile-picture">
+                            <img src="{{ url_for('static', filename='uploads/' + profile_image) }}" alt="Profile Picture" class="profile-img">
+                        </div>
+                    {% else %}
+                        <p>No profile picture uploaded.</p>
+                    {% endif %}
+                    <br><br><br>
+                    <form action="{{ url_for('upload_profile_image') }}" method="POST" enctype="multipart/form-data">
+                        <label for="profile_image">Choose an image:</label>
+                        <input type="file" name="profile_image" id="profile_image" accept="image/*" required>
+                        <button type="submit">Upload Image</button>
+                    </form>
                 </div>
-            {% else %}
-                <p>No profile picture uploaded.</p>
-            {% endif %}
 
-            <div class="image-upload">
-                <h3>Upload Profile Picture:</h3>
-                <form action="{{ url_for('upload_profile_image') }}" method="POST" enctype="multipart/form-data">
-                    <label for="profile_image">Choose an image:</label>
-                    <input type="file" name="profile_image" id="profile_image" accept="image/*" required><br>
-                    <button type="submit">Upload Image</button>
-                </form>
+                <!-- Колонка 2: Изменение имени -->
+                <div class="profile-column">
+                    <br><br><br><br><br><br><br><br><br><br><br>
+                    <form method="POST" action="{{ url_for('change_username') }}">
+                        <label for="new_username">New username:</label>
+                        <input type="text" id="new_username" name="new_username" required>
+                        <button type="submit">Change username</button>
+                    </form>
+                </div>
+
+                <!-- Колонка 3: Изменение пароля -->
+                <div class="profile-column">
+                    <br><br><br><br><br>
+                    <form method="POST" action="{{ url_for('auth.change_password') }}">
+                        <label for="current_password">Current password:</label>
+                        <input type="password" id="current_password" name="current_password" required>
+                        <br>
+                        <label for="new_password">New Password:</label>
+                        <input type="password" id="new_password" name="new_password" required>
+
+                        <button type="submit">Change password</button>
+                    </form>
+                </div>
             </div>
             <br>
-            <div class="form-container">
-                <form method="POST" action="{{ url_for('change_username') }}">
-                    <label for="new_username">New username:</label>
-                    <input type="text" id="new_username" name="new_username" required>
-                    <button type="submit">Change username</button>
-                </form>
-                <br>
-                <form method="POST" action="{{ url_for('auth.change_password') }}">
-                    <label for="current_password">Current password:</label>
-                    <input type="password" id="current_password" name="current_password" required><br>
-                    <label for="new_password">New Password:</label>
-                    <input type="password" id="new_password" name="new_password" required><br>
-                    <button type="submit">Change password</button>
-                </form>
-            </div>
-
             <div class="profile-actions">
                 <a href="{{ url_for('logout') }}" class="action-link">Logout</a>
             </div>
         </div>
     </div>
+
     <script src="/static/js/script.js"></script>
 </body>
 </html>

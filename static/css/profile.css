@@ -1,6 +1,6 @@
 body {
     font-family: 'Poppins', sans-serif;
-    background: #0d0d0d; /* Более глубокий черный */
+    background: #0d0d0d;
     color: #ffffff;
     margin: 0;
     padding: 0;
@@ -8,39 +8,22 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
+    min-height: 50vh;
     text-align: center;
 }
 
-.container {
-    background: #181818;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(255, 255, 255, 0.05);
-    width: 85%;
-    max-width: 600px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transition: transform 0.3s ease-in-out;
-    
-    margin-top: 20px;
-    margin-bottom: 20px;
-}
-
-
 h1, h2 {
-    font-size: 2em;
-    margin-bottom: 15px;
-    color: #03dac6;
+    font-size: 1.8em;
+    margin-bottom: 13px;
+    color: #f4f7f6;
 }
 
 form {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 13px;
     width: 100%;
-    max-width: 500px;
+    max-width: 450px;
 }
 
 label {
@@ -55,45 +38,43 @@ input[type="text"],
 input[type="password"],
 input[type="file"] {
     padding: 12px;
-    border: 1px solid #333;
-    border-radius: 8px;
-    background-color: #222;
+    border: none;
+    border-bottom: 2px solid #03dac6;
+    background: transparent;
     color: #ffffff;
     font-size: 1em;
     width: 100%;
-    transition: border-color 0.3s ease-in-out, box-shadow 0.3s;
+    text-align: center;
+    transition: border-color 0.3s;
 }
 
 input[type="text"]:focus,
 input[type="password"]:focus {
     border-color: #03dac6;
-    box-shadow: 0 0 5px rgba(3, 218, 198, 0.3);
     outline: none;
 }
 
 button {
-    background-color: #17c3b2;
+    background-color: #03dac6;
     border: none;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 1.1em;
-    color: #000000;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #ffffff;
     cursor: pointer;
     transition: background 0.3s, transform 0.2s;
-    width: 100%;
-    max-width: 400px;
     font-weight: bold;
+    min-width: 40%;
+    text-align: center;
 }
 
 button:hover {
-    background-color: #149e90;
-    color: white;
+    background-color: #02c2ad;
     transform: translateY(-2px);
 }
-
 /* Меню навигации */
 .menu {
-    background-color: #181818;
+    background-color: #0d0d0d;
     padding: 15px 0;
     width: 100%;
     position: fixed;
@@ -164,7 +145,7 @@ button:hover {
 }
 
 .profile-actions a {
-    color: #03dac6;
+    color: #f7f8f8;
     font-size: 16px;
     text-decoration: none;
     margin: 10px;
@@ -173,7 +154,7 @@ button:hover {
 }
 
 .profile-actions a:hover {
-    color: #018786;
+    color: #ff0c9a;
 }
 
 .error-message {
@@ -206,3 +187,67 @@ button:hover {
 .star:nth-child(3) { top: 50%; left: 50%; }
 .star:nth-child(4) { top: 70%; left: 30%; }
 .star:nth-child(5) { top: 90%; left: 70%; }
+
+
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 800px;
+    color: #ffffff;
+    margin-top: 50px;
+}
+
+.profile-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
+}
+
+.profile-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.profile-column input {
+    width: 80%;
+    padding: 10px;
+    border: none;
+    border-bottom: 2px solid #03dac6;
+    background: transparent;
+    color: #ffffff;
+    font-size: 1em;
+    text-align: center;
+    transition: border-color 0.3s;
+}
+
+.profile-column input:focus {
+    border-color: #03dac6;
+    outline: none;
+}
+
+.profile-picture img {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    border: 3px solid #03dac6;
+    box-shadow: 0 3px 8px rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s;
+}
+
+.profile-picture img:hover {
+    transform: scale(1.05);
+}
+
+.action-link {
+    font-size: 18px; 
+    font-weight: bold; 
+    color: #ffffff; 
+}

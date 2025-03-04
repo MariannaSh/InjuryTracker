@@ -1,186 +1,138 @@
 body {
     font-family: Arial, sans-serif;
-    background: linear-gradient(180deg, #000000, #1a1a1a);
+    background: #0d0d0d;
     color: #ffffff;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    min-height: 100vh; 
-    overflow-y: auto;
+    min-height: 100vh;
+    overflow: hidden;
     position: relative;
 }
-/* Стили для навигационного меню */
+
+/* Navigation Menu */
 .menu {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #000; /* Черный фон для меню */
-    padding: 10px 0;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 10;
+    background-color: #0d0d0d;
+    /* padding: 15px 0; */
 }
 
 .menu ul {
-    list-style-type: none; /* Убираем стандартные маркеры списка */
-    display: flex; /* Делаем элементы списка горизонтальными */
+    list-style-type: none;
     padding: 0;
     margin: 0;
+    display: flex;
+    justify-content: center;
 }
 
-.menu li {
-    margin: 0 15px; /* Добавляем отступы между пунктами меню */
+.menu ul li {
+    margin: 0 20px;
 }
 
-.menu a {
+.menu ul li a {
     text-decoration: none;
-    color: #fff; /* Белый текст для контраста */
+    color: #ffffff;
     font-size: 18px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    padding: 10px 20px;
-    transition: color 0.3s ease, transform 0.3s ease;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 5px;
+    position: relative;
+    transition: color 0.3s ease-in-out;
 }
 
-.menu a:hover {
-    color: #4a90e2; /* Цвет при наведении */
-    transform: translateY(-3px);
+.menu ul li a:hover {
+    color: #03dac6;
 }
 
-/* Основные стили для формы */
+/* Progress Form */
 .progress-form {
-    max-width: 500px; /* Более узкая форма */
-    margin: 20px auto; /* Центрируем форму */
+    max-width: 600px;
+    margin: 50px auto;
     padding: 30px;
-    background-color: #ffffff; /* Чистый белый фон */
-    border-radius: 12px; /* Скругленные углы */
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05); /* Мягкая тень для глубины */
-    font-family: 'Arial', sans-serif;
-    transition: transform 0.2s ease-in-out;
-}
-
-.progress-form:hover {
-    transform: scale(1.01); /* Легкое увеличение при наведении */
+    background-color: #ffffff;
+    color: #333;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
 }
 
 h2 {
-    text-align: center;
-    color: #333;
     font-size: 24px;
-    margin-bottom: 25px;
     font-weight: 600;
-}
-
-/* Стили для группировки элементов формы */
-.form-group {
     margin-bottom: 20px;
 }
 
-/* Общие стили для элементов формы */
-form * {
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
-
-/* Стили для полей ввода и выбора */
-.form-control {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    color: #333;
-    background-color: #f7f9fa;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    margin-top: 5px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
-}
-
-.form-control:focus {
-    border-color: #4a90e2; /* Голубая рамка при фокусе */
-    background-color: #fff;
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2); /* Мягкое сияние вокруг */
-    outline: none;
-}
-
-/* Общие стили для select */
-select {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    color: #333;
-    background-color: #f7f9fa;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    margin-top: 5px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-    appearance: none;
-    -webkit-appearance: none; /* Для Safari */
-    -moz-appearance: none; /* Для Firefox */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); /* Стрелка вниз */
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 16px;
-    transition: all 0.3s ease;
-}
-
-select:focus {
-    border-color: #4a90e2; /* Голубая рамка при фокусе */
-    background-color: #fff;
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2); /* Мягкое сияние вокруг */
-    outline: none;
-}
-
-option {
-    font-size: 16px;
-    color: #333;
-}
-
-
-/* Стили для кнопки отправки */
-.submit-btn {
-    width: 100%;
-    padding: 14px;
-    font-size: 16px;
-    color: #ffffff;
-    background-color: #4a90e2; /* Ярко-голубой */
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.submit-btn:hover {
-    background-color: #357abd; /* Темно-голубой при наведении */
-    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2); /* Мягкая тень */
-}
-
-/* Стили для ссылок */
-.link-btn {
-    text-decoration: none;
-    font-size: 16px;
-    color: #4a90e2;
-    display: inline-block;
-    margin-top: 10px;
-    text-align: center;
-    width: 100%;
-}
-
-.link-btn:hover {
-    color: #357abd;
-}
-
-/* Стили для радиокнопок */
-input[type="radio"] {
-    margin-top: 10px;
-    margin-right: 5px;
-    accent-color: #4a90e2; /* Цвет выбора */
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
 }
 
 label {
     font-weight: 500;
     color: #555;
 }
+
+select, input[type="number"], input[type="date"] {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    color: #333;
+    background-color: #f7f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-top: 5px;
+}
+
+/* Submit Button */
+.submit-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    color: #ffffff;
+    background-color: #03dac6;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.submit-btn:hover {
+    background-color: #02c2ad;
+}
+
+/* Link Button */
+.link-btn {
+    text-decoration: none;
+    font-size: 16px;
+    color: #03dac6;
+    display: inline-block;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.link-btn:hover {
+    color: #0b0b0b;
+}
+.star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    animation: twinkling 3s infinite ease-in-out;
+}
+
+@keyframes twinkling {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}
+
+.star:nth-child(1) { top: 10%; left: 20%; }
+.star:nth-child(2) { top: 30%; left: 80%; }
+.star:nth-child(3) { top: 50%; left: 50%; }
+.star:nth-child(4) { top: 70%; left: 30%; }
+.star:nth-child(5) { top: 90%; left: 70%; }

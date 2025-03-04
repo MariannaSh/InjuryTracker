@@ -23,7 +23,7 @@ body {
 
 .button {
     background-color: #03dac6; /* Нежно-бирюзовый */
-    color: #000; /* Темный текст для контраста */
+    color: #fdf9f9; /* Темный текст для контраста */
     border: none;
     padding: 14px 22px;
     font-size: 17px;

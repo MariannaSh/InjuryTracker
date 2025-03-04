@@ -30,7 +30,8 @@ def register():
         password = request.form['password']
         add_user(username, password)  
         session['username'] = username  
-        return redirect(url_for('home_page'))  
+        flash("Registration successful! Please log in.", "success")
+        return redirect(url_for('auth.login'))  
     return render_template('register.html')
 
 @auth_bp.route('/login', methods=['GET', 'POST'])

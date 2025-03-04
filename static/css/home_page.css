@@ -20,7 +20,7 @@ body {
 
 /* Меню навигации */
 .menu {
-    background-color: #181818;
+    background-color: #0d0d0d;
     padding: 15px 0;
     box-shadow: none;
 }
@@ -69,7 +69,6 @@ body {
 }
 
 
-
 /* Main Container */
 .form-container {
     max-width: 600px;
@@ -80,12 +79,14 @@ body {
     border-radius: 12px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     text-align: center;
-    transition: transform 0.2s ease-in-out;
+    transition: box-shadow 0.3s ease;  /* Make transition smoother for box-shadow */
 }
 
+/* Hover effect without scaling */
 .form-container:hover {
-    transform: scale(1.02);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);  /* Slightly enhanced box-shadow on hover */
 }
+
 
 h1, h2 {
     font-size: 26px;
@@ -106,7 +107,7 @@ h1, h2 {
 }
 
 #calendar-container {
-    max-width: 550px;
+    max-width: 530px;
     background: #1e1e1e;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
@@ -374,7 +375,7 @@ label {
     color: #555;
 }
 
-select, input[type="number"] {
+select, input[type="number"], input[type="date"] {
     width: 100%;
     padding: 12px;
     font-size: 16px;
@@ -383,15 +384,7 @@ select, input[type="number"] {
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     margin-top: 5px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
-}
-
-select:focus, input[type="number"]:focus {
-    border-color: #03dac6;
-    background-color: #fff;
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
-    outline: none;
+    box-sizing: border-box;
 }
 
 /* Checkbox */
@@ -442,7 +435,7 @@ input[type="checkbox"] {
 }
 
 .link-btn:hover {
-    color: #03dac6;
+    color: #0b0b0b;
 }
 
 /* Генерируем несколько случайных звезд на фоне */

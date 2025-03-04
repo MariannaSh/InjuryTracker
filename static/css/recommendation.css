@@ -5,9 +5,10 @@ body {
     background-color: #f9f9f9;
     color: #333;
 }
+
 h1 {
     text-align: center;
-    color: #0056b3;
+    color: #03dac6;
 }
 .recommendation {
     display: flex;
@@ -59,7 +60,7 @@ h1 {
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 a {
-    color: #0056b3;
+    color: #03dac6;
     text-decoration: none;
     font-weight: bold;
 }
