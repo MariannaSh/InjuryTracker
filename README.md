@@ -3,7 +3,7 @@
 ## 📌 Project Description  
 **InjuryTracker** is a web application developed as part of a **diploma project**. It is designed to help athletes and active individuals recover from injuries by providing **personalized rehabilitation recommendations**, **tracking progress**, and **analyzing recovery dynamics**.  
 
-🚀 **This project is still in development**, and new features will be added over time.  
+**This project is still in development**, and new features will be added over time.  
 
 ## 🔥 Key Features  
 ✅ **Personalized recommendations** – tailored recovery exercises based on the injury type and fitness level.  
@@ -20,9 +20,3 @@
 - **Charts**: **Chart.js** (for interactive progress tracking)  
 - **Additional Features**: user session management, file uploads, real-time data visualization.  
 
-## 📌 Project Status  
-📢 **This project is actively being developed.**  
-Future improvements include:  
-- Adding new features  
-- Enhancing the user interface  
-- Optimizing database performance  
