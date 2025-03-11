@@ -13,12 +13,12 @@
         <form method="POST">
             <label for="username">Username:</label>
             <input type="text" name="username" required>
-            <!-- Здесь будут ошибки, связанные с именем пользователя -->
+         
             <div id="username-error" class="error-message"></div>
 
             <label for="password">Password:</label>
             <input type="password" name="password" required>
-            <!-- Здесь будут ошибки, связанные с паролем -->
+            
             <div id="password-error" class="error-message"></div>
 
             <input type="submit" value="Login" class="small-button">
@@ -27,7 +27,6 @@
         <a href="{{ url_for('auth.register') }}">Don't have an account? Register</a>
     </div>
 
-    <!-- Модальное окно для отображения ошибок -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <span id="close-modal" class="close">&times;</span>
@@ -37,22 +36,21 @@
         </div>
     </div>
 
-    <!-- Выводим сообщения об ошибках -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
                 <script>
-                    // Проверяем категорию сообщений и отображаем ошибки в соответствующих местах
+                    
                     if ("{{ category }}" === 'error') {
-                        // Если ошибка связана с именем пользователя
+                   
                         if ("{{ message }}" === "User does not exist") {
                             document.getElementById('username-error').textContent = "{{ message }}";
                         }
-                        // Если ошибка связана с паролем
+                        
                         if ("{{ message }}" === "Invalid password") {
                             document.getElementById('password-error').textContent = "{{ message }}";
                         }
-                        // Показываем модальное окно
+                        
                         showModal("{{ message }}");
                     }
                 </script>

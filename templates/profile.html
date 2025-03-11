@@ -21,7 +21,7 @@
             <h2>Welcome, {{ username }}!</h2>
 
             <div class="profile-row">
-                <!-- Колонка 1: Изменение изображения -->
+
                 <div class="profile-column">
                     {% if profile_image %}
                         <div class="profile-picture">
@@ -30,15 +30,16 @@
                     {% else %}
                         <p>No profile picture uploaded.</p>
                     {% endif %}
-                    <br><br><br>
+                    <br><br><br><br>
                     <form action="{{ url_for('upload_profile_image') }}" method="POST" enctype="multipart/form-data">
-                        <label for="profile_image">Choose an image:</label>
+                        <label for="profile_image" class="custom-file-upload">Choose File</label> <br>
                         <input type="file" name="profile_image" id="profile_image" accept="image/*" required>
                         <button type="submit">Upload Image</button>
                     </form>
+                    
+                    
                 </div>
 
-                <!-- Колонка 2: Изменение имени -->
                 <div class="profile-column">
                     <br><br><br><br><br><br><br><br><br><br><br>
                     <form method="POST" action="{{ url_for('change_username') }}">
@@ -48,7 +49,6 @@
                     </form>
                 </div>
 
-                <!-- Колонка 3: Изменение пароля -->
                 <div class="profile-column">
                     <br><br><br><br><br>
                     <form method="POST" action="{{ url_for('auth.change_password') }}">
@@ -57,6 +57,7 @@
                         <br>
                         <label for="new_password">New Password:</label>
                         <input type="password" id="new_password" name="new_password" required>
+                        <div id="passwordError" style="color: #c23664; display: none;"></div>
 
                         <button type="submit">Change password</button>
                     </form>

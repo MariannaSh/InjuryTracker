@@ -1,22 +1,19 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Get the context of the canvas element
     const ctx = document.getElementById('painLevelChart').getContext('2d');
     
-    // Retrieve pain levels and dates from hidden elements
     const painLevels = JSON.parse(document.getElementById('painLevels').textContent);
     const dates = JSON.parse(document.getElementById('dates').textContent);
-    
-    // Create the line chart
+
     const painLevelChart = new Chart(ctx, {
-        type: 'line',  // Change to line chart
+        type: 'line', 
         data: {
-            labels: dates,  // Dates from database
+            labels: dates,  
             datasets: [{
                 label: 'Pain Level',
-                data: painLevels,  // Pain levels from database
+                data: painLevels, 
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 2,
-                fill: false,  // Do not fill the area under the line
+                fill: false,  
             }]
         },
         options: {
@@ -40,43 +37,28 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Добавляем обработчик событий для кнопки
-    const clearDbButton = document.getElementById('clear-db-btn');
-    
-    if (clearDbButton) {
-        clearDbButton.addEventListener('click', function() {
-            if (confirm("Are you sure you want to clear the database?")) {
-                fetch('/clear_db', {
-                    method: 'POST'
+    const clearProgressButton = document.getElementById('clear-db-btn');
+
+    if (clearProgressButton) {
+        clearProgressButton.addEventListener('click', function() {
+            if (confirm("Вы уверены, что хотите очистить прогресс?")) {
+                fetch('/clear_progress', {  
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
                 })
                 .then(response => response.json())
                 .then(data => {
-                    alert(data.message);
+                    alert(data.message); 
+                    location.reload(); 
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('Ошибка при очистке прогресса:', error);
                 });
             }
         });
     } else {
-        console.error('Button with id "clear-db-btn" not found');
+        console.error('Кнопка с id "clear-db-btn" не найдена.');
     }
-});
-
-document.getElementById("clear-db-btn").addEventListener("click", function() {
-    fetch('/clear_progress', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message);  // Показываем сообщение об успехе или ошибке
-    })
-    .catch(error => {
-        console.error("Error clearing database:", error);
-    });
 });
 
 

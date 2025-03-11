@@ -72,7 +72,7 @@ button:hover {
     background-color: #02c2ad;
     transform: translateY(-2px);
 }
-/* Меню навигации */
+
 .menu {
     background-color: #0d0d0d;
     padding: 15px 0;
@@ -131,6 +131,31 @@ button:hover {
     width: 100%;
 }
 
+#profile_image {
+    display: none;
+}
+
+.custom-file-upload {
+    display: inline-block;
+    padding: 6px 12px; 
+    background-color: rgba(200, 200, 200, 0.3);
+    color: #ccc;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid rgba(150, 150, 150, 0.5);
+    transition: background 0.2s ease-in-out, border 0.2s ease-in-out;
+    width: 120px; 
+    text-align: center;
+}
+
+.custom-file-upload:hover {
+    background-color: rgba(180, 180, 180, 0.5);
+    border: 1px solid rgba(120, 120, 120, 0.8);
+}
+
+
 .profile-picture img {
     width: 130px;
     height: 130px;
@@ -163,7 +188,6 @@ button:hover {
     font-weight: bold;
 }
 
-/* Генерируем несколько случайных звезд на фоне */
 .star {
     position: absolute;
     width: 2px;

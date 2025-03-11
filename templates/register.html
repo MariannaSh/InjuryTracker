@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/registration.css') }}"> <!-- Подключение CSS файла -->
-    <title>Регистрация</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/registration.css') }}"> 
+    <title>Registration</title>
 </head>
 <body>
     <div class="container">
@@ -16,7 +16,7 @@
             <label for="password">Password:</label>
             <input type="password" name="password" required>
             
-            <input type="submit" value="Register" class="small-button"> <!-- Added class for the big button -->
+            <input type="submit" value="Register" class="small-button"> 
         </form>
         <a href="{{ url_for('auth.login') }}">Already have an account? Log in</a>
     </div>

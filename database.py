@@ -2,9 +2,8 @@ import sqlite3
 import os
 from flask_bcrypt import Bcrypt
 
-# Путь к базам данных
 DB_PATH_INJURIES = 'db/database.db'  # База данных для травм
-DB_PATH_PROGRESS = 'injuries.db'      # База данных для прогресса
+DB_PATH_PROGRESS = 'injuries.db'      # База данных для прогресса нужно удалить
 
 def create_connection_injuries():
     return sqlite3.connect(DB_PATH_INJURIES)
@@ -13,7 +12,6 @@ def create_connection_progress():
     return sqlite3.connect(DB_PATH_PROGRESS)
 
 def create_tables():
-    """Создает таблицы в обеих базах данных, если они не существуют."""
     # Создание таблицы injuries
     with create_connection_injuries() as db:
         cursor = db.cursor()
@@ -25,18 +23,18 @@ def create_tables():
         db.commit()
         
 
-    # Создание таблицы progress
-    with create_connection_progress() as db:
-        cursor = db.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS progress (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            injury_id INTEGER,
-            date TEXT NOT NULL,
-            pain_level INTEGER NOT NULL,
-            exercise_completed INTEGER NOT NULL,
-            FOREIGN KEY (injury_id) REFERENCES injuries (id)
-        )''')
-        db.commit()
+    # # Создание таблицы progress
+    # with create_connection_progress() as db:
+    #     cursor = db.cursor()
+    #     cursor.execute('''CREATE TABLE IF NOT EXISTS progress (
+    #         id INTEGER PRIMARY KEY AUTOINCREMENT,
+    #         injury_id INTEGER,
+    #         date TEXT NOT NULL,
+    #         pain_level INTEGER NOT NULL,
+    #         exercise_completed INTEGER NOT NULL,
+    #         FOREIGN KEY (injury_id) REFERENCES injuries (id)
+    #     )''')
+    #     db.commit()
         
 
 def add_injury(injury_type, injury_date):
@@ -97,53 +95,40 @@ def get_recommendation(injury_type, fitness_level):
                 "video_url": video_url
             })
 
-        return recommendations if recommendations else [{"text": "Рекомендации не найдены.", "image_url": None, "video_url": None}]
-
-# def get_age_group(age):
-#     """Возвращает ID возрастной группы на основе возраста пользователя."""
-#     if 16 <= age <= 35:
-#         return 1  # Возрастная группа "16-35"
-#     elif 36 <= age <= 55:
-#         return 2  # Возрастная группа "36-55"
-#     elif age >= 56:
-#         return 3  # Возрастная группа "56+"
-#     else:
-#         return None  # Если возраст не подходит
+        return recommendations if recommendations else [{"text": "No recommendations found.", "image_url": None, "video_url": None}]
 
 
-# все о добавлении прогресса
-def add_progress(injury_id, date, pain_level, exercise_completed):
-    """Добавляет прогресс по травме в базу данных прогресса."""
-    with create_connection_progress() as db:
+def add_progress(user_id, injury_id, date, pain_level, exercise_completed):
+    with connect_user_db() as db: 
         cursor = db.cursor()
-        print(f"Adding progress: injury_id={injury_id}, date={date}, pain_level={pain_level}, exercise_completed={exercise_completed}")
-        cursor.execute('''INSERT INTO progress (injury_id, date, pain_level, exercise_completed) 
-                          VALUES (?, ?, ?, ?)''', 
-                       (injury_id, date, pain_level, exercise_completed))
+        cursor.execute('''
+            INSERT INTO progress (user_id, injury_id, date, pain_level, exercise_completed) 
+            VALUES (?, ?, ?, ?, ?)
+        ''', (user_id, injury_id, date, pain_level, exercise_completed))
         db.commit()
 
-def calculate_progress():
-    # Получите количество записей в таблице injuries
-    with create_connection_progress() as db:
+
+def calculate_progress(user_id):
+    with connect_user_db() as db:
         cursor = db.cursor()
-        cursor.execute("SELECT COUNT(*) FROM progress")
-        current_count = cursor.fetchone()[0]  # Получаем количество записей
-        
-        # Укажите максимальное количество записей, которое вы хотите отслеживать
-        max_count = 100  # Например, предполагается, что максимум 100 записей
-        
-        # Рассчитываем прогресс в процентах
+        cursor.execute("SELECT COUNT(*) FROM progress WHERE user_id = ?", (user_id,))
+        current_count = cursor.fetchone()[0]
+
+        max_count = 100  
         progress = (current_count / max_count) * 10
         return progress
 
-def get_progress_data():
-    with create_connection_progress() as db:
+
+def get_progress_data(user_id):
+    with connect_user_db() as db:
         cursor = db.cursor()
-        cursor.execute('''SELECT p.pain_level, p.date 
-                          FROM progress p
-                          ORDER BY p.date''')  # Здесь нет необходимости соединять с injuries, если данные в progress
-        data = cursor.fetchall()
-        return data
+        cursor.execute('''
+            SELECT pain_level, date 
+            FROM progress 
+            WHERE user_id = ?
+            ORDER BY date
+        ''', (user_id,))
+        return cursor.fetchall()
 
 
 
@@ -153,11 +138,9 @@ create_tables()
 bcrypt = Bcrypt()
 
 def connect_user_db():
-    """Создание соединения с базой данных users.db."""
     return sqlite3.connect('instance/users.db')
 
 def create_user_tables():
-    """Создание таблицы пользователей, если она не существует."""
     conn = connect_user_db()
     cursor = conn.cursor()
     cursor.execute('''
@@ -172,7 +155,6 @@ def create_user_tables():
     conn.close()
 
 def add_user(username, password):
-    """Добавление нового пользователя в базу данных."""
     conn = connect_user_db()
     cursor = conn.cursor()
     password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
@@ -188,7 +170,6 @@ def add_user(username, password):
         conn.close()
 
 def get_user(username):
-    """Получение пользователя по имени пользователя."""
     conn = connect_user_db()
     cursor = conn.cursor()
     cursor.execute('''SELECT * FROM users WHERE username = ?''', (username,))
@@ -197,7 +178,6 @@ def get_user(username):
     return user
 
 def get_user_by_id(user_id):
-    """Получение пользователя по его ID."""
     conn = connect_user_db()
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
@@ -206,7 +186,6 @@ def get_user_by_id(user_id):
     return user
 
 def show_users():
-    """Вывод всех пользователей для проверки данных."""
     with connect_user_db() as conn:
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM users')
@@ -215,7 +194,6 @@ def show_users():
             print(user)  
 
 def add_profile_image_column():
-    """Добавление столбца profile_image в таблицу users, если он отсутствует."""
     conn = connect_user_db()
     cursor = conn.cursor()
     try:
@@ -227,7 +205,6 @@ def add_profile_image_column():
         conn.close()
 
 def update_profile_image(user_id, filename):
-    """Обновляет изображение профиля пользователя."""
     conn = connect_user_db()
     cursor = conn.cursor()
     try:
@@ -240,7 +217,6 @@ def update_profile_image(user_id, filename):
         conn.close()
 
 def get_profile_image(user_id):
-    """Возвращает путь к изображению профиля пользователя."""
     conn = connect_user_db()
     cursor = conn.cursor()
     cursor.execute('SELECT profile_image FROM users WHERE id = ?', (user_id,))
@@ -254,13 +230,13 @@ def test_connection():
         with connect_user_db() as conn:
             cursor = conn.cursor()
             cursor.execute('SELECT name FROM sqlite_master WHERE type="table"')
-            print(cursor.fetchall())  # Убедитесь, что таблица "users" существует
+            print(cursor.fetchall())  
     except Exception as e:
         print(f"Ошибка подключения к базе данных: {e}")
 
 def create_notes_table():
     """Создает таблицу user_notes, если она отсутствует."""
-    conn = connect_user_db()  # Теперь используем правильное подключение
+    conn = connect_user_db() 
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS user_notes (
@@ -274,9 +250,7 @@ def create_notes_table():
     conn.commit()
     conn.close()
 
-# Функция для добавления новой записи
 def add_user_note(user_id, title, link, category):
-    """Добавляет новую запись для пользователя."""
     conn = connect_user_db()
     cursor = conn.cursor()
     try:
@@ -285,25 +259,20 @@ def add_user_note(user_id, title, link, category):
             VALUES (?, ?, ?, ?)
         ''', (user_id, title, link, category))
         conn.commit()
-        print(f"Note added for user ID {user_id}: {title}")
     except Exception as e:
         print(f"An error occurred while adding note: {e}")
     finally:
         conn.close()
 
-# Функция для получения всех записей пользователя
 def get_user_notes(user_id):
-    """Получает все сохраненные тренировки и заметки пользователя."""
     conn = connect_user_db()
     cursor = conn.cursor()
     cursor.execute('SELECT title, link, category FROM user_notes WHERE user_id = ?', (user_id,))
     notes = cursor.fetchall()
     conn.close()
-    return notes  # Возвращает список кортежей (title, link, category)
+    return notes  
 
-# Функция для удаления записи
 def delete_user_note(user_id, title):
-    """Удаляет конкретную запись пользователя по названию."""
     conn = connect_user_db()
     cursor = conn.cursor()
     cursor.execute('DELETE FROM user_notes WHERE user_id = ? AND title = ?', (user_id, title))
@@ -312,3 +281,37 @@ def delete_user_note(user_id, title):
     print(f"Deleted note '{title}' for user ID {user_id}")
 
 create_notes_table()
+
+def create_events_table():
+    conn = connect_user_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS user_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            date TEXT NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+def create_progress_table():
+    conn = connect_user_db()  
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS progress (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            injury_id INTEGER,
+            date TEXT NOT NULL,
+            pain_level INTEGER NOT NULL,
+            exercise_completed INTEGER NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (injury_id) REFERENCES injuries(id)
+        )
+    ''')
+    conn.commit()
+    conn.close()
+    print("Done")

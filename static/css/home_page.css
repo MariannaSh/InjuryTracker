@@ -205,7 +205,6 @@ h1, h2 {
     margin-bottom: 10px;
 }
 
-/* Компактная форма добавления видео в строку */
 .add-video {
     display: flex;
     flex-wrap: wrap;
@@ -230,25 +229,25 @@ h1, h2 {
 }
 
 .add-video select {
-    background: #333; /* Темный фон для выпадающего списка */
-    color: #ffffff; /* Белый цвет текста */
-    border-bottom: 2px solid #03dac6; /* Цвет нижней границы */
-    width: 100%; /* Ширина 100% для адаптации */
-    font-size: 13px; /* Размер шрифта */
-    padding: 6px; /* Внутренние отступы */
-    border-radius: 0; /* Без скруглений */
-    box-sizing: border-box; /* Учет внутренних отступов в ширине */
+    background: #333; 
+    color: #ffffff; 
+    border-bottom: 2px solid #03dac6; 
+    width: 100%; 
+    font-size: 13px;
+    padding: 6px; 
+    border-radius: 0; 
+    box-sizing: border-box; 
 }
 
 .add-video select option {
-    background: #333; /* Темный фон для элементов списка */
-    color: #ffffff; /* Белый цвет текста для элементов */
+    background: #333; 
+    color: #ffffff; 
 }
 
 .add-video select:focus {
     outline: none;
-    background: #444; /* Легкий оттенок серого при фокусе */
-    border-color: #03dac6; /* Цвет границы при фокусе */
+    background: #444; 
+    border-color: #03dac6; 
 }
 
 .add-video input:focus, .add-video select:focus {
@@ -258,7 +257,6 @@ h1, h2 {
     border-bottom: 2px solid #03dac6;
 }
 
-/* Улучшенная кнопка "Добавить" */
 .add-video button {
     background-color: #03dac6;
     color: #ffffff;
@@ -277,7 +275,6 @@ h1, h2 {
     background-color: #02c2ad;
 }
 
-/* Фильтр категории */
 .video-filter {
     margin-top: 10px;
     font-size: 12px;
@@ -290,25 +287,23 @@ h1, h2 {
     font-size: 14px;
     border: 2px solid #03dac6;
     border-radius: 5px;
-    background: #333; /* Dark background for the dropdown */
-    color: #ffffff; /* White text color */
+    background: #333; 
+    color: #ffffff;
     width: 100%;
     margin-top: 4px;
 }
 
 .video-filter select option {
-    background: #333; /* Dark background for options */
-    color: #ffffff; /* White text color for options */
+    background: #333;
+    color: #ffffff;
 }
 
-/* Добавление темного фона при фокусировке */
 .video-filter select:focus {
     outline: none;
-    background: #444; /* Slightly lighter dark background on focus */
+    background: #444; 
     border-color: #03dac6;
 }
 
-/* Список видео */
 #videos_list {
     margin-top: 8px;
     max-height: 180px;
@@ -317,7 +312,6 @@ h1, h2 {
     width: 100%;
 }
 
-/* Карточки видео */
 .video-item {
     display: flex;
     justify-content: space-between;
@@ -345,26 +339,25 @@ h1, h2 {
 }
 
 .video-item button {
-    background-color: #e14e7f; /* Красный фон для кнопки удаления */
-    color: #ffffff; /* Белый текст */
-    border: none; /* Без границ */
-    padding: 5px 12px; /* Внутренние отступы */
-    border-radius: 5px; /* Скругленные углы */
-    cursor: pointer; /* Курсор в виде руки при наведении */
-    font-size: 12px; /* Размер шрифта */
-    transition: background-color 0.3s ease, transform 0.2s ease; /* Плавное изменение фона */
+    background-color: #e14e7f; 
+    color: #ffffff; 
+    border: none; 
+    padding: 5px 12px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    font-size: 12px; 
+    transition: background-color 0.3s ease, transform 0.2s ease; 
 }
 
 .video-item button:hover {
-    background-color: #d67595; /* Темный красный цвет фона при наведении */
-    transform: scale(1.05); /* Легкое увеличение кнопки при наведении */
+    background-color: #d67595; 
+    transform: scale(1.05);
 }
 
 .video-item button:focus {
-    outline: none; /* Убираем обводку при фокусировке */
+    outline: none;
 }
 
-/* Form Styles */
 .form-group {
     margin-bottom: 20px;
     text-align: left;
@@ -387,7 +380,6 @@ select, input[type="number"], input[type="date"] {
     box-sizing: border-box;
 }
 
-/* Checkbox */
 .checkbox-group {
     display: flex;
     align-items: center;
@@ -400,7 +392,6 @@ input[type="checkbox"] {
     accent-color: #03dac6;
 }
 
-/* Submit Button */
 .submit-btn {
     width: 100%;
     padding: 14px;
@@ -419,7 +410,6 @@ input[type="checkbox"] {
     box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
 }
 
-/* Links Section */
 .links {
     margin-top: 20px;
 }
@@ -438,7 +428,6 @@ input[type="checkbox"] {
     color: #0b0b0b;
 }
 
-/* Генерируем несколько случайных звезд на фоне */
 .star {
     position: absolute;
     width: 2px;

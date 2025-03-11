@@ -11,10 +11,8 @@ body {
     position: relative;
 }
 
-/* Navigation Menu */
 .menu {
     background-color: #0d0d0d;
-    /* padding: 15px 0; */
 }
 
 .menu ul {
@@ -44,7 +42,6 @@ body {
     color: #03dac6;
 }
 
-/* Progress Form */
 .progress-form {
     max-width: 600px;
     margin: 50px auto;
@@ -83,7 +80,6 @@ select, input[type="number"], input[type="date"] {
     margin-top: 5px;
 }
 
-/* Submit Button */
 .submit-btn {
     width: 100%;
     padding: 14px;
@@ -100,7 +96,6 @@ select, input[type="number"], input[type="date"] {
     background-color: #02c2ad;
 }
 
-/* Link Button */
 .link-btn {
     text-decoration: none;
     font-size: 16px;

@@ -1,9 +1,8 @@
 function validateForm(event) {
     console.log("validateForm called"); 
     
-    // Проверка состояния чекбокса
     const diagnosisConfirmed = document.getElementById('diagnosis_confirmed').checked;
-    console.log("Diagnosis confirmed:", diagnosisConfirmed); // Проверка состояния чекбокса
+    console.log("Diagnosis confirmed:", diagnosisConfirmed); 
 
     const age = document.getElementById('age').value;
     if (age < 5 || age > 99) {
@@ -12,12 +11,11 @@ function validateForm(event) {
         return;
     }
 
-    // Проверка состояния чекбокса
     if (!diagnosisConfirmed) {
         event.preventDefault(); 
-        alert("Приложение не несет ответственности за поставление диагнозов и не выдает рекомендации без консультации врача.");
+        alert("The application is not responsible for making diagnoses and does not provide recommendations without consulting a doctor.");
     } else {
-        alert("Все добавленные упражнения следует выполнять в комфортном для вас режиме, не вызывающем боли или дискомфорта.");
+        alert("All added exercises should be performed at a comfortable pace that does not cause pain or discomfort.");
     }
 }
 
@@ -36,12 +34,10 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 
-// Загружаем список видео при загрузке страницы
 document.addEventListener("DOMContentLoaded", function () {
     loadVideos();
 });
 
-// Функция для загрузки видео с сервера
 function loadVideos() {
     fetch("/get_videos")
         .then(response => response.json())
@@ -49,17 +45,15 @@ function loadVideos() {
             if (data.success) {
                 displayVideos(data.videos);
             } else {
-                console.error("Ошибка загрузки видео:", data);
+                console.error("Error loading video:", data);
             }
         })
-        .catch(error => console.error("Ошибка запроса:", error));
+        .catch(error => console.error("Request error:", error));
 }
 
-// Функция для вывода списка видео
 function displayVideos(videos) {
     const videoList = document.getElementById("videos_list");
-    videoList.innerHTML = ""; // Очищаем перед добавлением новых видео
-
+    videoList.innerHTML = ""; 
     if (videos.length === 0) {
         videoList.innerHTML = "<p>No videos added.</p>";
         return;
@@ -77,7 +71,7 @@ function displayVideos(videos) {
     });
 }
 
-// Функция добавления видео
+
 function addVideo() {
     const title = document.getElementById("video_title").value.trim();
     const link = document.getElementById("video_url").value.trim();
@@ -104,7 +98,6 @@ function addVideo() {
         .catch(error => console.error("Add error:", error));
 }
 
-// Фильтр видео по категории
 function filterVideos() {
     const selectedCategory = document.getElementById("filter_category").value;
 
@@ -122,13 +115,12 @@ function filterVideos() {
         .catch(error => console.error("Filter Error:", error));
 }
 
-// Функция удаления видео
 function deleteVideo(videoId) {
     fetch(`/delete_video/${videoId}`, { method: "DELETE" })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                loadVideos(); // Обновляем список после удаления
+                loadVideos(); 
             }
         })
         .catch(error => console.error("Delete Error:", error));
@@ -152,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 url: '/get_events', 
                 method: 'GET',
                 failure: function() {
-                    console.error('Не удалось загрузить события!');
+                    console.error('Failed to load events!');
                 }
             }
         ],
@@ -162,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
         dateClick: function(info) {   
-            let eventName = prompt("Введите название события (например, Лекарство, Тренировка):");
+            let eventName = prompt("Enter the event name (e.g., Medication, Workout):");
             if (eventName) {
                 fetch('/add_event', {
                     method: 'POST',
@@ -177,19 +169,126 @@ document.addEventListener('DOMContentLoaded', function() {
                   .then(data => {
                       if (data.success) {
                           calendar.addEvent({ title: eventName, start: info.dateStr });
-                          alert('Событие добавлено!');
+                          alert('Event added!');
                       } else {
-                          alert('Не удалось добавить событие.');
+                          alert('Failed to add event.');
                       }
                   }).catch(error => {
-                      console.error('Ошибка при добавлении события:', error);
+                      console.error('Error adding event:', error);
                   });
             }
         },
         eventClick: function(info) { 
-            alert('Событие: ' + info.event.title + '\nДата: ' + info.event.start.toLocaleDateString());
+            alert('Event: ' + info.event.title + '\nDate: ' + info.event.start.toLocaleDateString());
         }
     });
 
     calendar.render();
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    let calendarEl = document.getElementById('calendar');
+
+    fetch('/get_events')
+        .then(response => response.json())
+        .then(data => {
+
+            let calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                events: data.events,  
+                editable: true
+            });
+
+            calendar.render();  
+        })
+        .catch(error => console.error('Error loading events:', error));
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    let calendarEl = document.getElementById('calendar');
+
+    fetch('/get_events')
+        .then(response => response.json())
+        .then(data => {
+
+            let calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                events: data.events, 
+
+                dateClick: function(info) {
+                    let title = prompt("Enter the event name:");
+                    if (title) {
+                        fetch('/add_event', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ title: title, start: info.dateStr }) 
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                calendar.addEvent({ id: data.id, title: title, start: info.dateStr });
+                                alert("Event added!");
+                            } else {
+                                alert("Error: " + data.message);
+                            }
+                        })
+                        .catch(error => console.error("Error adding event:", error));
+                    }
+                },
+
+                editable: true, 
+
+                eventDrop: function(info) {
+                    let event = info.event;
+                    fetch('/update_event', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: event.id, start: event.startStr })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            alert("Error: " + data.message);
+                        }
+                    })
+                    .catch(error => console.error("Event update error:", error));
+                },
+
+                eventClick: function(info) {
+                    if (confirm("Delete this event?")) {
+                        fetch('/delete_event/' + info.event.id, { method: 'DELETE' })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                info.event.remove();
+                                alert("Event removed!");
+                            } else {
+                                alert("Error: " + data.message);
+                            }
+                        })
+                        .catch(error => console.error("Event loading error:", error));
+                    }
+                }
+            });
+
+            calendar.render(); 
+        })
+        .catch(error => console.error('Event loading error:', error));
+});
+
+function showPasswordError(message) {
+    const errorContainer = document.getElementById("passwordError");
+    errorContainer.innerText = message;
+    errorContainer.style.display = "block";
+}
+

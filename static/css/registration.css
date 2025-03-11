@@ -1,7 +1,6 @@
-/* Общие стили для всей страницы */
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(180deg, #000000, #1a1a1a); /* Плавный переход к темно-серому */
+    background: linear-gradient(180deg, #000000, #1a1a1a);
     color: #000000;
     margin: 0;
     padding: 0;
@@ -16,7 +15,7 @@ body {
 }
 
 .container {
-    background-color: rgba(30, 30, 30, 0.9); /* Темно-серый контейнер с прозрачностью */
+    background-color: rgba(30, 30, 30, 0.9); 
     padding: 40px;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
@@ -29,7 +28,7 @@ body {
 h1 {
     font-size: 3em;
     margin-bottom: 20px;
-    color: #e14e7f; /* Спокойный серый цвет текста */
+    color: #e14e7f;
 }
 
 form {
@@ -100,7 +99,6 @@ a:hover {
     text-decoration: underline;
 }
 
-/* Стили для модального окна */
 .modal {
     display: none;
     position: fixed;
@@ -140,7 +138,6 @@ a:hover {
     font-size: 0.9em;
 }
 
-/* Генерируем несколько случайных звезд на фоне */
 .star {
     position: absolute;
     width: 2px;

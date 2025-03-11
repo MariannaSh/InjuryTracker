@@ -1,14 +1,12 @@
-/* Общий стиль страницы */
 body {
     font-family: 'Roboto', sans-serif;
-    background-color: #0d0d0d; /* Более глубокий черный */
+    background-color: #0d0d0d; 
     color: #ffffff;
     text-align: center;
     margin: 0;
     padding: 0;
 }
 
-/* Меню навигации */
 .menu {
     background-color: #0d0d0d;
     padding: 15px 0;
@@ -29,7 +27,7 @@ body {
 
 .menu ul li a {
     text-decoration: none;
-    color: #ffffff; /* Белый текст по умолчанию */
+    color: #ffffff; 
     font-size: 18px;
     font-weight: bold;
     padding: 10px 15px;
@@ -43,7 +41,7 @@ body {
     display: block;
     height: 2px;
     width: 0;
-    background: #03dac6; /* Бирюзовое подчеркивание */
+    background: #03dac6; 
     transition: width 0.3s ease-in-out;
     position: absolute;
     left: 0;
@@ -51,7 +49,7 @@ body {
 }
 
 .menu ul li a:hover {
-    color: #03dac6; /* Бирюзовый цвет текста при наведении */
+    color: #03dac6;
 }
 
 .menu ul li a:hover::after {
@@ -59,7 +57,6 @@ body {
 }
 
 
-/* Контейнер формы */
 .container {
     background: #181818;
     padding: 30px;
@@ -70,14 +67,12 @@ body {
     box-shadow: 0 6px 12px rgba(255, 255, 255, 0.05);
 }
 
-/* Заголовок */
 h1 {
-    color: #03dac6; /* Бирюзовый */
+    color: #03dac6; 
     font-size: 26px;
     margin-bottom: 20px;
 }
 
-/* Поля ввода */
 form label {
     display: block;
     font-size: 18px;
@@ -89,13 +84,12 @@ form input {
     padding: 10px;
     border-radius: 6px;
     border: none;
-    background: #222; /* Темнее */
+    background: #222; 
     color: #ffffff;
     font-size: 16px;
     margin-bottom: 15px;
 }
 
-/* Кнопка */
 .buttons button {
     background-color: #17c3b2;
     color: #fcfbfb;
@@ -128,18 +122,16 @@ form input {
     font-size: 18px;
 }
 
-/* Заголовок и основной текст остаются белыми */
+
 .result h2,
 .result p:first-of-type {
     color: #ffffff;
 }
 
-/* Нижний текст (категория BMI) меняет цвет */
 .result .bmi-category {
     font-weight: bold;
 }
 
-/* Цвета BMI */
 .low-high {
     border-color: #ffeb3b;
 }
@@ -172,7 +164,6 @@ form input {
     color: #f44336;
 }
 
-/* Блок нутриции */
 .nutrition {
     background: #181818;
     padding: 20px;
@@ -181,17 +172,15 @@ form input {
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(255, 255, 255, 0.05);
     text-align: left;
-    border: none; /* Без рамки */
+    border: none; 
 }
 
-/* Заголовок нутриции */
 .nutrition h2 {
     color: #ffffff;
     font-size: 22px;
     font-weight: bold;
 }
 
-/* Список нутриентов */
 .nutrition ul {
     list-style-type: none;
     padding: 0;
@@ -212,7 +201,6 @@ form input {
 }
 
 
-/* Генерируем несколько случайных звезд на фоне */
 .star {
     position: absolute;
     width: 2px;

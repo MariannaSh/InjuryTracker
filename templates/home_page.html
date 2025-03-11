@@ -8,7 +8,6 @@
 </head>
 <body>
 
-    <!-- Navigation Menu -->
     <nav class="menu">
         <ul>
             <li><a href="/profile">Profile</a></li>
@@ -18,11 +17,9 @@
         </ul>
     </nav>
 
-    <!-- Form Container -->
     <main class="form-container">
         <h1>Enter Injury Details</h1>
 
-        <!-- Injury Information Form -->
         <form action="/submit" method="POST" onsubmit="validateForm(event)">
             <div class="form-group">
                 <label for="injury_type">Select Injury:</label>
@@ -57,20 +54,16 @@
         </form>
 
         <div class="links">
-            <!-- Update the link to point to the calendar section -->
             <a href="#calendar-container" class="link-btn">Go to Calendar</a>
             <a href="{{ url_for('logout') }}" class="link-btn">Logout</a>
         </div>
     </main>
 
-    <!-- Calendar Container -->
     <div class="container">
-        <!-- Календарь -->
         <div id="calendar-container">
             <div id="calendar"></div>
         </div>
         
-        <!-- Блок заметок с видео -->
         <div id="video-notes">
             <h2>Favorite Workouts</h2>
             <div class="add-video">

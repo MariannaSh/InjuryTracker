@@ -1,8 +1,7 @@
 import os
 from flask import Flask, jsonify, render_template, request, redirect, url_for, session
 import requests
-from database import add_progress, calculate_progress, create_notes_table,  create_tables, connect_user_db,add_injury,  get_distinct_injury_types, get_profile_image, get_progress_data, create_user_tables, get_recommendation, get_user_by_id, update_profile_image
-
+from database import add_progress, calculate_progress, create_events_table, create_notes_table, create_progress_table,  create_tables, connect_user_db,add_injury,  get_distinct_injury_types, get_profile_image, get_progress_data, create_user_tables, get_recommendation, get_user_by_id, update_profile_image
 from werkzeug.utils import secure_filename
 import sqlite3
 from auth import auth_bp
@@ -44,14 +43,12 @@ def fetch_nutrition_info(food_item):
 def test():
     if request.method == 'POST':
 
-        height_cm = int(request.form['height_cm'])  # Рост в сантиметрах
-        weight_kg = int(request.form['weight_kg'])  # Вес в килограммах
+        height_cm = int(request.form['height_cm'])  
+        weight_kg = int(request.form['weight_kg'])  
         food_item = request.form['food_item']
 
-        # Рассчитываем ИМТ
         bmi = calculate_bmi(weight_kg, height_cm)
 
-        # Fetch Nutrition Info
         nutrition_info = fetch_nutrition_info(food_item)
 
         return render_template('bmi.html', bmi=bmi, nutrition_info=nutrition_info)
@@ -84,55 +81,48 @@ def add_injury_route():
 @app.route('/submit', methods=['POST'])
 def submit():
     injury_type = request.form.get('injury_type')
-    # age = request.form.get('age')
+
     fitness_level = request.form.get('fitness_level')
 
-    # Валидация данных
     if not injury_type:
         error_message = "Не был выбран тип травмы."
         return render_template('home_page.html', username=session['username'], error=error_message, injuries=get_distinct_injury_types())
-    
-    # try:
-    #     age = int(age)
-    #     if age < 1 or age > 100:
-    #         error_message = "Вы точно нуждаетесь в рекомендациях?"
-    #         return render_template('home_page.html', username=session['username'], error=error_message, injuries=get_distinct_injury_types())
-    # except ValueError:
-    #     error_message = "Пожалуйста, введите корректный возраст."
-    #     return render_template('home_page.html', username=session['username'], error=error_message, injuries=get_distinct_injury_types())
 
     if fitness_level not in ['low', 'medium', 'high']:
         error_message = "Не был выбран уровень физической подготовки."
         return render_template('home_page.html', username=session['username'], error=error_message, injuries=get_distinct_injury_types())
 
-    # Получение рекомендации с помощью функции get_recommendation
     recommendation = get_recommendation(injury_type, fitness_level)
 
-    # Передаем рекомендацию на страницу recommendations.html
     return render_template('recommendations.html', recommendations=recommendation)
-
-
 
 
 @app.route('/add_progress', methods=['POST'])
 def add_progress_route():
-    # Your existing code for handling the POST request
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"success": False, "message": "Пользователь не авторизован"}), 401
     injury_id = request.form['injury_type']
     date = request.form['date']
     pain_level = request.form['pain_level']
     exercise_completed = request.form['exercise_completed']
 
-    add_progress(injury_id, date, pain_level, exercise_completed)
+    add_progress(user_id, injury_id, date, pain_level, exercise_completed)
     return redirect(url_for('progress'))
+
 
 @app.route('/progress', methods=['GET', 'POST'])
 def progress():
-    progress_data = calculate_progress() 
-    if 'username' in session:
-        injuries = get_distinct_injury_types()
-        injuries = [injury[0] for injury in injuries]  
-        return render_template('progress.html', username=session['username'], injuries=injuries, progress_data=progress_data)
-    return render_template('progress.html', progress_data=progress_data)
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+
+    progress_data = get_progress_data(user_id)  
+
+    injuries = get_distinct_injury_types()
+    injuries = [injury[0] for injury in injuries]
+
+    return render_template('progress.html', username=session['username'], injuries=injuries, progress_data=progress_data)
 
 
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
@@ -155,7 +145,6 @@ def upload_profile_image():
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
 
-            # Обновляем фото в базе
             update_profile_image(user_id, filename)
             return redirect(url_for('user_profile'))
     return "Invalid file or no file uploaded", 400
@@ -215,37 +204,42 @@ def debug_session():
 
 @app.route('/chart')
 def chart():
-    data = get_progress_data()
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+
+    data = get_progress_data(user_id)
     if not data:
         return render_template('chart.html', pain_levels=[], dates=[])
 
-    pain_levels = [row[0] for row in data]  
-    dates = [row[1] for row in data]       
+    pain_levels = [row[0] for row in data]
+    dates = [row[1] for row in data]
 
     return render_template('chart.html', pain_levels=pain_levels, dates=dates)
 
 @app.route('/clear_progress', methods=['POST'])
 def clear_progress():
     try:
-        conn = sqlite3.connect('injuries.db')
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM progress")  # Очистка всех данных в таблице
-        conn.commit()
-        conn.close()
-        return jsonify({"status": "success", "message": "Database cleared!"})
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"status": "error", "message": "Пользователь не авторизован"}), 401
+
+        with connect_user_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM progress WHERE user_id = ?", (user_id,))
+            conn.commit()
+
+        return jsonify({"status": "success", "message": "Прогресс очищен!"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
 
-
 @app.route('/recommendations', methods=['GET', 'POST'])
 def show_recommendations():
-    injury_type = request.form.get('injury_type')  # Тип травмы
-    fitness_level = request.form.get('fitness_level')  # Уровень физической активности
+    injury_type = request.form.get('injury_type')  
+    fitness_level = request.form.get('fitness_level')  
 
-    # Получаем рекомендации из базы данных
     recommendations = get_recommendation(injury_type, fitness_level)
 
-    # Передаем данные в шаблон
     return render_template('recommendations.html', recommendations=recommendations)
 
 
@@ -258,36 +252,17 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('index'))
 
-# переделать чтобы в базе хранилось
-events = []
-
-@app.route('/get_events', methods=['GET'])
-def get_events():
-    return jsonify(events)
-
-@app.route('/add_event', methods=['POST'])
-def add_event():
-    data = request.json
-    if 'title' in data and 'date' in data:
-        events.append({'title': data['title'], 'start': data['date']})
-        return jsonify({'success': True})
-    return jsonify({'success': False})
-def connect_user_db():
-    """Создает соединение с users.db в папке instance."""
-    db_path = os.path.join(os.path.dirname(__file__), 'instance', 'users.db')
-    print(f"Подключение к БД: {db_path}")  # Проверяем путь
-    return sqlite3.connect(db_path)
 
 @app.route('/add_video', methods=['POST'])
 def add_video():
     """Добавляет новое видео в БД."""
     data = request.json
-    user_id = session.get("user_id", 1)  # Должен быть реальный ID из сессии
+    user_id = session.get("user_id", 1)  
     title = data.get('title')
     link = data.get('link')
     category = data.get('category')
 
-    print(f"Полученные данные: {title}, {link}, {category}")  # Лог для проверки
+    print(f"Полученные данные: {title}, {link}, {category}")  
 
     conn = connect_user_db()
     cursor = conn.cursor()
@@ -302,11 +277,14 @@ def add_video():
 
 @app.route("/get_videos")
 def get_videos():
-    """Возвращает все сохраненные видео для отображения."""
-    conn = connect_user_db()  # Используем правильное подключение к users.db
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"success": False, "message": "Пользователь не авторизован"}), 401
+
+    conn = connect_user_db()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT id, title, link, category FROM user_notes")
+    cursor.execute("SELECT id, title, link, category FROM user_notes WHERE user_id = ?", (user_id,))
     videos = cursor.fetchall()
     conn.close()
 
@@ -322,7 +300,6 @@ def delete_video(video_id):
     conn = connect_user_db()
     cursor = conn.cursor()
     
-    # Проверяем, есть ли видео с таким id
     cursor.execute("SELECT * FROM user_notes WHERE id = ?", (video_id,))
     video = cursor.fetchone()
 
@@ -336,7 +313,82 @@ def delete_video(video_id):
     conn.close()
     return jsonify(response)
 
+@app.route('/add_event', methods=['POST'])
+def add_event():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"success": False, "message": "Пользователь не авторизован"}), 401
+
+    data = request.json
+    title = data.get("title")
+    date = data.get("start")  
+
+    if not title or not date:
+        return jsonify({"success": False, "message": "Некорректные данные"}), 400
+
+    with connect_user_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO user_events (user_id, title, date) VALUES (?, ?, ?)",
+            (user_id, title, date)
+        )
+        conn.commit()
+        event_id = cursor.lastrowid  
+
+    return jsonify({"success": True, "message": "Событие добавлено", "id": event_id})
+
+@app.route('/update_event', methods=['PUT'])
+def update_event():
+    """Обновляет дату события в базе данных."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"success": False, "message": "Пользователь не авторизован"}), 401
+
+    data = request.json
+    event_id = data.get("id")
+    new_date = data.get("start")  
+
+    if not event_id or not new_date:
+        return jsonify({"success": False, "message": "Некорректные данные"}), 400
+
+    with connect_user_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE user_events SET date = ? WHERE id = ? AND user_id = ?", (new_date, event_id, user_id))
+        conn.commit()
+
+    return jsonify({"success": True, "message": "Событие обновлено"})
+
+@app.route('/delete_event/<int:event_id>', methods=['DELETE'])
+def delete_event(event_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"success": False, "message": "Пользователь не авторизован"}), 401
+
+    with connect_user_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM user_events WHERE id = ? AND user_id = ?", (event_id, user_id))
+        conn.commit()
+
+    return jsonify({"success": True, "message": "Событие удалено"})
+
+
+@app.route('/get_events', methods=['GET'])
+def get_events():
+    """Возвращает события только для авторизованного пользователя"""
+    user_id = session.get('user_id')  # Получаем ID пользователя из сессии
+    if not user_id:
+        return jsonify({"success": False, "message": "Пользователь не авторизован"}), 401
+
+    with connect_user_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, title, date FROM user_events WHERE user_id = ?", (user_id,))
+        events = [{"id": e[0], "title": e[1], "start": e[2]} for e in cursor.fetchall()]
+
+    print("🔍 Отправляем события пользователю:", events)  # ✅ Логируем результат
+    return jsonify({"success": True, "events": events})
+
+
 if __name__ == '__main__':
     create_tables() 
-    create_user_tables() 
+    create_progress_table()
     app.run(debug=True)
