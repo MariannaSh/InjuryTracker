@@ -51,17 +51,19 @@
 
                 <div class="profile-column">
                     <br><br><br><br><br>
-                    <form method="POST" action="{{ url_for('auth.change_password') }}">
+                    <form method="POST" action="{{ url_for('auth.change_password') }}" id="change-password-form">
                         <label for="current_password">Current password:</label>
                         <input type="password" id="current_password" name="current_password" required>
                         <br>
                         <label for="new_password">New Password:</label>
                         <input type="password" id="new_password" name="new_password" required>
+                
                         <div id="passwordError" style="color: #c23664; display: none;"></div>
-
+                
                         <button type="submit">Change password</button>
                     </form>
                 </div>
+                
             </div>
             <br>
             <div class="profile-actions">

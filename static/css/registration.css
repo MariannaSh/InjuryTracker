@@ -161,3 +161,10 @@ a:hover {
 .star:nth-child(3) { top: 50%; left: 50%; }
 .star:nth-child(4) { top: 70%; left: 30%; }
 .star:nth-child(5) { top: 90%; left: 70%; }
+
+.error-message {
+    color: #17c3b2;
+    font-size: 14px;
+    margin-top: 5px;
+    display: none;
+}

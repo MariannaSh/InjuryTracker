@@ -9,18 +9,28 @@
 <body>
     <div class="container">
         <h1>Registration</h1>
-        <form method="POST">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div id="flash-data" data-messages='{{ messages | tojson | safe }}' style="display: none;"></div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" id="register-form">
             <label for="username">Username:</label>
-            <input type="text" name="username" required>
-            
+            <input type="text" name="username" id="username" required>
+            <div id="username-error" class="error-message"></div> 
+
             <label for="password">Password:</label>
-            <input type="password" name="password" required>
-            
-            <input type="submit" value="Register" class="small-button"> 
+            <input type="password" name="password" id="password" required>
+            <div id="password-error" class="error-message"></div> 
+
+            <input type="submit" value="Register" class="small-button">
         </form>
+
         <a href="{{ url_for('auth.login') }}">Already have an account? Log in</a>
     </div>
-    </form>
-    <script src="/static/js/script.js"></script>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

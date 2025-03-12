@@ -1,5 +1,5 @@
 
-from flask import Blueprint, current_app, logging, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, current_app, jsonify, logging, render_template, request, redirect, url_for, flash, session
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from flask_bcrypt import Bcrypt
 from database import add_user, get_user, get_user_by_id , connect_user_db 
@@ -28,11 +28,23 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        add_user(username, password)  
+
+        existing_user = get_user(username)
+        if existing_user:
+            flash("Username already exists. Please choose a different one.", "error")
+            return redirect(url_for('auth.register'))
+
+        if len(password) < 6:
+            flash("Password must be at least 6 characters long.", "error")
+            return redirect(url_for('auth.register'))
+
+        add_user(username, password)
         session['username'] = username  
         flash("Registration successful! Please log in.", "success")
-        return redirect(url_for('auth.login'))  
+        return redirect(url_for('auth.login'))
+
     return render_template('register.html')
+
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -59,32 +71,35 @@ def login():
 @auth_bp.route('/change_password', methods=['POST'])
 def change_password():
     if "user_id" not in session:
-        current_app.logger.error("The user is not authorized.") 
-        return redirect(url_for("auth.login"))  
+        return jsonify({"error": "User is not authorized."}), 403
 
     current_password = request.form.get("current_password")
     new_password = request.form.get("new_password")
     user_id = session["user_id"]
 
-    if not new_password or len(new_password) < 6:
-        current_app.logger.warning("Invalid password.") 
-        return "The password must be at least 6 characters long.", 400
+    if not current_password or not new_password:
+        return jsonify({"error": "Both current and new passwords are required."}), 400
+
+    if len(new_password) < 6:
+        return jsonify({"error": "New password must be at least 6 characters long."}), 400
 
     with connect_user_db() as conn:
         cursor = conn.cursor()
         cursor.execute('SELECT password_hash FROM users WHERE id = ?', (user_id,))
         stored_password = cursor.fetchone()
 
-        if not stored_password or not bcrypt.check_password_hash(stored_password[0], current_password):
-            current_app.logger.warning("The current password is invalid.")  
-            return "The current password is invalid.", 401
+        if not stored_password:
+            return jsonify({"error": "User not found."}), 404
+
+        if not bcrypt.check_password_hash(stored_password[0], current_password):
+            return jsonify({"error": "Invalid current password."}), 401
 
         hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
         cursor.execute('UPDATE users SET password_hash = ? WHERE id = ?', (hashed_password, user_id))
         conn.commit()
 
-    current_app.logger.info("Password successfully updated.")  
-    return redirect(url_for("user_profile"))
+    return jsonify({"success": True, "message": "Password successfully changed."}), 200
+
 
 @auth_bp.route('/logout')
 def logout():

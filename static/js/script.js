@@ -286,9 +286,61 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => console.error('Event loading error:', error));
 });
 
+document.addEventListener("DOMContentLoaded", function() {
+    const passwordForm = document.getElementById("change-password-form");
+
+    if (passwordForm) {
+        passwordForm.addEventListener("submit", function(event) {
+            event.preventDefault(); 
+
+            const formData = new FormData(passwordForm);
+            const passwordError = document.getElementById("passwordError");
+
+            fetch("/change_password", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showPasswordError(data.error); 
+                } else {
+                    alert("Password successfully changed!");
+                    window.location.reload(); 
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                showPasswordError("An error occurred. Please try again.");
+            });
+        });
+    }
+});
+
 function showPasswordError(message) {
-    const errorContainer = document.getElementById("passwordError");
+    let errorContainer = document.getElementById("passwordError");
     errorContainer.innerText = message;
     errorContainer.style.display = "block";
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    const flashData = document.getElementById("flash-data");
+    if (!flashData) return;
+
+    const messages = JSON.parse(flashData.getAttribute("data-messages"));
+
+    if (messages.length > 0) {
+        const usernameError = messages.find(([category, message]) => category === 'error' && message.includes('Username already exists'));
+        const passwordError = messages.find(([category, message]) => category === 'error' && message.includes('Password must be at least'));
+
+        if (usernameError) {
+            document.getElementById('username-error').textContent = usernameError[1];
+            document.getElementById('username-error').style.display = 'block';
+        }
+
+        if (passwordError) {
+            document.getElementById('password-error').textContent = passwordError[1];
+            document.getElementById('password-error').style.display = 'block';
+        }
+    }
+});
