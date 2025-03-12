@@ -64,7 +64,7 @@ def login():
 
         session['user_id'] = user[0]
         session['username'] = username
-        return redirect(url_for('home_page'))
+        return redirect(url_for('home'))
 
     return render_template('login.html')
 

@@ -315,3 +315,58 @@ def create_progress_table():
     conn.commit()
     conn.close()
     print("Done")
+
+def create_user_injuries_table():
+    with create_connection_injuries() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS user_injuries (
+                user_id INTEGER PRIMARY KEY,
+                injury_type TEXT NOT NULL,
+                fitness_level TEXT NOT NULL,
+                doctor_confirmed BOOLEAN NOT NULL DEFAULT 0,
+                FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+            )
+        ''')
+        conn.commit()
+
+def save_user_injury(user_id, injury_type, fitness_level, doctor_confirmed, rehab_start_date):
+    with create_connection_injuries() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO user_injuries (user_id, injury_type, fitness_level, doctor_confirmed, rehab_start_date)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(user_id) DO UPDATE 
+            SET injury_type = ?, fitness_level = ?, doctor_confirmed = ?, rehab_start_date = ?;
+        ''', (user_id, injury_type, fitness_level, doctor_confirmed, rehab_start_date,
+              injury_type, fitness_level, doctor_confirmed, rehab_start_date))
+        conn.commit()
+
+def get_user_injury(user_id):
+    with create_connection_injuries() as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT injury_type, fitness_level, doctor_confirmed, rehab_start_date FROM user_injuries WHERE user_id = ?', (user_id,))
+        return cursor.fetchone()
+
+def get_all_injuries():
+    with create_connection_injuries() as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT DISTINCT injury_type FROM injuries')
+        return [row[0] for row in cursor.fetchall()]
+
+def delete_user_injury(user_id):
+    with create_connection_injuries() as conn:
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM user_injuries WHERE user_id = ?', (user_id,))
+        conn.commit()
+
+def add_rehab_start_date_column():
+    with create_connection_injuries() as conn:
+        cursor = conn.cursor()
+        try:
+            cursor.execute('ALTER TABLE user_injuries ADD COLUMN rehab_start_date TEXT')
+            conn.commit()
+            print("Column 'rehab_start_date' added successfully.")
+        except sqlite3.OperationalError:
+            print("Column 'rehab_start_date' already exists.")
+

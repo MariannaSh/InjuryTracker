@@ -1,7 +1,7 @@
 import os
-from flask import Flask, jsonify, render_template, request, redirect, url_for, session
+from flask import Flask, flash, jsonify, render_template, request, redirect, url_for, session
 import requests
-from database import add_progress, calculate_progress, create_events_table, create_notes_table, create_progress_table,  create_tables, connect_user_db,add_injury,  get_distinct_injury_types, get_profile_image, get_progress_data, create_user_tables, get_recommendation, get_user_by_id, update_profile_image
+from database import add_progress, add_rehab_start_date_column, create_progress_table,  create_tables, connect_user_db,add_injury, create_user_injuries_table, delete_user_injury, get_all_injuries,  get_distinct_injury_types, get_profile_image, get_progress_data, create_user_tables, get_recommendation, get_user_by_id, get_user_injury, save_user_injury, update_profile_image
 from werkzeug.utils import secure_filename
 import sqlite3
 from auth import auth_bp
@@ -18,7 +18,7 @@ def connect_db():
 
 
 def calculate_bmi(weight_kg, height_cm):
-    height_meters = height_cm / 100  # Convert centimeters to meters
+    height_meters = height_cm / 100 
     bmi = weight_kg / height_meters ** 2
     return round(bmi, 1)
 
@@ -60,13 +60,18 @@ def test():
 def index():
     return render_template('index.html')
 
-@app.route('/home')
-def home_page():
-    if 'username' in session:
-        injuries = get_distinct_injury_types()
-        injuries = [injury[0] for injury in injuries]  
-        return render_template('home_page.html', username=session['username'], injuries=injuries)
-    return redirect(url_for('index'))
+@app.route('/home', methods=['GET', 'POST'])
+def home():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('auth.login'))
+
+    user_injury = get_user_injury(user_id)  
+    injuries = get_distinct_injury_types()  
+    injuries = [injury[0] for injury in injuries]  
+
+    return render_template('home_page.html', user_injury=user_injury, injuries=injuries)
+
 
 @app.route('/add_injury', methods=['GET', 'POST'])
 def add_injury_route():
@@ -80,9 +85,16 @@ def add_injury_route():
 
 @app.route('/submit', methods=['POST'])
 def submit():
-    injury_type = request.form.get('injury_type')
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
 
-    fitness_level = request.form.get('fitness_level')
+    injury_type = request.form['injury_type']
+    fitness_level = request.form['fitness_level']
+    doctor_confirmed = 1 if 'diagnosis_confirmed' in request.form else 0
+    rehab_start_date = request.form['date'] 
+
+    save_user_injury(user_id, injury_type, fitness_level, doctor_confirmed, rehab_start_date)
 
     if not injury_type:
         error_message = "Не был выбран тип травмы."
@@ -95,6 +107,17 @@ def submit():
     recommendation = get_recommendation(injury_type, fitness_level)
 
     return render_template('recommendations.html', recommendations=recommendation)
+
+@app.route('/complete_rehab', methods=['POST'])
+def complete_rehab():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+
+    delete_user_injury(user_id)
+    
+    flash("Rehabilitation completed! You can now add a new injury.", "success")
+    return redirect(url_for('home'))
 
 
 @app.route('/add_progress', methods=['POST'])
@@ -233,10 +256,14 @@ def clear_progress():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
 
-@app.route('/recommendations', methods=['GET', 'POST'])
+@app.route('/recommendations', methods=['GET'])
 def show_recommendations():
-    injury_type = request.form.get('injury_type')  
-    fitness_level = request.form.get('fitness_level')  
+    injury_type = request.args.get('injury_type')  # Берем травму из URL параметров
+    fitness_level = request.args.get('fitness_level')  
+
+    if not injury_type or not fitness_level:
+        flash("Missing injury type or fitness level!", "error")
+        return redirect(url_for('home'))
 
     recommendations = get_recommendation(injury_type, fitness_level)
 
@@ -384,7 +411,6 @@ def get_events():
         cursor.execute("SELECT id, title, date FROM user_events WHERE user_id = ?", (user_id,))
         events = [{"id": e[0], "title": e[1], "start": e[2]} for e in cursor.fetchall()]
 
-    print("🔍 Отправляем события пользователю:", events)  # ✅ Логируем результат
     return jsonify({"success": True, "events": events})
 
 

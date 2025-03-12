@@ -69,22 +69,178 @@ body {
 }
 
 
-/* Main Container */
-.form-container {
-    max-width: 600px;
-    margin: 80px auto;
-    padding: 30px;
-    background-color: #ffffff;
-    color: #333;
-    border-radius: 12px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    transition: box-shadow 0.3s ease;  /* Make transition smoother for box-shadow */
+/* Общий контейнер */
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
 }
 
-/* Hover effect without scaling */
-.form-container:hover {
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);  /* Slightly enhanced box-shadow on hover */
+/* Реабилитационный контейнер */
+.rehab-container {
+    width: 400px;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.rehab-container h2 {
+    font-size: 22px;
+    color: #222;
+    margin-bottom: 15px;
+}
+
+.injury-details {
+    background: #f8f8f8;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.injury-details p {
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+.rehab-text {
+    font-size: 14px;
+    margin-bottom: 20px;
+    color: #666;
+}
+
+.rehab-container .btn {
+    display: inline-block;
+    background-color: #03dac6;
+    color: white;
+    padding: 12px 18px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background 0.3s ease-in-out;
+}
+
+.rehab-container .btn:hover {
+    background-color: #02c2ad;
+}
+
+/* Контейнер формы */
+.form-container {
+    width: 400px;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.form-container h1 {
+    font-size: 22px;
+    color: #222;
+    margin-bottom: 15px;
+}
+
+.form-container form label {
+    display: block;
+    text-align: left;
+    margin: 10px 0 5px;
+    font-weight: bold;
+}
+
+.form-container form select,
+.form-container form input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.form-container form button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #03dac6;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.form-container form button:hover {
+    background-color: #02c2ad;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Добавляет отступ между чекбоксом и текстом */
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #03dac6; /* Цвет чекбокса */
+}
+
+.checkbox-group label {
+    font-size: 16px;
+    color: #333;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.complete-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    display: block;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+}
+
+.complete-btn:hover {
+    background-color: #c0392b;
+}
+
+.recommendation-btn {
+    background-color: #03dac6; /* Бирюзовый цвет */
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 15px;
+}
+
+.recommendation-btn:hover {
+    background-color: #02c2ad;
+    transform: scale(1.05);
+}
+
+.recommendation-btn:active {
+    background-color: #019b8d;
+    transform: scale(0.98);
 }
 
 

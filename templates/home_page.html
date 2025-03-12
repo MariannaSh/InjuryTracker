@@ -8,6 +8,7 @@
 </head>
 <body>
 
+    <!-- Navigation Menu -->
     <nav class="menu">
         <ul>
             <li><a href="/profile">Profile</a></li>
@@ -17,53 +18,83 @@
         </ul>
     </nav>
 
-    <main class="form-container">
-        <h1>Enter Injury Details</h1>
-
-        <form action="/submit" method="POST" onsubmit="validateForm(event)">
-            <div class="form-group">
-                <label for="injury_type">Select Injury:</label>
-                <select name="injury_type" id="injury_type" required>
-                    {% for injury in injuries %}
-                    <option value="{{ injury }}">{{ injury }}</option>
-                    {% endfor %}
-                </select>
+    <main class="content">
+        {% if user_injury %}
+        <!-- Контейнер реабилитации -->
+        <div class="rehab-container">
+            <h2>Rehabilitation in Progress</h2>
+            <div class="injury-details">
+                <p><strong>Injury:</strong> {{ user_injury[0] }}</p>
+                <p><strong>Fitness Level:</strong> {{ user_injury[1] }}</p>
+                <p><strong>Start Date:</strong> {{ user_injury[3] }}</p>
             </div>
 
-            <div class="form-group">
-                <label for="age">Age:</label>
-                <input type="number" name="age" id="age" min="0" max="1000">
-            </div>
+            <form action="{{ url_for('show_recommendations') }}" method="GET">
+                <input type="hidden" name="injury_type" value="{{ user_injury[0] }}">
+                <input type="hidden" name="fitness_level" value="{{ user_injury[1] }}">
+                <button type="submit" class="recommendation-btn">View Rehabilitation Plan</button>
+            </form>
 
-            <div class="form-group">
-                <label for="fitness_level">Fitness Level:</label>
-                <select name="fitness_level" id="fitness_level" required>
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                </select>
-            </div>
+            <form action="{{ url_for('complete_rehab') }}" method="POST">
+                <button type="submit" class="complete-btn">Complete Rehabilitation</button>
+            </form>
+        </div>
+        {% endif %}
 
-            
-            <div class="form-group checkbox-group">
+        {% if not user_injury %}
+        <!-- Контейнер формы ввода -->
+        <div class="form-container">
+            <h1>Enter Injury Details</h1>
+            <form action="/submit" method="POST" onsubmit="validateForm(event)">
+                <div class="form-group">
+                    <label for="injury_type">Select Injury:</label>
+                    <select name="injury_type" required>
+                        {% for injury in injuries %}
+                        <option value="{{ injury }}">{{ injury }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+        
+                <div class="form-group">
+                    <label for="age">Age:</label>
+                    <input type="number" name="age" id="age" min="10" max="100" required>
+                </div>
+        
+                <div class="form-group">
+                    <label for="date">Date:</label>
+                    <input type="date" name="date" id="date" class="form-control" required>
+                </div>
+        
+                <div class="form-group">
+                    <label for="fitness_level">Fitness Level:</label>
+                    <select name="fitness_level" required>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+        
+                <div class="form-group checkbox-group">
                     <input type="checkbox" id="diagnosis_confirmed" name="diagnosis_confirmed">
                     <label for="diagnosis_confirmed">Diagnosis confirmed by doctor</label>
-            </div>
+                </div>                
         
-            <button type="submit" class="submit-btn">Get Recommendations</button>
-        </form>
-
-        <div class="links">
-            <a href="#calendar-container" class="link-btn">Go to Calendar</a>
-            <a href="{{ url_for('logout') }}" class="link-btn">Logout</a>
+                <button type="submit" class="submit-btn">Get Recommendations</button>
+            </form>
         </div>
+        
+        {% endif %}
     </main>
 
+
+    <!-- Calendar Container -->
     <div class="container">
+        <!-- Календарь -->
         <div id="calendar-container">
             <div id="calendar"></div>
         </div>
         
+        <!-- Блок заметок с видео -->
         <div id="video-notes">
             <h2>Favorite Workouts</h2>
             <div class="add-video">
