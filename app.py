@@ -1,7 +1,8 @@
+from datetime import datetime
 import os
 from flask import Flask, flash, jsonify, render_template, request, redirect, url_for, session
 import requests
-from database import add_progress, add_rehab_start_date_column, create_progress_table,  create_tables, connect_user_db,add_injury, create_user_injuries_table, delete_user_injury, get_all_injuries,  get_distinct_injury_types, get_profile_image, get_progress_data, create_user_tables, get_recommendation, get_user_by_id, get_user_injury, save_user_injury, update_profile_image
+from database import add_completed_column_user_events, add_progress,   create_tables, connect_user_db,add_injury, delete_user_injury,  get_distinct_injury_types, get_profile_image, get_progress_data,  get_recommendation, get_rehab_events, get_rehab_plan, get_user_by_id, get_user_injury, save_user_injury, update_profile_image
 from werkzeug.utils import secure_filename
 import sqlite3
 from auth import auth_bp
@@ -96,14 +97,20 @@ def submit():
 
     save_user_injury(user_id, injury_type, fitness_level, doctor_confirmed, rehab_start_date)
 
-    if not injury_type:
-        error_message = "Не был выбран тип травмы."
-        return render_template('home_page.html', username=session['username'], error=error_message, injuries=get_distinct_injury_types())
+    rehab_events = get_rehab_events(user_id)
 
-    if fitness_level not in ['low', 'medium', 'high']:
-        error_message = "Не был выбран уровень физической подготовки."
-        return render_template('home_page.html', username=session['username'], error=error_message, injuries=get_distinct_injury_types())
+    conn = connect_user_db()
+    cursor = conn.cursor()
+    
+    for event in rehab_events:
+        cursor.execute('''
+            INSERT INTO user_events (user_id, title, date)
+            VALUES (?, ?, ?)
+        ''', (user_id, event["title"], event["start"]))
 
+    conn.commit()
+    conn.close()
+    
     recommendation = get_recommendation(injury_type, fitness_level)
 
     return render_template('recommendations.html', recommendations=recommendation)
@@ -339,9 +346,9 @@ def delete_video(video_id):
     
     conn.close()
     return jsonify(response)
-
 @app.route('/add_event', methods=['POST'])
 def add_event():
+    """Добавляет новое событие в user_events"""
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({"success": False, "message": "Пользователь не авторизован"}), 401
@@ -356,7 +363,7 @@ def add_event():
     with connect_user_db() as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO user_events (user_id, title, date) VALUES (?, ?, ?)",
+            "INSERT INTO user_events (user_id, title, date, completed) VALUES (?, ?, ?, 0)",
             (user_id, title, date)
         )
         conn.commit()
@@ -398,23 +405,165 @@ def delete_event(event_id):
 
     return jsonify({"success": True, "message": "Событие удалено"})
 
-
 @app.route('/get_events', methods=['GET'])
 def get_events():
-    """Возвращает события только для авторизованного пользователя"""
-    user_id = session.get('user_id')  # Получаем ID пользователя из сессии
+    """Возвращает события из user_events с учетом выполненных задач"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"success": False, "message": "User not authorized"}), 401
+
+    conn = connect_user_db()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id, title, date, completed FROM user_events WHERE user_id = ?", (user_id,))
+    events = [
+        {
+            "id": e[0],
+            "title": e[1],
+            "start": e[2],
+            "color": "#ff69b4" if e[3] else "#007bff",  # Розовый для выполненных, синий для обычных
+            "completed": bool(e[3])
+        }
+        for e in cursor.fetchall()
+    ]
+
+    conn.close()
+    return jsonify({"success": True, "events": events})
+
+
+@app.route('/rehabilitation_plan')
+def show_rehabilitation_plan():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+
+    user_injury = get_user_injury(user_id)
+    if not user_injury:
+        flash("No active rehabilitation plan found.", "warning")
+        return redirect(url_for('home'))
+
+    injury_type, fitness_level, _, rehab_start_date = user_injury
+
+    conn = sqlite3.connect('db/database.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id FROM injuries WHERE injury_type = ?", (injury_type,))
+    injury_id = cursor.fetchone()[0]
+
+    cursor.execute("SELECT id FROM activity_levels WHERE activity_level = ?", (fitness_level,))
+    activity_level_id = cursor.fetchone()[0]
+
+    conn.close()
+
+    rehab_plan = get_rehab_plan(injury_id, activity_level_id)
+
+    return render_template('rehabilitation_plan.html', rehab_plan=rehab_plan, injury_type=injury_type)
+
+
+@app.route('/complete_user_event', methods=['POST'])
+def complete_user_event():
+    """Отмечает пользовательское событие как выполненное."""
+    user_id = session.get('user_id')
     if not user_id:
         return jsonify({"success": False, "message": "Пользователь не авторизован"}), 401
 
+    data = request.json
+    event_id = data.get('event_id')
+
+    if not event_id:
+        return jsonify({"success": False, "message": "Отсутствует ID события"}), 400
+
     with connect_user_db() as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT id, title, date FROM user_events WHERE user_id = ?", (user_id,))
-        events = [{"id": e[0], "title": e[1], "start": e[2]} for e in cursor.fetchall()]
+        cursor.execute("UPDATE user_events SET completed = 1 WHERE id = ? AND user_id = ?", (event_id, user_id))
+        conn.commit()
 
-    return jsonify({"success": True, "events": events})
+    return jsonify({"success": True, "message": "Событие отмечено как выполненное", "completed": True})
+
+@app.route('/get_recommendation_for_today', methods=['GET'])
+def get_recommendation_for_today():
+    """Возвращает рекомендации в зависимости от текущего этапа реабилитации."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"success": False, "message": "Пользователь не авторизован"}), 401
+
+    conn = sqlite3.connect('db/database.db')
+    cursor = conn.cursor()
+
+    # Получаем дату начала реабилитации
+    cursor.execute("SELECT rehab_start_date, injury_type, fitness_level FROM user_injuries WHERE user_id = ?", (user_id,))
+    result = cursor.fetchone()
+    
+    if not result:
+        return jsonify({"success": False, "message": "Реабилитация не найдена"}), 404
+
+    rehab_start_date, injury_type, fitness_level = result
+
+    # Переводим дату в формат datetime
+    rehab_start_date = datetime.strptime(rehab_start_date, "%Y-%m-%d")
+    today_date = datetime.today()
+    days_since_start = (today_date - rehab_start_date).days
+
+    # Получаем injury_id и activity_level_id
+    cursor.execute("SELECT id FROM injuries WHERE injury_type = ?", (injury_type,))
+    injury_id = cursor.fetchone()
+    
+    cursor.execute("SELECT id FROM activity_levels WHERE activity_level = ?", (fitness_level,))
+    activity_level_id = cursor.fetchone()
+
+    if not injury_id or not activity_level_id:
+        return jsonify({"success": False, "message": "Данные о травме не найдены"}), 404
+
+    injury_id = injury_id[0]
+    activity_level_id = activity_level_id[0]
+
+    # Определяем текущий этап реабилитации
+    cursor.execute('''
+        SELECT id, phase, phase_name, duration FROM rehab_phases 
+        WHERE injury_id = ? AND activity_level_id = ?
+        ORDER BY phase
+    ''', (injury_id, activity_level_id))
+
+    rehab_phases = cursor.fetchall()
+    
+    if not rehab_phases:
+        return jsonify({"success": False, "message": "Нет этапов реабилитации"}), 404
+
+    # Определяем текущий этап на основе прошедших дней
+    current_phase = None
+    days_counter = 0
+
+    for phase_id, phase_number, phase_name, duration in rehab_phases:
+        if days_since_start < days_counter + duration:
+            current_phase = (phase_number, phase_name)
+            break
+        days_counter += duration
+
+    if not current_phase:
+        return jsonify({"success": False, "message": "Все этапы завершены"}), 404
+
+    phase_number, phase_name = current_phase
+
+    cursor.execute('''
+        SELECT recommendation, image_url, video_url 
+        FROM recommendations 
+        WHERE injury_id = ? AND activity_level_id = ? AND recommendation LIKE ?
+    ''', (injury_id, activity_level_id, f"%{phase_name}%"))
+
+    recommendations = cursor.fetchall()
+    conn.close()
+
+    if not recommendations:
+        return jsonify({"success": False, "message": "Нет рекомендаций для текущего этапа"}), 404
+
+    recommendations_list = [
+        {"text": row[0], "image_url": row[1], "video_url": row[2]} for row in recommendations
+    ]
+
+    return jsonify({"success": True, "phase": phase_name, "recommendations": recommendations_list})
 
 
 if __name__ == '__main__':
     create_tables() 
-    create_progress_table()
+    add_completed_column_user_events()
     app.run(debug=True)

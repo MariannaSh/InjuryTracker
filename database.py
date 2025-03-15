@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import sqlite3
 import os
 from flask_bcrypt import Bcrypt
@@ -370,3 +371,96 @@ def add_rehab_start_date_column():
         except sqlite3.OperationalError:
             print("Column 'rehab_start_date' already exists.")
 
+def create_rehab_phases_table():
+    conn = sqlite3.connect('db/database.db')
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS rehab_phases (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            injury_id INTEGER NOT NULL,
+            phase INTEGER NOT NULL,
+            phase_name TEXT NOT NULL,
+            duration INTEGER NOT NULL,
+            activity_level_id INTEGER NOT NULL,
+            FOREIGN KEY (injury_id) REFERENCES injuries(id) ON DELETE CASCADE,
+            FOREIGN KEY (activity_level_id) REFERENCES activity_levels(id) ON DELETE CASCADE
+        )
+    ''')
+
+    conn.commit()
+    conn.close()
+
+def get_rehab_plan(injury_id, activity_level_id):
+    conn = sqlite3.connect('db/database.db')
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT phase, phase_name, duration 
+        FROM rehab_phases 
+        WHERE injury_id = ? AND activity_level_id = ?
+        ORDER BY phase
+    ''', (injury_id, activity_level_id))
+
+    rehab_plan = cursor.fetchall()
+    conn.close()
+
+    return rehab_plan
+
+def get_rehab_events(user_id):
+    conn = sqlite3.connect('db/database.db')
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT injury_type, fitness_level, rehab_start_date FROM user_injuries WHERE user_id = ?', (user_id,))
+    user_injury = cursor.fetchone()
+
+    if not user_injury:
+        return []
+
+    injury_type, fitness_level, rehab_start_date = user_injury
+    if not rehab_start_date:
+        return []
+
+    cursor.execute('SELECT id FROM injuries WHERE injury_type = ?', (injury_type,))
+    injury_id = cursor.fetchone()[0]
+
+    cursor.execute('SELECT id FROM activity_levels WHERE activity_level = ?', (fitness_level,))
+    activity_level_id = cursor.fetchone()[0]
+
+    cursor.execute('''
+        SELECT phase, phase_name, duration 
+        FROM rehab_phases 
+        WHERE injury_id = ? AND activity_level_id = ?
+        ORDER BY phase
+    ''', (injury_id, activity_level_id))
+
+    rehab_phases = cursor.fetchall()
+    conn.close()
+
+    if not rehab_phases:
+        return []
+
+    start_date = datetime.strptime(rehab_start_date, "%Y-%m-%d") 
+    events = []
+    for phase, phase_name, duration in rehab_phases:
+        end_date = start_date + timedelta(days=duration) 
+        events.append({
+            "title": f"{phase_name}",
+            "start": start_date.strftime("%Y-%m-%d"),
+            "end": end_date.strftime("%Y-%m-%d")
+        })
+        start_date = end_date  
+
+    return events
+
+
+def add_completed_column_user_events():
+    """Добавляет столбец completed в user_events, если его нет"""
+    with connect_user_db() as conn:
+        cursor = conn.cursor()
+        try:
+            cursor.execute("ALTER TABLE user_events ADD COLUMN completed INTEGER DEFAULT 0")
+            conn.commit()
+            print("Column 'completed' added to user_events.")
+        except sqlite3.OperationalError:
+            print("Column 'completed' already exists.")

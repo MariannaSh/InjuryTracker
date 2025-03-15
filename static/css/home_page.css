@@ -309,13 +309,23 @@ h1, h2 {
     font-size: 12px; /* Меньший шрифт */
 }
 
-/* Стили событий */
 .fc-event {
     background-color: #090909 !important;
     color: white !important;
-    border-radius: 4px;
+    border: none !important;
     padding: 2px;
-    font-size: 10px; /* Уменьшаем размер шрифта событий */
+    font-size: 10px; 
+}
+
+.fc-event-completed {
+    background-color: #ff69b4 !important; 
+    color: #fff !important;
+    border: none !important;
+    text-decoration: line-through; /* Добавляем зачеркнутый текст */
+}
+
+.fc-event-completed:hover {
+    background-color: #ff69b4 !important;
 }
 
 .fc-event:hover {
@@ -607,3 +617,28 @@ input[type="checkbox"] {
 .star:nth-child(3) { top: 50%; left: 50%; }
 .star:nth-child(4) { top: 70%; left: 30%; }
 .star:nth-child(5) { top: 90%; left: 70%; }
+
+.recommendations-container {
+    background: #1e1e1e;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+.recommendation-item {
+    border-bottom: 1px solid #444;
+    padding: 10px;
+}
+
+.recommendation-item p {
+    font-size: 14px;
+}
+
+.recommendation-item img,
+.recommendation-item video {
+    margin-top: 10px;
+    display: block;
+}

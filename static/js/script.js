@@ -185,106 +185,109 @@ document.addEventListener('DOMContentLoaded', function() {
 
     calendar.render();
 });
+document.addEventListener("DOMContentLoaded", function () {
+    let calendarEl = document.getElementById("calendar");
 
-document.addEventListener('DOMContentLoaded', function () {
-    let calendarEl = document.getElementById('calendar');
+    if (!calendarEl) {
+        console.error("Calendar container not found!");
+        return;
+    }
 
-    fetch('/get_events')
+    fetch("/get_events")
         .then(response => response.json())
         .then(data => {
+            if (data.success) {
+                let calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: "dayGridMonth",
+                    headerToolbar: {
+                        left: "prev,next today",
+                        center: "title",
+                        right: "dayGridMonth,timeGridWeek,timeGridDay",
+                    },
+                    events: data.events,
+                    editable: true,
 
-            let calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                },
-                events: data.events,  
-                editable: true
-            });
-
-            calendar.render();  
-        })
-        .catch(error => console.error('Error loading events:', error));
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-    let calendarEl = document.getElementById('calendar');
-
-    fetch('/get_events')
-        .then(response => response.json())
-        .then(data => {
-
-            let calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                },
-                events: data.events, 
-
-                dateClick: function(info) {
-                    let title = prompt("Enter the event name:");
-                    if (title) {
-                        fetch('/add_event', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ title: title, start: info.dateStr }) 
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                calendar.addEvent({ id: data.id, title: title, start: info.dateStr });
-                                alert("Event added!");
-                            } else {
-                                alert("Error: " + data.message);
-                            }
-                        })
-                        .catch(error => console.error("Error adding event:", error));
-                    }
-                },
-
-                editable: true, 
-
-                eventDrop: function(info) {
-                    let event = info.event;
-                    fetch('/update_event', {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: event.id, start: event.startStr })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data.success) {
-                            alert("Error: " + data.message);
+                    // Функция добавления события
+                    dateClick: function (info) {
+                        let eventName = prompt("Введите название события:");
+                        if (eventName) {
+                            fetch("/add_event", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    title: eventName,
+                                    start: info.dateStr
+                                })
+                            })
+                                .then((response) => response.json())
+                                .then((data) => {
+                                    if (data.success) {
+                                        calendar.addEvent({
+                                            id: data.id,
+                                            title: eventName,
+                                            start: info.dateStr,
+                                            backgroundColor: "#007bff", // Цвет нового события (синий)
+                                            borderColor: "#007bff"
+                                        });
+                                        alert("Событие добавлено!");
+                                    } else {
+                                        alert("Ошибка: " + data.message);
+                                    }
+                                })
+                                .catch(error => console.error("Ошибка добавления события:", error));
                         }
-                    })
-                    .catch(error => console.error("Event update error:", error));
-                },
+                    },
 
-                eventClick: function(info) {
-                    if (confirm("Delete this event?")) {
-                        fetch('/delete_event/' + info.event.id, { method: 'DELETE' })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                info.event.remove();
-                                alert("Event removed!");
-                            } else {
-                                alert("Error: " + data.message);
+                    // Функция клика по событию (отметить выполненным или удалить)
+                    eventClick: function (info) {
+                        if (info.event.extendedProps.completed) {
+                            // Если уже выполнено, можно удалить
+                            if (confirm("Удалить это событие?")) {
+                                fetch("/delete_event/" + info.event.id, { method: "DELETE" })
+                                    .then((response) => response.json())
+                                    .then((data) => {
+                                        if (data.success) {
+                                            info.event.remove();
+                                            alert("Событие удалено!");
+                                        } else {
+                                            alert("Ошибка: " + data.message);
+                                        }
+                                    })
+                                    .catch((error) => console.error("Ошибка удаления:", error));
                             }
-                        })
-                        .catch(error => console.error("Event loading error:", error));
-                    }
-                }
-            });
+                        } else {
+                            // Если не выполнено, отметить как выполненное
+                            if (confirm("Отметить событие как выполненное?")) {
+                                fetch("/complete_user_event", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ event_id: info.event.id }),
+                                })
+                                    .then((response) => response.json())
+                                    .then((data) => {
+                                        if (data.success) {
+                                            info.event.setExtendedProp("completed", true);
+                                            info.event.setProp("classNames", ["fc-event-completed"]); // Добавляем CSS-класс
+                                            alert("Событие отмечено как выполненное!");
+                                        } else {
+                                            alert("Ошибка: " + data.message);
+                                        }
+                                    })
+                                    .catch((error) => console.error("Ошибка обновления события:", error));
+                            }
+                        }
+                    },
 
-            calendar.render(); 
+                    eventColor: "#007bff", // Цвет обычных событий (синий)
+                });
+
+                calendar.render();
+            }
         })
-        .catch(error => console.error('Event loading error:', error));
+        .catch((error) => console.error("Ошибка загрузки событий:", error));
 });
+
+
 
 document.addEventListener("DOMContentLoaded", function() {
     const passwordForm = document.getElementById("change-password-form");
@@ -344,3 +347,67 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    function loadRecommendations() {
+        fetch("/get_recommendation_for_today")
+            .then(response => response.json())
+            .then(data => {
+                let recommendationsContainer = document.getElementById("recommendations");
+                if (!recommendationsContainer) {
+                    console.error("Recommendations container not found!");
+                    return;
+                }
+
+                recommendationsContainer.innerHTML = ""; // Очищаем перед обновлением
+
+                if (data.success) {
+                    let phaseTitle = document.createElement("h3");
+                    phaseTitle.innerText = "Current Phase: " + data.phase;
+                    recommendationsContainer.appendChild(phaseTitle);
+
+                    data.recommendations.forEach(rec => {
+                        let recBlock = document.createElement("div");
+                        recBlock.classList.add("recommendation-item");
+
+                        let text = document.createElement("p");
+                        text.innerHTML = rec.text;
+                        recBlock.appendChild(text);
+
+                        if (rec.image_url) {
+                            let image = document.createElement("img");
+                            image.src = rec.image_url;
+                            image.alt = "Exercise Image";
+                            image.style.maxWidth = "150px";
+                            recBlock.appendChild(image);
+                        }
+
+                        if (rec.video_url) {
+                            let video = document.createElement("video");
+                            video.src = rec.video_url;
+                            video.controls = true;
+                            video.style.maxWidth = "200px";
+                            recBlock.appendChild(video);
+                        }
+
+                        recommendationsContainer.appendChild(recBlock);
+                    });
+                } else {
+                    recommendationsContainer.innerHTML = "<p>No recommendations available for today.</p>";
+                }
+            })
+            .catch(error => console.error("Ошибка загрузки рекомендаций:", error));
+    }
+
+    // Загружаем рекомендации при загрузке страницы
+    loadRecommendations();
+
+    // Обновляем рекомендации в 00:00 каждый день
+    setInterval(() => {
+        let now = new Date();
+        if (now.getHours() === 0 && now.getMinutes() === 0) {
+            loadRecommendations();
+        }
+    }, 60000);
+});
+
