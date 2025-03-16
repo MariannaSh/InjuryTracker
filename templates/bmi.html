@@ -10,71 +10,69 @@
     <nav class="menu">
         <ul>
             <li><a href="/profile">Profile</a></li>
-            <li><a href="/test">BMI</a></li>
+            <li><a href="/bmi">BMI</a></li>
             <li><a href="/home">Home</a></li>
             <li><a href="/progress">Progress</a></li>
         </ul>
     </nav>
     
-    <div class="container">
-        <h1>Nutrition and BMI Calculator</h1>
-        <form method="POST">
-            <label for="height_cm">Height (cm):</label>
-            <input type="number" id="height_cm" name="height_cm" required>
-            
-            <label for="weight_kg">Weight (kg):</label>
-            <input type="number" id="weight_kg" name="weight_kg" required>
-            
-            <label for="food_item">Food item (e.g., 1 apple):</label>
-            <input type="text" id="food_item" name="food_item">
-    
-            <div class="buttons">
-                <button type="submit">Calculate</button>
+    <div class="sections-container">
+        <div class="bmi-section">
+            <h2>BMI Calculator</h2>
+            <form method="POST" action="{{ url_for('bmi') }}">
+                <label for="height_cm">Height (cm):</label>
+                <input type="number" id="height_cm" name="height_cm" required>
+        
+                <label for="weight_kg">Weight (kg):</label>
+                <input type="number" id="weight_kg" name="weight_kg" required>
+        
+                <button type="submit" class="btn-calculate">Calculate BMI</button>
+            </form>
+        
+            {% if bmi %}
+            <div class="result 
+                {% if bmi < 18.5 %} low-high 
+                {% elif 18.5 <= bmi < 24.9 %} normal 
+                {% elif 25 <= bmi < 29.9 %} overweight 
+                {% else %} obesity 
+                {% endif %}">
+                
+                <h3>Your BMI: {{ bmi }}</h3>
+                <p class="bmi-category">
+                    {% if bmi < 18.5 %}
+                        You are underweight.
+                    {% elif 18.5 <= bmi < 24.9 %}
+                        You have a healthy weight.
+                    {% elif 25 <= bmi < 29.9 %}
+                        You are overweight.
+                    {% else %}
+                        You are obese.
+                    {% endif %}
+                </p>
             </div>
-        </form>
-    
-        {% if bmi %}
-            {% set bmi_rounded = bmi|float %}
-            {% if bmi_rounded %}
-                <div class="result {% 
-                    if bmi_rounded < 18.5 %}low-high{% 
-                    elif 18.5 <= bmi_rounded < 24.9 %}normal{% 
-                    elif 25 <= bmi_rounded < 29.9 %}overweight{% 
-                    else %}obesity{% 
-                    endif %}">
-                    <h2>BMI Calculation</h2>
-                    <p>Your BMI is: {{ bmi_rounded }}</p>
-                    <p>
-                        {% if bmi_rounded < 18.5 %}
-                            You are underweight.
-                        {% elif 18.5 <= bmi_rounded < 24.9 %}
-                            You have a healthy weight.
-                        {% elif 25 <= bmi_rounded < 29.9 %}
-                            You are overweight.
-                        {% else %}
-                            You are obese.
-                        {% endif %}
-                    </p>
+        {% endif %}
+
+        </div>
+        <div class="nutrition-section">
+            <h2>Nutrition Calculator</h2>
+            <form method="POST" action="{{ url_for('bmi') }}">
+                <label for="food_item">Food item (e.g., 1 apple):</label>
+                <input type="text" id="food_item" name="food_item" required>
+        
+                <button type="submit" class="btn-calculate">Get Nutrition Info</button>
+            </form>
+        
+            {% if nutrition_info and 'foods' in nutrition_info %}
+                <div class="nutrition-result">
+                    <h3>Nutrition Facts for "{{ request.form['food_item'] }}"</h3>
+                    <p>Calories: {{ nutrition_info['foods'][0]['nf_calories'] }} kcal</p>
+                    <p>Proteins: {{ nutrition_info['foods'][0]['nf_protein'] }} g</p>
+                    <p>Fats: {{ nutrition_info['foods'][0]['nf_total_fat'] }} g</p>
+                    <p>Carbs: {{ nutrition_info['foods'][0]['nf_total_carbohydrate'] }} g</p>
                 </div>
             {% endif %}
-        {% endif %}
-    
-        {% if nutrition_info %}
-            <div class="nutrition">
-                <h2>Nutrition Information for "{{ request.form['food_item'] }}"</h2>
-                <ul>
-                    {% for food in nutrition_info['foods'] %}
-                        <li><strong>{{ food['food_name'] }}</strong></li>
-                        <ul>
-                            <li>Calories: {{ food['full_nutrients'][0]['value'] }} kcal</li>
-                            <li>Fat: {{ food['full_nutrients'][1]['value'] }} g</li>
-                            <li>Carbs: {{ food['full_nutrients'][2]['value'] }} g</li>
-                            <li>Protein: {{ food['full_nutrients'][3]['value'] }} g</li>
-                        </ul>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endif %}
+        </div>
+        
     </div>    
     <script src="/static/js/script.js"></script>
 </body>

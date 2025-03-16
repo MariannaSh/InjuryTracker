@@ -453,9 +453,7 @@ def get_rehab_events(user_id):
 
     return events
 
-
 def add_completed_column_user_events():
-    """Добавляет столбец completed в user_events, если его нет"""
     with connect_user_db() as conn:
         cursor = conn.cursor()
         try:
@@ -464,3 +462,56 @@ def add_completed_column_user_events():
             print("Column 'completed' added to user_events.")
         except sqlite3.OperationalError:
             print("Column 'completed' already exists.")
+
+def get_current_rehab_phase(user_id):
+    conn = sqlite3.connect('db/database.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT rehab_start_date, injury_type, fitness_level FROM user_injuries WHERE user_id = ?", (user_id,))
+    result = cursor.fetchone()
+    
+    if not result:
+        return None, None, None  
+
+    rehab_start_date, injury_type, fitness_level = result
+    rehab_start_date = datetime.strptime(rehab_start_date, "%Y-%m-%d")
+    today_date = datetime.today()
+    days_since_start = (today_date - rehab_start_date).days
+
+    cursor.execute("SELECT id FROM injuries WHERE injury_type = ?", (injury_type,))
+    injury_id = cursor.fetchone()
+    
+    cursor.execute("SELECT id FROM activity_levels WHERE activity_level = ?", (fitness_level,))
+    activity_level_id = cursor.fetchone()
+
+    if not injury_id or not activity_level_id:
+        return None, None, None
+
+    injury_id = injury_id[0]
+    activity_level_id = activity_level_id[0]
+
+    cursor.execute('''
+        SELECT phase, phase_name, duration 
+        FROM rehab_phases 
+        WHERE injury_id = ? AND activity_level_id = ?
+        ORDER BY phase
+    ''', (injury_id, activity_level_id))
+
+    rehab_phases = cursor.fetchall()
+    conn.close()
+
+    if not rehab_phases:
+        return None, None, None
+
+    current_phase = None
+    days_counter = 0
+
+    for phase_number, phase_name, duration in rehab_phases:
+        if days_since_start < days_counter + duration:
+            current_phase = (phase_number, phase_name)
+            break
+        days_counter += duration
+
+    if not current_phase:
+        return None, None, None  
+    return current_phase[0], None, len(rehab_phases)

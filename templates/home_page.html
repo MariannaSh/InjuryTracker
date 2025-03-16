@@ -12,7 +12,7 @@
     <nav class="menu">
         <ul>
             <li><a href="/profile">Profile</a></li>
-            <li><a href="/test">BMI</a></li>
+            <li><a href="/bmi">BMI</a></li>
             <li><a href="/home">Home</a></li>
             <li><a href="/progress">Progress</a></li>
         </ul>
@@ -21,27 +21,42 @@
     <main class="content">
         {% if user_injury %}
         <!-- Контейнер реабилитации -->
-        <div class="rehab-container">
-            <h2>Rehabilitation in Progress</h2>
-            <div class="injury-details">
-                <p><strong>Injury:</strong> {{ user_injury[0] }}</p>
-                <p><strong>Fitness Level:</strong> {{ user_injury[1] }}</p>
-                <p><strong>Start Date:</strong> {{ user_injury[3] }}</p>
+        <div class="rehab-card">
+            <div class="rehab-header">
+                <h3>Rehabilitation in Progress</h3>
+            </div>
+        
+            <div class="rehab-info">
+                <p><i class="fas fa-heartbeat"></i> <strong>Injury:</strong> {{ user_injury[0] }}</p>
+                <p><i class="fas fa-running"></i> <strong>Fitness Level:</strong> {{ user_injury[1] }}</p>
+                <p><i class="fas fa-calendar-alt"></i> <strong>Start Date:</strong> {{ user_injury[3] }}</p>
+            </div>
+        
+            <div class="progress-bar">
+                <div class="progress" id="progress-bar" data-current-phase="{{ current_phase }}" data-total-phases="{{ total_phases }}"></div>
+            </div>
+            
+            <div class="phase-indicator">
+                <span>Phase {{ current_phase if current_phase else 'N/A' }} of {{ total_phases if total_phases else 'N/A' }}</span>
             </div>
 
-            <form action="{{ url_for('show_recommendations') }}" method="GET">
-                <input type="hidden" name="injury_type" value="{{ user_injury[0] }}">
-                <input type="hidden" name="fitness_level" value="{{ user_injury[1] }}">
-                <button type="submit" class="recommendation-btn">View Rehabilitation Plan</button>
-            </form>
-
-            <form action="{{ url_for('complete_rehab') }}" method="POST">
-                <button type="submit" class="complete-btn">Complete Rehabilitation</button>
-            </form>
-        </div>
-        <div id="recommendations" class="recommendations-container">
-            <p>Loading recommendations...</p>
-        </div>
+            <div class="rehab-actions">
+                <form action="{{ url_for('show_recommendations') }}" method="GET">
+                    <input type="hidden" name="injury_type" value="{{ user_injury[0] }}">
+                    <input type="hidden" name="fitness_level" value="{{ user_injury[1] }}">
+                    <button type="submit" class="recommendation-btn">View Plan</button>
+                </form>
+        
+                <form action="{{ url_for('complete_rehab') }}" method="POST">
+                    <button type="submit" class="complete-btn">Complete</button>
+                </form>
+            </div>
+        
+            <!-- Блок рекомендаций -->
+            <div id="recommendations" class="recommendations-container">
+                <p>Loading recommendations...</p>
+            </div>
+        </div>        
         
         {% endif %}
 

@@ -206,10 +206,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     },
                     events: data.events,
                     editable: true,
-
-                    // Функция добавления события
                     dateClick: function (info) {
-                        let eventName = prompt("Введите название события:");
+                        let eventName = prompt("Enter the event name:");
                         if (eventName) {
                             fetch("/add_event", {
                                 method: "POST",
@@ -226,38 +224,34 @@ document.addEventListener("DOMContentLoaded", function () {
                                             id: data.id,
                                             title: eventName,
                                             start: info.dateStr,
-                                            backgroundColor: "#007bff", // Цвет нового события (синий)
+                                            backgroundColor: "#007bff", 
                                             borderColor: "#007bff"
                                         });
-                                        alert("Событие добавлено!");
+                                        alert("Event added!");
                                     } else {
-                                        alert("Ошибка: " + data.message);
+                                        alert("Error: " + data.message);
                                     }
                                 })
-                                .catch(error => console.error("Ошибка добавления события:", error));
+                                .catch(error => console.error("Event addition error: ", error));
                         }
                     },
-
-                    // Функция клика по событию (отметить выполненным или удалить)
                     eventClick: function (info) {
                         if (info.event.extendedProps.completed) {
-                            // Если уже выполнено, можно удалить
-                            if (confirm("Удалить это событие?")) {
+                            if (confirm("Delete this event?")) {
                                 fetch("/delete_event/" + info.event.id, { method: "DELETE" })
                                     .then((response) => response.json())
                                     .then((data) => {
                                         if (data.success) {
                                             info.event.remove();
-                                            alert("Событие удалено!");
+                                            alert("Event deleted!");
                                         } else {
-                                            alert("Ошибка: " + data.message);
+                                            alert("Error: " + data.message);
                                         }
                                     })
-                                    .catch((error) => console.error("Ошибка удаления:", error));
+                                    .catch((error) => console.error("Deletion error:", error));
                             }
                         } else {
-                            // Если не выполнено, отметить как выполненное
-                            if (confirm("Отметить событие как выполненное?")) {
+                            if (confirm("Mark the event as completed?")) {
                                 fetch("/complete_user_event", {
                                     method: "POST",
                                     headers: { "Content-Type": "application/json" },
@@ -267,18 +261,18 @@ document.addEventListener("DOMContentLoaded", function () {
                                     .then((data) => {
                                         if (data.success) {
                                             info.event.setExtendedProp("completed", true);
-                                            info.event.setProp("classNames", ["fc-event-completed"]); // Добавляем CSS-класс
-                                            alert("Событие отмечено как выполненное!");
+                                            info.event.setProp("classNames", ["fc-event-completed"]);
+                                            alert("Event marked as completed!");
                                         } else {
-                                            alert("Ошибка: " + data.message);
+                                            alert("Error: " + data.message);
                                         }
                                     })
-                                    .catch((error) => console.error("Ошибка обновления события:", error));
-                            }
+                                    .catch((error) => console.error("Error updating event:", error));
+                            }                            
                         }
                     },
 
-                    eventColor: "#007bff", // Цвет обычных событий (синий)
+                    eventColor: "#007bff", 
                 });
 
                 calendar.render();
@@ -359,11 +353,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-                recommendationsContainer.innerHTML = ""; // Очищаем перед обновлением
+                recommendationsContainer.innerHTML = ""; 
 
                 if (data.success) {
                     let phaseTitle = document.createElement("h3");
-                    phaseTitle.innerText = "Current Phase: " + data.phase;
+                    phaseTitle.innerText = "Current Phase:" ;
                     recommendationsContainer.appendChild(phaseTitle);
 
                     data.recommendations.forEach(rec => {
@@ -399,10 +393,8 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error("Ошибка загрузки рекомендаций:", error));
     }
 
-    // Загружаем рекомендации при загрузке страницы
     loadRecommendations();
 
-    // Обновляем рекомендации в 00:00 каждый день
     setInterval(() => {
         let now = new Date();
         if (now.getHours() === 0 && now.getMinutes() === 0) {
@@ -411,3 +403,43 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 60000);
 });
 
+document.addEventListener("DOMContentLoaded", function () {
+    let progressBar = document.getElementById("progress-bar");
+    let currentPhase = parseInt(progressBar.getAttribute("data-current-phase"));
+    let totalPhases = parseInt(progressBar.getAttribute("data-total-phases"));
+
+    if (!isNaN(currentPhase) && !isNaN(totalPhases) && totalPhases > 0) {
+        let progressPercentage = (currentPhase / totalPhases) * 100;
+        progressBar.style.width = progressPercentage + "%";
+    }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector(".progress-form");
+
+    if (form) {
+        form.addEventListener("submit", function (event) {
+            event.preventDefault(); 
+
+            const formData = new FormData(form);
+
+            fetch("/add_progress", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json()) 
+            .then(data => {
+                if (data.success) {
+                    alert("Progress successfully added!");
+                    form.reset(); 
+                } else {
+                    alert("Error: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred. Please try again.");
+            });
+        });
+    }
+});

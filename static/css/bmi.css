@@ -56,17 +56,6 @@ body {
     width: 100%;
 }
 
-
-.container {
-    background: #181818;
-    padding: 30px;
-    margin: 40px auto;
-    width: 50%;
-    max-width: 600px;
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(255, 255, 255, 0.05);
-}
-
 h1 {
     color: #03dac6; 
     font-size: 26px;
@@ -181,26 +170,6 @@ form input {
     font-weight: bold;
 }
 
-.nutrition ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.nutrition ul li {
-    font-size: 18px;
-    margin: 8px 0;
-}
-
-.nutrition ul ul {
-    margin-left: 20px;
-}
-
-.nutrition ul ul li {
-    font-size: 16px;
-    color: #cccccc;
-}
-
-
 .star {
     position: absolute;
     width: 2px;
@@ -217,6 +186,50 @@ form input {
     50% {
         opacity: 0.3;
     }
+}
+
+.sections-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    margin-top: 40px;
+    flex-wrap: wrap; 
+}
+
+.bmi-section, .nutrition-section {
+    background: #181818;
+    padding: 30px;
+    width: 50%;
+    max-width: 600px;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(255, 255, 255, 0.05);
+    text-align: center;
+}
+
+.bmi-section h2, .nutrition-section h2 {
+    color: #03dac6;
+    font-size: 26px;
+    margin-bottom: 20px;
+}
+
+.btn-calculate {
+    background-color: #17c3b2;
+    color: #fcfbfb;
+    border: none;
+    padding: 14px 22px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 10px;
+    margin-top: 10px;
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-calculate:hover {
+    background-color: #149e90;
+    color: white;
+    transform: scale(1.05);
 }
 
 .star:nth-child(1) { top: 10%; left: 20%; }

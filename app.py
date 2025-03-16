@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 from flask import Flask, flash, jsonify, render_template, request, redirect, url_for, session
 import requests
-from database import add_completed_column_user_events, add_progress,   create_tables, connect_user_db,add_injury, delete_user_injury,  get_distinct_injury_types, get_profile_image, get_progress_data,  get_recommendation, get_rehab_events, get_rehab_plan, get_user_by_id, get_user_injury, save_user_injury, update_profile_image
+from database import add_completed_column_user_events, add_progress,   create_tables, connect_user_db,add_injury, delete_user_injury, get_current_rehab_phase,  get_distinct_injury_types, get_profile_image, get_progress_data,  get_recommendation, get_rehab_events, get_rehab_plan, get_user_by_id, get_user_injury, save_user_injury, update_profile_image
 from werkzeug.utils import secure_filename
 import sqlite3
 from auth import auth_bp
@@ -40,22 +40,26 @@ def fetch_nutrition_info(food_item):
         return {"error": "Unable to fetch nutrition info"}
 
 
-@app.route('/test',methods=['GET', 'POST'])
-def test():
+@app.route('/bmi', methods=['GET', 'POST'])
+def bmi():
     if request.method == 'POST':
+        height_cm = request.form.get('height_cm')
+        weight_kg = request.form.get('weight_kg')
+        food_item = request.form.get('food_item') 
 
-        height_cm = int(request.form['height_cm'])  
-        weight_kg = int(request.form['weight_kg'])  
-        food_item = request.form['food_item']
+        if height_cm and weight_kg:
+            bmi = calculate_bmi(int(weight_kg), int(height_cm))
+        else:
+            bmi = None 
 
-        bmi = calculate_bmi(weight_kg, height_cm)
-
-        nutrition_info = fetch_nutrition_info(food_item)
+        if food_item:
+            nutrition_info = fetch_nutrition_info(food_item)
+        else:
+            nutrition_info = None  
 
         return render_template('bmi.html', bmi=bmi, nutrition_info=nutrition_info)
 
     return render_template('bmi.html', bmi=None, nutrition_info=None)
-
 
 @app.route('/')
 def index():
@@ -71,8 +75,10 @@ def home():
     injuries = get_distinct_injury_types()  
     injuries = [injury[0] for injury in injuries]  
 
-    return render_template('home_page.html', user_injury=user_injury, injuries=injuries)
+    current_phase, _, total_phases = get_current_rehab_phase(user_id)
 
+    return render_template('home_page.html', user_injury=user_injury, injuries=injuries,
+            current_phase=current_phase, phase_name=None, total_phases=total_phases)
 
 @app.route('/add_injury', methods=['GET', 'POST'])
 def add_injury_route():
@@ -132,13 +138,18 @@ def add_progress_route():
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({"success": False, "message": "Пользователь не авторизован"}), 401
-    injury_id = request.form['injury_type']
-    date = request.form['date']
-    pain_level = request.form['pain_level']
-    exercise_completed = request.form['exercise_completed']
 
-    add_progress(user_id, injury_id, date, pain_level, exercise_completed)
-    return redirect(url_for('progress'))
+    try:
+        injury_id = request.form['injury_type']
+        date = request.form['date']
+        pain_level = request.form['pain_level']
+        exercise_completed = request.form['exercise_completed']
+
+        add_progress(user_id, injury_id, date, pain_level, exercise_completed)
+
+        return jsonify({"success": True, "message": "Прогресс успешно добавлен"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
 
 
 @app.route('/progress', methods=['GET', 'POST'])
@@ -153,7 +164,6 @@ def progress():
     injuries = [injury[0] for injury in injuries]
 
     return render_template('progress.html', username=session['username'], injuries=injuries, progress_data=progress_data)
-
 
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
@@ -265,7 +275,7 @@ def clear_progress():
 
 @app.route('/recommendations', methods=['GET'])
 def show_recommendations():
-    injury_type = request.args.get('injury_type')  # Берем травму из URL параметров
+    injury_type = request.args.get('injury_type')  
     fitness_level = request.args.get('fitness_level')  
 
     if not injury_type or not fitness_level:
@@ -275,7 +285,6 @@ def show_recommendations():
     recommendations = get_recommendation(injury_type, fitness_level)
 
     return render_template('recommendations.html', recommendations=recommendations)
-
 
 @app.route('/register', methods=['GET'])
 def register():
@@ -295,8 +304,6 @@ def add_video():
     title = data.get('title')
     link = data.get('link')
     category = data.get('category')
-
-    print(f"Полученные данные: {title}, {link}, {category}")  
 
     conn = connect_user_db()
     cursor = conn.cursor()
@@ -373,7 +380,6 @@ def add_event():
 
 @app.route('/update_event', methods=['PUT'])
 def update_event():
-    """Обновляет дату события в базе данных."""
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({"success": False, "message": "Пользователь не авторизован"}), 401
@@ -407,7 +413,6 @@ def delete_event(event_id):
 
 @app.route('/get_events', methods=['GET'])
 def get_events():
-    """Возвращает события из user_events с учетом выполненных задач"""
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({"success": False, "message": "User not authorized"}), 401
@@ -418,11 +423,7 @@ def get_events():
     cursor.execute("SELECT id, title, date, completed FROM user_events WHERE user_id = ?", (user_id,))
     events = [
         {
-            "id": e[0],
-            "title": e[1],
-            "start": e[2],
-            "color": "#ff69b4" if e[3] else "#007bff",  # Розовый для выполненных, синий для обычных
-            "completed": bool(e[3])
+            "id": e[0], "title": e[1], "start": e[2], "color": "#ff69b4" if e[3] else "#007bff", "completed": bool(e[3])
         }
         for e in cursor.fetchall()
     ]
@@ -462,7 +463,6 @@ def show_rehabilitation_plan():
 
 @app.route('/complete_user_event', methods=['POST'])
 def complete_user_event():
-    """Отмечает пользовательское событие как выполненное."""
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({"success": False, "message": "Пользователь не авторизован"}), 401
@@ -482,7 +482,6 @@ def complete_user_event():
 
 @app.route('/get_recommendation_for_today', methods=['GET'])
 def get_recommendation_for_today():
-    """Возвращает рекомендации в зависимости от текущего этапа реабилитации."""
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({"success": False, "message": "Пользователь не авторизован"}), 401
@@ -490,7 +489,6 @@ def get_recommendation_for_today():
     conn = sqlite3.connect('db/database.db')
     cursor = conn.cursor()
 
-    # Получаем дату начала реабилитации
     cursor.execute("SELECT rehab_start_date, injury_type, fitness_level FROM user_injuries WHERE user_id = ?", (user_id,))
     result = cursor.fetchone()
     
@@ -499,12 +497,10 @@ def get_recommendation_for_today():
 
     rehab_start_date, injury_type, fitness_level = result
 
-    # Переводим дату в формат datetime
     rehab_start_date = datetime.strptime(rehab_start_date, "%Y-%m-%d")
     today_date = datetime.today()
     days_since_start = (today_date - rehab_start_date).days
 
-    # Получаем injury_id и activity_level_id
     cursor.execute("SELECT id FROM injuries WHERE injury_type = ?", (injury_type,))
     injury_id = cursor.fetchone()
     
@@ -517,7 +513,6 @@ def get_recommendation_for_today():
     injury_id = injury_id[0]
     activity_level_id = activity_level_id[0]
 
-    # Определяем текущий этап реабилитации
     cursor.execute('''
         SELECT id, phase, phase_name, duration FROM rehab_phases 
         WHERE injury_id = ? AND activity_level_id = ?
@@ -529,7 +524,6 @@ def get_recommendation_for_today():
     if not rehab_phases:
         return jsonify({"success": False, "message": "Нет этапов реабилитации"}), 404
 
-    # Определяем текущий этап на основе прошедших дней
     current_phase = None
     days_counter = 0
 
@@ -545,7 +539,7 @@ def get_recommendation_for_today():
     phase_number, phase_name = current_phase
 
     cursor.execute('''
-        SELECT recommendation, image_url, video_url 
+        SELECT recommendation
         FROM recommendations 
         WHERE injury_id = ? AND activity_level_id = ? AND recommendation LIKE ?
     ''', (injury_id, activity_level_id, f"%{phase_name}%"))
@@ -557,7 +551,7 @@ def get_recommendation_for_today():
         return jsonify({"success": False, "message": "Нет рекомендаций для текущего этапа"}), 404
 
     recommendations_list = [
-        {"text": row[0], "image_url": row[1], "video_url": row[2]} for row in recommendations
+        {"text": row[0]} for row in recommendations
     ]
 
     return jsonify({"success": True, "phase": phase_name, "recommendations": recommendations_list})

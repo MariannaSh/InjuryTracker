@@ -197,7 +197,7 @@ body {
     font-weight: 500;
     cursor: pointer;
 }
-
+/* 
 .complete-btn {
     background-color: #e74c3c;
     color: white;
@@ -216,9 +216,8 @@ body {
 .complete-btn:hover {
     background-color: #c0392b;
 }
-
 .recommendation-btn {
-    background-color: #03dac6; /* Бирюзовый цвет */
+    background-color: #03dac6; 
     color: white;
     font-size: 16px;
     font-weight: bold;
@@ -241,7 +240,8 @@ body {
 .recommendation-btn:active {
     background-color: #019b8d;
     transform: scale(0.98);
-}
+} */
+
 
 
 h1, h2 {
@@ -618,27 +618,129 @@ input[type="checkbox"] {
 .star:nth-child(4) { top: 70%; left: 30%; }
 .star:nth-child(5) { top: 90%; left: 70%; }
 
-.recommendations-container {
+/* Новый стиль карточки реабилитации (шире) */
+.rehab-card {
+    width: 1100px; /* Увеличил ширину */
     background: #1e1e1e;
     color: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    max-width: 600px;
-    margin: 20px auto;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.recommendation-item {
-    border-bottom: 1px solid #444;
-    padding: 10px;
+/* Заголовок и индикатор фазы */
+.rehab-header {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    align-items: center;
 }
 
-.recommendation-item p {
+.rehab-header h3 {
+    margin: 0;
+    font-size: 22px;
+    color: #03dac6;
+}
+
+.progress-indicator {
+    background: #444;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 10px;
     font-size: 14px;
 }
 
-.recommendation-item img,
-.recommendation-item video {
-    margin-top: 10px;
-    display: block;
+.rehab-info {
+    display: flex;          
+    flex-wrap: wrap;        
+    gap: 20px;              
+    align-items: center;     
+    justify-content: start; 
+    background: #1e1e1e;    
+    padding: 25px 30px;     
+    border-radius: 8px;      
+    color: white;            
+    font-size: 70px; 
+}
+
+.rehab-info p {
+    margin: 0;               
+    display: flex;
+    align-items: center;
+    gap: 10px;              
+    font-size: 17px;       
+    white-space: nowrap;   
+}
+
+.rehab-info i {
+    color: #03dac6;
+    font-size: 18px;
+}
+
+/* Контейнер прогресса */
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #333;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+/* Индикатор прогресса */
+.progress {
+    height: 100%;
+    background: #03dac6;
+    width: 0%; /* Будет изменяться динамически через JS */
+    transition: width 0.5s ease-in-out;
+}
+
+/* Индикатор фазы */
+.phase-indicator {
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #03dac6;
+}
+
+
+/* Кнопки */
+.rehab-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.recommendation-btn, .complete-btn {
+    padding: 10px 18px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+    text-align: center;
+}
+
+.recommendation-btn {
+    background-color: #03dac6;
+    color: white;
+}
+
+.recommendation-btn:hover {
+    background-color: #02c2ad;
+}
+
+.complete-btn {
+    background-color: #e63946;
+    color: white;
+}
+
+.complete-btn:hover {
+    background-color: #d62839;
 }
