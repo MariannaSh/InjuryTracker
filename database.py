@@ -145,7 +145,7 @@ def create_user_tables():
     conn = connect_user_db()
     cursor = conn.cursor()
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
+        CREATE TABLE IF NOT EXISTS users 
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE,
             password_hash TEXT,
@@ -346,9 +346,24 @@ def save_user_injury(user_id, injury_type, fitness_level, doctor_confirmed, reha
 def get_user_injury(user_id):
     with create_connection_injuries() as conn:
         cursor = conn.cursor()
-        cursor.execute('SELECT injury_type, fitness_level, doctor_confirmed, rehab_start_date FROM user_injuries WHERE user_id = ?', (user_id,))
-        return cursor.fetchone()
+        cursor.execute('''
+            SELECT injury_type, fitness_level, doctor_confirmed, rehab_start_date 
+            FROM user_injuries 
+            WHERE user_id = ?
+        ''', (user_id,))
+        result = cursor.fetchone()
+        if result:
+            injury_type = result[0].strip() if result[0] else None
+            fitness_level = result[1].strip() if result[1] else None
+            return injury_type, fitness_level, result[2], result[3]
+        return None
 
+def get_distinct_injury_types():
+    with sqlite3.connect('db/database.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT injury_type FROM injuries")
+        return [row[0] for row in cursor.fetchall()]  
+    
 def get_all_injuries():
     with create_connection_injuries() as conn:
         cursor = conn.cursor()
@@ -411,21 +426,35 @@ def get_rehab_events(user_id):
     conn = sqlite3.connect('db/database.db')
     cursor = conn.cursor()
 
-    cursor.execute('SELECT injury_type, fitness_level, rehab_start_date FROM user_injuries WHERE user_id = ?', (user_id,))
-    user_injury = cursor.fetchone()
-
-    if not user_injury:
+    cursor.execute('''
+        SELECT injury_type, fitness_level, rehab_start_date 
+        FROM user_injuries 
+        WHERE user_id = ?
+    ''', (user_id,))
+    result = cursor.fetchone()
+    if not result:
         return []
 
-    injury_type, fitness_level, rehab_start_date = user_injury
+    injury_type, fitness_level, rehab_start_date = result
     if not rehab_start_date:
         return []
 
-    cursor.execute('SELECT id FROM injuries WHERE injury_type = ?', (injury_type,))
-    injury_id = cursor.fetchone()[0]
+    injury_type = injury_type.strip()
+    fitness_level = fitness_level.strip()
 
-    cursor.execute('SELECT id FROM activity_levels WHERE activity_level = ?', (fitness_level,))
-    activity_level_id = cursor.fetchone()[0]
+    cursor.execute("SELECT id FROM injuries WHERE injury_type = ?", (injury_type,))
+    injury_id_row = cursor.fetchone()
+    if not injury_id_row:
+        print(f"[ERROR] Injury type '{injury_type}' not found")
+        return []
+    injury_id = injury_id_row[0]
+
+    cursor.execute("SELECT id FROM activity_levels WHERE activity_level = ?", (fitness_level,))
+    activity_level_row = cursor.fetchone()
+    if not activity_level_row:
+        print(f"[ERROR] Activity level '{fitness_level}' not found")
+        return []
+    activity_level_id = activity_level_row[0]
 
     cursor.execute('''
         SELECT phase, phase_name, duration 
@@ -433,23 +462,22 @@ def get_rehab_events(user_id):
         WHERE injury_id = ? AND activity_level_id = ?
         ORDER BY phase
     ''', (injury_id, activity_level_id))
-
     rehab_phases = cursor.fetchall()
     conn.close()
 
     if not rehab_phases:
         return []
 
-    start_date = datetime.strptime(rehab_start_date, "%Y-%m-%d") 
+    start_date = datetime.strptime(rehab_start_date, "%Y-%m-%d")
     events = []
     for phase, phase_name, duration in rehab_phases:
-        end_date = start_date + timedelta(days=duration) 
+        end_date = start_date + timedelta(days=duration)
         events.append({
             "title": f"{phase_name}",
             "start": start_date.strftime("%Y-%m-%d"),
             "end": end_date.strftime("%Y-%m-%d")
         })
-        start_date = end_date  
+        start_date = end_date
 
     return events
 
@@ -467,28 +495,39 @@ def get_current_rehab_phase(user_id):
     conn = sqlite3.connect('db/database.db')
     cursor = conn.cursor()
 
-    cursor.execute("SELECT rehab_start_date, injury_type, fitness_level FROM user_injuries WHERE user_id = ?", (user_id,))
+    cursor.execute('''
+        SELECT rehab_start_date, injury_type, fitness_level 
+        FROM user_injuries 
+        WHERE user_id = ?
+    ''', (user_id,))
     result = cursor.fetchone()
-    
+
     if not result:
-        return None, None, None  
-
-    rehab_start_date, injury_type, fitness_level = result
-    rehab_start_date = datetime.strptime(rehab_start_date, "%Y-%m-%d")
-    today_date = datetime.today()
-    days_since_start = (today_date - rehab_start_date).days
-
-    cursor.execute("SELECT id FROM injuries WHERE injury_type = ?", (injury_type,))
-    injury_id = cursor.fetchone()
-    
-    cursor.execute("SELECT id FROM activity_levels WHERE activity_level = ?", (fitness_level,))
-    activity_level_id = cursor.fetchone()
-
-    if not injury_id or not activity_level_id:
         return None, None, None
 
-    injury_id = injury_id[0]
-    activity_level_id = activity_level_id[0]
+    rehab_start_date, injury_type, fitness_level = result
+    if not rehab_start_date or not injury_type or not fitness_level:
+        return None, None, None
+
+    injury_type = injury_type.strip()
+    fitness_level = fitness_level.strip()
+
+    rehab_start_date = datetime.strptime(rehab_start_date, "%Y-%m-%d")
+    days_since_start = (datetime.today() - rehab_start_date).days
+
+    cursor.execute("SELECT id FROM injuries WHERE injury_type = ?", (injury_type,))
+    injury_id_row = cursor.fetchone()
+    if not injury_id_row:
+        print(f"[ERROR] Injury type '{injury_type}' not found in injuries table")
+        return None, None, None
+    injury_id = injury_id_row[0]
+
+    cursor.execute("SELECT id FROM activity_levels WHERE activity_level = ?", (fitness_level,))
+    activity_level_row = cursor.fetchone()
+    if not activity_level_row:
+        print(f"[ERROR] Activity level '{fitness_level}' not found in activity_levels table")
+        return None, None, None
+    activity_level_id = activity_level_row[0]
 
     cursor.execute('''
         SELECT phase, phase_name, duration 
@@ -496,8 +535,8 @@ def get_current_rehab_phase(user_id):
         WHERE injury_id = ? AND activity_level_id = ?
         ORDER BY phase
     ''', (injury_id, activity_level_id))
-
     rehab_phases = cursor.fetchall()
+
     conn.close()
 
     if not rehab_phases:
@@ -513,5 +552,45 @@ def get_current_rehab_phase(user_id):
         days_counter += duration
 
     if not current_phase:
-        return None, None, None  
-    return current_phase[0], None, len(rehab_phases)
+        return None, None, None
+
+    return current_phase[0], current_phase[1], len(rehab_phases)
+
+def generate_daily_rehab_tasks(user_id, injury_type, fitness_level, start_date):
+    conn = sqlite3.connect('db/database.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id FROM injuries WHERE injury_type = ?", (injury_type,))
+    injury_id = cursor.fetchone()
+    if not injury_id:
+        return []
+    injury_id = injury_id[0]
+
+    cursor.execute("SELECT id FROM activity_levels WHERE activity_level = ?", (fitness_level.lower(),))
+    activity_level_id = cursor.fetchone()
+    if not activity_level_id:
+        return []
+    activity_level_id = activity_level_id[0]
+
+    rehab_plan = get_rehab_plan(injury_id, activity_level_id)  
+    all_tasks = []
+    current_day = datetime.strptime(start_date, "%Y-%m-%d")
+
+    for phase_number, phase_name, duration in rehab_plan:
+        for day in range(duration):
+            date = current_day.strftime("%Y-%m-%d")
+            title = f"Фаза {phase_number}: {phase_name} — день {day + 1}"
+
+            all_tasks.append((user_id, title, date, injury_id))
+            current_day += timedelta(days=1)
+
+    with connect_user_db() as user_conn:
+        user_cursor = user_conn.cursor()
+        for task in all_tasks:
+            user_cursor.execute('''
+                INSERT INTO user_events (user_id, title, date, completed, injury_id)
+                VALUES (?, ?, ?, 0, ?)
+            ''', task)
+        user_conn.commit()
+
+    return all_tasks

@@ -2,153 +2,274 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Injury Information</title>
+    <title>Rehab Dashboard</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home_page.css') }}">
+<style>
+        
+        .event.completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .event .checkmark {
+            position: absolute;
+            left: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #03dac6;
+            font-weight: bold;
+        }
+        #view-event-status {
+            font-weight: bold;
+            color: #03dac6;
+        }
+        
+
+       </style>
 </head>
 <body>
+<nav class="menu">
+    <ul>
+        <li><a href="/profile">Profile</a></li>
+        <li><a href="/bmi">BMI</a></li>
+        <li><a href="/home">Home</a></li>
+        <li><a href="/progress">Progress</a></li>
+    </ul>
+</nav>
+{% if user_injury %}
+<main class="main-container">
+    <section class="todays-plan">
+        <h2>Injury Overview</h2>
+        <p><strong>Injury:</strong> {{ user_injury[0] }}</p>
+        <p><strong>Fitness Level:</strong> {{ fitness_level }}</p>
+        <p><strong>Start Date:</strong> {{ rehab_start_date }}</p>
 
-    <!-- Navigation Menu -->
-    <nav class="menu">
-        <ul>
-            <li><a href="/profile">Profile</a></li>
-            <li><a href="/bmi">BMI</a></li>
-            <li><a href="/home">Home</a></li>
-            <li><a href="/progress">Progress</a></li>
-        </ul>
-    </nav>
+        <div class="progress-bar">
+            <div class="progress" id="progress-bar" data-current-phase="{{ current_phase }}" data-total-phases="{{ total_phases }}"></div>
+        </div>
+        <div class="phase-indicator">
+            <span>Phase {{ current_phase if current_phase else 'N/A' }} of {{ total_phases if total_phases else 'N/A' }}</span>
+        </div>
 
-    <main class="content">
-        {% if user_injury %}
-        <!-- Контейнер реабилитации -->
-        <div class="rehab-card">
-            <div class="rehab-header">
-                <h3>Rehabilitation in Progress</h3>
-            </div>
-        
-            <div class="rehab-info">
-                <p><i class="fas fa-heartbeat"></i> <strong>Injury:</strong> {{ user_injury[0] }}</p>
-                <p><i class="fas fa-running"></i> <strong>Fitness Level:</strong> {{ user_injury[1] }}</p>
-                <p><i class="fas fa-calendar-alt"></i> <strong>Start Date:</strong> {{ user_injury[3] }}</p>
-            </div>
-        
-            <div class="progress-bar">
-                <div class="progress" id="progress-bar" data-current-phase="{{ current_phase }}" data-total-phases="{{ total_phases }}"></div>
-            </div>
-            
-            <div class="phase-indicator">
-                <span>Phase {{ current_phase if current_phase else 'N/A' }} of {{ total_phases if total_phases else 'N/A' }}</span>
-            </div>
-
-            <div class="rehab-actions">
-                <form action="{{ url_for('show_recommendations') }}" method="GET">
-                    <input type="hidden" name="injury_type" value="{{ user_injury[0] }}">
-                    <input type="hidden" name="fitness_level" value="{{ user_injury[1] }}">
-                    <button type="submit" class="recommendation-btn">View Plan</button>
-                </form>
-        
-                <form action="{{ url_for('complete_rehab') }}" method="POST">
-                    <button type="submit" class="complete-btn">Complete</button>
-                </form>
-            </div>
-        
-            <!-- Блок рекомендаций -->
-            <div id="recommendations" class="recommendations-container">
-                <p>Loading recommendations...</p>
-            </div>
-        </div>        
-        
-        {% endif %}
-
-        {% if not user_injury %}
-        <!-- Контейнер формы ввода -->
-        <div class="form-container">
-            <h1>Enter Injury Details</h1>
-            <form action="/submit" method="POST" onsubmit="validateForm(event)">
-                <div class="form-group">
-                    <label for="injury_type">Select Injury:</label>
-                    <select name="injury_type" required>
-                        {% for injury in injuries %}
-                        <option value="{{ injury }}">{{ injury }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-        
-                <div class="form-group">
-                    <label for="age">Age:</label>
-                    <input type="number" name="age" id="age" min="10" max="100" required>
-                </div>
-        
-                <div class="form-group">
-                    <label for="date">Date:</label>
-                    <input type="date" name="date" id="date" class="form-control" required>
-                </div>
-        
-                <div class="form-group">
-                    <label for="fitness_level">Fitness Level:</label>
-                    <select name="fitness_level" required>
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                    </select>
-                </div>
-        
-                <div class="form-group checkbox-group">
-                    <input type="checkbox" id="diagnosis_confirmed" name="diagnosis_confirmed">
-                    <label for="diagnosis_confirmed">Diagnosis confirmed by doctor</label>
-                </div>                
-        
-                <button type="submit" class="submit-btn">Get Recommendations</button>
+        <div class="rehab-actions">
+            <form action="{{ url_for('show_recommendations') }}" method="GET">
+                <input type="hidden" name="injury_type" value="{{ injury_type }}">
+                <input type="hidden" name="fitness_level" value="{{ fitness_level }}">
+                <button type="submit" class="recommendation-btn">View Full Rehab Plan</button>
+            </form>
+            <form action="{{ url_for('complete_rehab') }}" method="POST">
+                <button type="submit" class="complete-btn">Complete</button>
             </form>
         </div>
-        
-        {% endif %}
-    </main>
+       
+    </section>
 
 
-    <!-- Calendar Container -->
-    <div class="container">
-        <!-- Календарь -->
-        <div id="calendar-container">
-            <div id="calendar"></div>
+    <section class="weekly-calendar">
+        <h2>This Week's Plan</h2>
+        <div class="calendar-nav">
+            <div class="calendar-nav-links">
+            {% if week_offset is defined %}
+                <a href="{{ url_for('home', week_offset=week_offset - 1) }}">← Previous</a>
+                <span class="week-range">{{ week_range }}</span>
+                <a href="{{ url_for('home', week_offset=week_offset + 1) }}">Next →</a>
+            {% else %}
+                <span class="week-range">{{ week_range }}</span>
+            {% endif %}
         </div>
-        
-        <!-- Блок заметок с видео -->
-        <div id="video-notes">
-            <h2>Favorite Workouts</h2>
-            <div class="add-video">
-                <input type="text" id="video_title" placeholder="Workout Name">
-                <input type="text" id="video_url" placeholder="Paste YouTube link">
-                <select id="video_category">
-                    <option value="Back">Back</option>
-                    <option value="Abs">Abs</option>
-                    <option value="Legs">Legs</option>
-                    <option value="Arms">Arms</option>
-                    <option value="Stretching">Stretching</option>
-                </select>
-                <button onclick="addVideo()">Add</button>
+            <div class="calendar-nav-buttons">
+                <button id="log-progress-btn" class="circle-btn">
+                    <span class="material-icons">timeline</span>
+                </button>            
+                <button id="add-event-btn" class="green-btn">+</button>
             </div>
-        
-            <div class="video-filter">
-                <label for="filter_category">Filter by category:</label>
-                <select id="filter_category" onchange="filterVideos()">
-                    <option value="all">All</option>
-                    <option value="Back">Back</option>
-                    <option value="Abs">Abs</option>
-                    <option value="Legs">Legs</option>
-                    <option value="Arms">Arms</option>
-                    <option value="Stretching">Stretching</option>
-                </select>
-            </div>
-        
-            <div id="videos_list"></div>
         </div>
+        <div class="week-grid">
+            {% for day in week %}
+
+            
+            <div class="day-column{% if day.date|string == current_date %} today{% endif %}">
+                <div class="day-header">{{ day.name }}</div>
+                <div class="day-body">
+                    {% if day.events %}
+                        {% for event in day.events %}
+                        <div class="event {% if event.completed %}completed{% endif %}"
+                            data-id="{{ event.id }}"
+                            data-title="{{ event.title }}"
+                            data-start="{{ event.start }}"
+                            data-end="{{ event.end }}"
+                            data-completed="{{ event.completed | string | lower }}"
+                            onclick="openEventModal(this)">
+                        {% if event.completed %}
+                            <span class="checkmark">✓</span> {{ event.title }}
+                        {% else %}
+                            {{ event.title }}
+                        {% endif %}
+                        </div>
+
+
+                        {% endfor %}
+                    {% else %}
+                        <div class="event">Rest / No Task</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+<!-- Модальное окно для добавления события -->
+<div id="event-modal" class="modal">
+  <div class="modal-content">
+    <span id="close-modal" class="close">&times;</span>
+    <h2 class="modal-title">Add Event</h2>
+    <form id="event-form">
+      <div class="form-group">
+        <label for="event-title">Title</label>
+        <input type="text" id="event-title" placeholder="Event Title" required />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="event-date">Date</label>
+          <input type="date" id="event-date" required />
+        </div>
+        <div class="form-group">
+          <label for="event-start-time">Start Time</label>
+          <input type="time" id="event-start-time" />
+        </div>
+        <div class="form-group">
+          <label for="event-end-time">End Time</label>
+          <input type="time" id="event-end-time" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="repeat-event">Repeat</label>
+        <select id="repeat-event">
+          <option value="none">Never</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+        </select>
+      </div>
+
+      <button type="submit" id="submit-event" class="green-btn">Add Event</button>
+    </form>
+  </div>
+</div>
+
+<div id="view-event-modal" class="modal">
+    <div class="modal-content">
+      <span id="close-view-modal" class="close">&times;</span>
+      <h2 id="view-event-title">...</h2>
+      <p><strong>Date:</strong> <span id="view-event-date"></span></p>
+      <p><strong>Time:</strong> <span id="view-event-time"></span></p>
+      <p><strong>Status:</strong> <span id="view-event-status"></span></p>
+      
+      <div class="pain-level-section">
+        <label for="pain_level">Pain Level (0–10):</label>
+        <input type="number" id="pain_level" name="pain_level" min="0" max="10" required>
     </div>
-    <br><br>
+<button id="submit-progress-btn" class="green-btn" onclick="submitPainProgress(event)">Submit Progress</button>
+  
+      <div class="modal-buttons">
+        <button id="complete-event-btn" class="modal-btn complete-btn">Mark as Completed</button>
+        <button id="delete-event-btn" class="modal-btn delete-btn">Delete</button>
+      </div>
+    </div>
+  </div>
+  
+  
+<!-- Modal for pain level logging -->
+<div id="pain-form-modal" class="modal">
+    <div class="modal-content">
+        <span id="close-modal" class="close">&times;</span>
+        <h2>Log Your Pain Level</h2>
+        
+        <form action="/log_pain" method="POST">
+            <label>Date:
+                <input type="date" name="pain_date" required>
+            </label>
+            <br>
+            <br>
+            <label>Pain Level (0–10):
+                <input type="number" name="pain_level" min="0" max="10" required>
+            </label>
+            <br>
+            <br>
+            <button type="submit" class="modal-btn complete-btn">Submit Pain Level</button>
+        </form>
+        
+    </div>
+</div>
+<div id="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
 
-    <script src="/static/js/script.js"></script>
 
-    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css' rel='stylesheet' />
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js'></script>
+    </section>
+</main>
+{% else %}
+<!-- Контейнер формы ввода -->
+
+<div class="form-wrapper-center injury-form">
+    <div class="form-container injury-container">
+        <h1 class="form-title">Enter Injury Details</h1>
+        <form action="/submit" method="POST" onsubmit="validateForm(event)">
+            <div class="form-group">
+                <label for="injury_type">Select Injury:</label>
+                <select name="injury_type" required>
+                    {% for injury in injuries %}
+                    <option value="{{ injury }}">{{ injury }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="age">Age:</label>
+                <input type="number" name="age" id="age" min="10" max="100" required>
+            </div>
+
+            <div class="form-group">
+                <label for="date">Date:</label>
+                <input type="date" name="date" id="date" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fitness_level">Fitness Level:</label>
+                <select name="fitness_level" required>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                </select>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="diagnosis_confirmed" name="diagnosis_confirmed">
+                <label for="diagnosis_confirmed">Diagnosis confirmed by doctor</label>
+            </div>
+
+            <button type="submit" class="submit-btn">Get Recommendations</button>
+        </form>
+    </div>
+</div>
+
+{% endif %}
+
+
+
+<script src="/static/js/script.js"></script>
+
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css' rel='stylesheet' />
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js'></script>
 </body>
 </html>

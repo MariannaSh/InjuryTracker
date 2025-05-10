@@ -1,4 +1,3 @@
-/* Global Styles */
 html, body {
     height: auto;
     overflow-y: auto;
@@ -10,15 +9,8 @@ body {
     color: #ffffff;
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    overflow: hidden;
-    position: relative;
 }
 
-
-/* Меню навигации */
 .menu {
     background-color: #0d0d0d;
     padding: 15px 0;
@@ -39,7 +31,7 @@ body {
 
 .menu ul li a {
     text-decoration: none;
-    color: #ffffff; /* Белый текст по умолчанию */
+    color: #ffffff;
     font-size: 18px;
     font-weight: bold;
     padding: 10px 15px;
@@ -53,7 +45,7 @@ body {
     display: block;
     height: 2px;
     width: 0;
-    background: #03dac6; /* Бирюзовое подчеркивание */
+    background: #03dac6; 
     transition: width 0.3s ease-in-out;
     position: absolute;
     left: 0;
@@ -61,7 +53,7 @@ body {
 }
 
 .menu ul li a:hover {
-    color: #03dac6; /* Бирюзовый цвет текста при наведении */
+    color: #03dac6; 
 }
 
 .menu ul li a:hover::after {
@@ -69,67 +61,21 @@ body {
 }
 
 
-/* Общий контейнер */
-.content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 50px;
-}
-
-/* Реабилитационный контейнер */
-.rehab-container {
-    width: 400px;
-    background: #ffffff;
-    padding: 25px;
+.todays-plan {
+    flex: 0 0 25%;
+    background: #1e1e1e;
+    padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    margin-bottom: 20px;
-    color: #333;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
-.rehab-container h2 {
-    font-size: 22px;
-    color: #222;
-    margin-bottom: 15px;
+.main-container {
+    display: flex;
+    flex-direction: row;
+    padding: 20px;
+    gap: 20px;
 }
 
-.injury-details {
-    background: #f8f8f8;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
-}
-
-.injury-details p {
-    font-size: 16px;
-    margin: 5px 0;
-}
-
-.rehab-text {
-    font-size: 14px;
-    margin-bottom: 20px;
-    color: #666;
-}
-
-.rehab-container .btn {
-    display: inline-block;
-    background-color: #03dac6;
-    color: white;
-    padding: 12px 18px;
-    text-decoration: none;
-    border-radius: 5px;
-    font-weight: bold;
-    transition: background 0.3s ease-in-out;
-}
-
-.rehab-container .btn:hover {
-    background-color: #02c2ad;
-}
-
-/* Контейнер формы */
 .form-container {
     width: 400px;
     background: #ffffff;
@@ -182,13 +128,13 @@ body {
 .checkbox-group {
     display: flex;
     align-items: center;
-    gap: 8px; /* Добавляет отступ между чекбоксом и текстом */
+    gap: 8px; 
 }
 
 .checkbox-group input[type="checkbox"] {
     width: 16px;
     height: 16px;
-    accent-color: #03dac6; /* Цвет чекбокса */
+    accent-color: #03dac6;
 }
 
 .checkbox-group label {
@@ -197,401 +143,260 @@ body {
     font-weight: 500;
     cursor: pointer;
 }
-/* 
-.complete-btn {
-    background-color: #e74c3c;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-    display: block;
-    width: 100%;
-    text-align: center;
-    font-weight: bold;
-}
 
-.complete-btn:hover {
-    background-color: #c0392b;
-}
-.recommendation-btn {
-    background-color: #03dac6; 
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-    display: block;
-    width: 100%;
-    text-align: center;
-    margin-top: 15px;
-}
-
-.recommendation-btn:hover {
-    background-color: #02c2ad;
-    transform: scale(1.05);
-}
-
-.recommendation-btn:active {
-    background-color: #019b8d;
-    transform: scale(0.98);
-} */
-
-
-
-h1, h2 {
-    font-size: 26px;
-    font-weight: 600;
-    margin-bottom: 20px;
-    color: #333;
-}
-
-
-/* Улучшенный общий контейнер */
-.container {
-    display: flex;
-    align-items: flex-start;
-    gap: 50px; 
-    justify-content: center;
-    margin-top: 20px;
-    flex-wrap: wrap; 
-}
-
-#calendar-container {
-    max-width: 530px;
-    background: #1e1e1e;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    border: 1px solid #333;
-    color: #fff;
-    flex-grow: 1; 
-}
-
-
-#calendar {
-    background-color: #fff;
-    border-radius: 6px;
-    padding: 10px;
-    color: #333;
-    font-size: 12px; 
-}
-
-
-.fc-toolbar-title {
-    font-size: 1.1em; 
-    font-weight: bold;
-    color: #333;
-}
-
-.fc-button {
-    background-color: #03dac6 !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 4px !important;
-    padding: 4px 8px !important;
-    font-size: 12px !important; 
-}
-
-.fc-button:hover {
-    background-color: #03dac6 !important;
-}
-
-/* Выделение сегодняшнего дня */
-.fc-daygrid-day.fc-day-today {
-    background: rgba(0, 123, 255, 0.1);
-    font-weight: bold;
-    color: #03dac6;
-    font-size: 12px; /* Меньший шрифт */
-}
-
-.fc-event {
-    background-color: #090909 !important;
-    color: white !important;
-    border: none !important;
-    padding: 2px;
-    font-size: 10px; 
-}
-
-.fc-event-completed {
-    background-color: #ff69b4 !important; 
-    color: #fff !important;
-    border: none !important;
-    text-decoration: line-through; /* Добавляем зачеркнутый текст */
-}
-
-.fc-event-completed:hover {
-    background-color: #ff69b4 !important;
-}
-
-.fc-event:hover {
-    background-color: #03dac6 !important;
-}
-
-/* Сетка дней */
-.fc-daygrid-day {
-    border: 1px solid #eee;
-    font-size: 11px; /* Еще меньше шрифт внутри ячеек */
-    padding: 5px;
-}
-
-/* Подсветка при наведении */
-.fc-daygrid-day:hover {
-    background-color: #f1f1f1;
-}
-
-/* Уменьшаем размеры заголовков дней недели */
-.fc-col-header-cell {
-    font-size: 11px;
-}
-
-/* Секция "Favorite Workouts" */
-#video-notes {
-    max-width: 800px; /* Увеличиваем ширину контейнера */
-    padding: 30px; /* Увеличиваем внутренние отступы */
-    background: #1e1e1e;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    color: #ffffff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex-grow: 1; /* Позволяет этому контейнеру занимать больше места */
-}
-
-#video-notes h2 {
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #03dac6;
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-.add-video {
+.dashboard {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
+    justify-content: space-around;
+    padding: 30px;
+    gap: 30px;
+}
+
+
+h2, h3, h4 {
+    color: #03dac6;
+}
+
+.progress-bar {
+    background-color: #333;
+    border-radius: 10px;
+    height: 12px;
     width: 100%;
-    align-items: center;
+    overflow: hidden;
+    margin: 10px 0;
 }
 
-.add-video input, .add-video select {
-    flex: 1;
-    min-width: 40%;
-    padding: 8px;
-    font-size: 14px;
-    border: none;
-    border-bottom: 2px solid #03dac6;
-    border-radius: 0;
-    background: transparent;
-    color: #ffffff;
-    transition: all 0.3s;
-    text-align: center;
-}
-
-.add-video select {
-    background: #333; 
-    color: #ffffff; 
-    border-bottom: 2px solid #03dac6; 
-    width: 100%; 
-    font-size: 13px;
-    padding: 6px; 
-    border-radius: 0; 
-    box-sizing: border-box; 
-}
-
-.add-video select option {
-    background: #333; 
-    color: #ffffff; 
-}
-
-.add-video select:focus {
-    outline: none;
-    background: #444; 
-    border-color: #03dac6; 
-}
-
-.add-video input:focus, .add-video select:focus {
-    background: transparent;
-    outline: none;
-    box-shadow: none;
-    border-bottom: 2px solid #03dac6;
-}
-
-.add-video button {
+.progress {
     background-color: #03dac6;
-    color: #ffffff;
-    border: none;
-    padding: 10px 20px;
+    height: 10px;
     border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background 0.3s;
-    font-weight: bold;
-    min-width: 40%;
-    text-align: center;
+    transition: width 0.5s ease;
 }
 
-.add-video button:hover {
+
+.phase-indicator {
+    text-align: center;
+    font-size: 14px;
+    margin-bottom: 20px;
+    color: #ccc;
+}
+
+ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+li {
+    margin-bottom: 8px;
+    font-size: 15px;
+}
+
+.weekly-calendar {
+    flex: 1;
+    overflow-x: hidden;
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.calendar-nav {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    gap: 20px; 
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.calendar-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 10px; 
+    flex-grow: 1;
+    justify-content: center; 
+}
+
+.calendar-nav-buttons {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+
+#add-event-btn {
+    width: auto;
+}
+
+
+.calendar-nav a {
+    color: #03dac6;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+
+.rehab-actions button {
+    position: relative;
+    z-index: 10;
+}
+.calendar-nav a:hover {
+    background: rgba(3, 218, 198, 0.2);
+}
+.week-range {
+    font-size: 16px;
+    color: white;
+}
+.week-grid {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 12px;
+    padding: 10px;
+    margin: 0 auto;
+    max-width: 100%;
+    scroll-padding: 10px;
+    scrollbar-width: none; 
+}
+
+.week-grid::-webkit-scrollbar {
+    display: none;
+}
+.day-column {
+    flex: 0 0 240px;
+    scroll-snap-align: start;
+    background: #2b2b2b;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    height: 380px;
+    padding: 12px;
+    box-sizing: border-box;
+    transition: transform 0.2s ease;
+}
+
+.day-column:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 12px rgba(3, 218, 198, 0.3);
+}
+.day-column.today {
+    position: relative;
+    border: 1px solid #03dac6;
+}
+
+.day-column.today::after {
+    content: "Today";
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    font-size: 10px;
+    color: #03dac6;
+    background: #111;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border: 1px solid #03dac6;
+}
+
+
+.day-header {
+    font-weight: bold;
+    text-align: center;
+    padding: 10px 0;
+    background: #1f1f1f;
+    color: #03dac6;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+.day-body {
+    padding: 5px 8px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+.event {
+    background: #3a3a3a;
+    margin: 6px 0;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    border-left: 4px solid #03dac6;
+}
+.today {
+    border: 2px solid #03dac6;
+}
+
+.form-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 20px;
+    margin-top: 20px;
+}
+.pain-logger {
+    background: #292929;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    flex-grow: 1;
+}
+.pain-logger form {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 10px;
+}
+.pain-logger label {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    flex: 1;
+}
+.pain-logger input {
+    padding: 4px;
+    font-size: 12px;
+    border-radius: 4px;
+    border: none;
+}
+.pain-logger h3 {
+    color: #03dac6;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.green-btn {
+    background-color: #03dac6;
+    color: #000;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    margin-top: 15px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.green-btn:hover {
     background-color: #02c2ad;
 }
 
-.video-filter {
-    margin-top: 10px;
-    font-size: 12px;
-    color: #cccccc;
-    text-align: center;
-}
-
-.video-filter select {
-    padding: 10px;
-    font-size: 14px;
-    border: 2px solid #03dac6;
-    border-radius: 5px;
-    background: #333; 
-    color: #ffffff;
-    width: 100%;
-    margin-top: 4px;
-}
-
-.video-filter select option {
-    background: #333;
-    color: #ffffff;
-}
-
-.video-filter select:focus {
-    outline: none;
-    background: #444; 
-    border-color: #03dac6;
-}
-
-#videos_list {
-    margin-top: 8px;
-    max-height: 180px;
-    overflow-y: auto;
-    padding-right: 5px;
-    width: 100%;
-}
-
-.video-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #2b2b2b;
-    padding: 6px;
-    border-radius: 6px;
-    margin: 4px 0;
-    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.1);
-    transition: transform 0.2s;
-    border-left: 4px solid #03dac6;
-    color: #fff;
-    font-size: 11px;
-}
-
-.video-item a {
-    color: #03dac6;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 11px;
-}
-
-.video-item a:hover {
-    text-decoration: underline;
-}
-
-.video-item button {
-    background-color: #e14e7f; 
-    color: #ffffff; 
-    border: none; 
-    padding: 5px 12px; 
-    border-radius: 5px; 
-    cursor: pointer; 
-    font-size: 12px; 
-    transition: background-color 0.3s ease, transform 0.2s ease; 
-}
-
-.video-item button:hover {
-    background-color: #d67595; 
-    transform: scale(1.05);
-}
-
-.video-item button:focus {
-    outline: none;
-}
-
-.form-group {
-    margin-bottom: 20px;
-    text-align: left;
-}
-
-label {
-    font-weight: 500;
-    color: #555;
-}
-
-select, input[type="number"], input[type="date"] {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    color: #333;
-    background-color: #f7f9fa;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    margin-top: 5px;
-    box-sizing: border-box;
-}
-
-.checkbox-group {
-    display: flex;
-    align-items: center;
-    font-weight: 500;
-    color: #555;
-}
-
-input[type="checkbox"] {
-    margin-right: 8px;
-    accent-color: #03dac6;
-}
-
-.submit-btn {
-    width: 100%;
-    padding: 14px;
-    font-size: 16px;
-    color: #ffffff;
-    background-color: #03dac6;
+.red-btn {
+    background-color: #e74c3c;
+    color: white;
+    padding: 10px 16px;
     border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.submit-btn:hover {
-    background-color: #03dac6;
-    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
-}
-
-.links {
-    margin-top: 20px;
-}
-
-.link-btn {
-    text-decoration: none;
-    font-size: 16px;
-    color: #03dac6;
-    display: inline-block;
+    border-radius: 6px;
+    font-weight: bold;
     margin-top: 10px;
+    cursor: pointer;
     width: 100%;
-    text-align: center;
 }
 
-.link-btn:hover {
-    color: #0b0b0b;
+.red-btn:hover {
+    background-color: #c0392b;
 }
 
 .star {
@@ -603,6 +408,7 @@ input[type="checkbox"] {
     animation: twinkling 3s infinite ease-in-out;
 }
 
+  
 @keyframes twinkling {
     0%, 100% {
         opacity: 1;
@@ -612,135 +418,224 @@ input[type="checkbox"] {
     }
 }
 
+/* Модальное окно */
+.modal {
+    display: none;  
+    position: fixed;
+    z-index: 100; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    overflow-y: auto; 
+}
+.modal-title {
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: #03dac6;
+    text-align: center;
+  }
+  
+  #event-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group label {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #ddd;
+  }
+  
+  .form-group input,
+  .form-group select {
+    padding: 10px;
+    font-size: 15px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: #1a1a1a;
+    color: white;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: 2px solid #03dac6;
+  }
+  
+  .form-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  #add-event-btn, .circle-btn {
+    background-color: #03dac6;
+    color: black;
+    font-weight: bold;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+}
+
+#add-event-btn {
+    padding: 0; 
+    margin-top: 0;
+}
+
+.circle-btn {
+    padding: 0;
+}
+
+#add-event-btn:hover, .circle-btn:hover {
+    background-color: #03a39d;
+}
+.calendar-nav-buttons {
+    display: flex;
+    align-items: center;
+    gap: 15px; 
+    margin-left: 10px; 
+}
+  
+  @media (max-width: 480px) {
+    .form-row {
+      flex-direction: column;
+    }
+  }
+  
+/* модальное окно доп */
+.modal-content {
+    background: rgba(0, 0, 0, 0.85);
+    color: #e0e0e0;
+    padding: 20px 30px;
+    border-radius: 10px;
+    width: 300px;
+    margin: auto;
+    backdrop-filter: blur(10px);
+    font-family: 'Roboto Mono', monospace;
+}
+
+#view-event-title {
+    font-size: 18px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.modal-buttons {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.modal-btn {
+    flex: 1;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    border: 1px solid #666;
+    background: transparent;
+    color: #ccc;
+    transition: all 0.2s ease;
+}
+
+.modal-btn:hover {
+    background-color: #03dac6;
+    color: #000;
+}
+
+.delete-btn:hover {
+    background-color: #ff4c4c;
+    color: #fff;
+}
+
+/* css dla flash*/
+
+.modal {
+    display: none; 
+    position: fixed;
+    z-index: 100; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); 
+    overflow: auto; 
+}
+
+
+#flash-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.flash-message {
+    background-color: #1e1e1e;
+    color: #03dac6;
+    padding: 10px 16px;
+    border-left: 4px solid #03dac6;
+    border-radius: 6px;
+    font-size: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    opacity: 0.95;
+    animation: fadeOut 4s forwards;
+}
+
+@keyframes fadeOut {
+    0%, 70% { opacity: 0.95; }
+    100% { opacity: 0; display: none; }
+}
+
+.pain-level-section {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.pain-level-section label {
+    display: block;
+    margin-bottom: 8px;
+    color: #fff;
+}
+
+.pain-level-section input[type="number"] {
+    padding: 8px;
+    font-size: 14px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+#submit-progress-btn {
+    background-color: #03dac6;
+    color: black;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+}
+
+#submit-progress-btn:hover {
+    background-color: #028c76;
+}
+
+
 .star:nth-child(1) { top: 10%; left: 20%; }
 .star:nth-child(2) { top: 30%; left: 80%; }
 .star:nth-child(3) { top: 50%; left: 50%; }
 .star:nth-child(4) { top: 70%; left: 30%; }
 .star:nth-child(5) { top: 90%; left: 70%; }
-
-/* Новый стиль карточки реабилитации (шире) */
-.rehab-card {
-    width: 1100px; /* Увеличил ширину */
-    background: #1e1e1e;
-    color: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* Заголовок и индикатор фазы */
-.rehab-header {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    align-items: center;
-}
-
-.rehab-header h3 {
-    margin: 0;
-    font-size: 22px;
-    color: #03dac6;
-}
-
-.progress-indicator {
-    background: #444;
-    color: white;
-    padding: 6px 14px;
-    border-radius: 10px;
-    font-size: 14px;
-}
-
-.rehab-info {
-    display: flex;          
-    flex-wrap: wrap;        
-    gap: 20px;              
-    align-items: center;     
-    justify-content: start; 
-    background: #1e1e1e;    
-    padding: 25px 30px;     
-    border-radius: 8px;      
-    color: white;            
-    font-size: 70px; 
-}
-
-.rehab-info p {
-    margin: 0;               
-    display: flex;
-    align-items: center;
-    gap: 10px;              
-    font-size: 17px;       
-    white-space: nowrap;   
-}
-
-.rehab-info i {
-    color: #03dac6;
-    font-size: 18px;
-}
-
-/* Контейнер прогресса */
-.progress-bar {
-    width: 100%;
-    height: 10px;
-    background: #333;
-    border-radius: 6px;
-    overflow: hidden;
-    margin-bottom: 20px;
-    position: relative;
-}
-
-/* Индикатор прогресса */
-.progress {
-    height: 100%;
-    background: #03dac6;
-    width: 0%; /* Будет изменяться динамически через JS */
-    transition: width 0.5s ease-in-out;
-}
-
-/* Индикатор фазы */
-.phase-indicator {
-    text-align: center;
-    font-size: 14px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    color: #03dac6;
-}
-
-
-/* Кнопки */
-.rehab-actions {
-    display: flex;
-    gap: 15px;
-}
-
-.recommendation-btn, .complete-btn {
-    padding: 10px 18px;
-    font-size: 16px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.3s;
-    text-align: center;
-}
-
-.recommendation-btn {
-    background-color: #03dac6;
-    color: white;
-}
-
-.recommendation-btn:hover {
-    background-color: #02c2ad;
-}
-
-.complete-btn {
-    background-color: #e63946;
-    color: white;
-}
-
-.complete-btn:hover {
-    background-color: #d62839;
-}

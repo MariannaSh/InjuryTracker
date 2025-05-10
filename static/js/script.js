@@ -1,14 +1,19 @@
 function validateForm(event) {
     console.log("validateForm called"); 
-    
-    const diagnosisConfirmed = document.getElementById('diagnosis_confirmed').checked;
+
+    const diagnosisConfirmed = document.getElementById('diagnosis_confirmed')?.checked;
     console.log("Diagnosis confirmed:", diagnosisConfirmed); 
 
-    const age = document.getElementById('age').value;
-    if (age < 5 || age > 99) {
-        alert("Are you sure you need a recommendation?");
-        event.preventDefault(); 
-        return;
+    const ageElement = document.getElementById('age');
+    if (ageElement) {
+        const age = ageElement.value;
+        if (age < 5 || age > 99) {
+            alert("Are you sure you need a recommendation?");
+            event.preventDefault(); 
+            return;
+        }
+    } else {
+        console.error("Age element not found.");
     }
 
     if (!diagnosisConfirmed) {
@@ -19,8 +24,7 @@ function validateForm(event) {
     }
 }
 
-
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     const starCount = 30;
     const body = document.body;
 
@@ -33,14 +37,18 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-
 document.addEventListener("DOMContentLoaded", function () {
     loadVideos();
 });
 
 function loadVideos() {
     fetch("/get_videos")
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 displayVideos(data.videos);
@@ -53,7 +61,13 @@ function loadVideos() {
 
 function displayVideos(videos) {
     const videoList = document.getElementById("videos_list");
+    if (!videoList) {
+        console.error("Element with id 'videos_list' not found.");
+        return;
+    }
+    
     videoList.innerHTML = ""; 
+
     if (videos.length === 0) {
         videoList.innerHTML = "<p>No videos added.</p>";
         return;
@@ -71,11 +85,10 @@ function displayVideos(videos) {
     });
 }
 
-
 function addVideo() {
-    const title = document.getElementById("video_title").value.trim();
-    const link = document.getElementById("video_url").value.trim();
-    const category = document.getElementById("video_category").value;
+    const title = document.getElementById("video_title")?.value.trim();
+    const link = document.getElementById("video_url")?.value.trim();
+    const category = document.getElementById("video_category")?.value;
 
     if (!title || !link) {
         alert("Enter the title and link to the video!");
@@ -87,7 +100,12 @@ function addVideo() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, link, category })
     })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 loadVideos();
@@ -99,10 +117,20 @@ function addVideo() {
 }
 
 function filterVideos() {
-    const selectedCategory = document.getElementById("filter_category").value;
+    const selectedCategory = document.getElementById("filter_category")?.value;
+
+    if (!selectedCategory) {
+        console.error("Filter category element not found.");
+        return;
+    }
 
     fetch("/get_videos")
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 let filteredVideos = data.videos;
@@ -116,7 +144,7 @@ function filterVideos() {
 }
 
 function deleteVideo(videoId) {
-    fetch(`/delete_video/${videoId}`, { method: "DELETE" })
+    fetch(`/delete_event/${videoId}`, { method: "DELETE" })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -126,161 +154,132 @@ function deleteVideo(videoId) {
         .catch(error => console.error("Delete Error:", error));
 }
 
+const modal = document.getElementById('event-modal');
+const btn = document.getElementById('add-event-btn');
+const closeBtn = document.getElementById('close-modal');
 
-document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
+if (btn) {
+    btn.onclick = function() {
+        modal.style.display = "block";
+    }
+}
 
-    if (!calendarEl) {
-        console.error("Calendar container not found!");
+if (closeBtn) {
+    closeBtn.onclick = function() {
+        modal.style.display = "none";
+    }
+}
+
+window.onclick = function(event) {
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+}
+
+document.getElementById('submit-event').addEventListener('click', function(e) {
+    e.preventDefault();
+
+    const title = document.getElementById('event-title').value.trim();
+    const date = document.getElementById('event-date').value;
+    const startTime = document.getElementById('event-start-time').value || "00:00";
+    const endTime = document.getElementById('event-end-time').value || "00:00";
+    const repeatType = document.getElementById('repeat-event').value;
+
+    if (!title || !date) {
+        alert('Title and Date are required!');
         return;
     }
 
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth', 
-        selectable: true,             
-        editable: true,             
-        eventSources: [
-            {
-                url: '/get_events', 
-                method: 'GET',
-                failure: function() {
-                    console.error('Failed to load events!');
-                }
-            }
-        ],
-        headerToolbar: {            
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        dateClick: function(info) {   
-            let eventName = prompt("Enter the event name (e.g., Medication, Workout):");
-            if (eventName) {
-                fetch('/add_event', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        title: eventName,
-                        date: info.dateStr
-                    })
-                }).then(response => response.json())
-                  .then(data => {
-                      if (data.success) {
-                          calendar.addEvent({ title: eventName, start: info.dateStr });
-                          alert('Event added!');
-                      } else {
-                          alert('Failed to add event.');
-                      }
-                  }).catch(error => {
-                      console.error('Error adding event:', error);
-                  });
-            }
-        },
-        eventClick: function(info) { 
-            alert('Event: ' + info.event.title + '\nDate: ' + info.event.start.toLocaleDateString());
+    const startDateTime = `${date}T${startTime}:00`;
+    const endDateTime = `${date}T${endTime}:00`;
+
+    fetch('/add_event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            title: title,
+            start: startDateTime,
+            end: endDateTime,
+            repeat_type: repeatType  
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Event added successfully!');
+            location.reload();
+        } else {
+            console.error("Error adding event:", data);
+            alert('Error adding event: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("An error occurred while adding the event.");
+    });
+});
+
+function openEventModal(el) {
+    const title = el.dataset.title;
+    const start = new Date(el.dataset.start);
+    const end = new Date(el.dataset.end);
+    const id = el.dataset.id;
+    const completed = el.dataset.completed === "true";
+
+    console.log("Event ID:", id);
+
+    document.getElementById("view-event-status").innerText = completed ? "Completed ✅" : "Pending";
+    
+    const completeBtn = document.getElementById("complete-event-btn");
+    completeBtn.style.display = completed ? "none" : "inline-block";
+
+    document.getElementById("view-event-title").innerText = title;
+    document.getElementById("view-event-date").innerText = start.toLocaleDateString();
+    document.getElementById("view-event-time").innerText = start.toLocaleTimeString() + " - " + end.toLocaleTimeString();
+
+    document.getElementById("view-event-title").dataset.eventId = id;
+
+    document.getElementById("complete-event-btn").dataset.id = id;
+    document.getElementById("delete-event-btn").dataset.id = id;
+
+    document.getElementById("view-event-modal").style.display = "block";
+}
+
+document.getElementById("close-view-modal").onclick = function () {
+    document.getElementById("view-event-modal").style.display = "none";
+};
+
+document.getElementById("complete-event-btn").onclick = function () {
+    const id = this.dataset.id;
+
+    fetch("/complete_user_event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ event_id: id })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("Marked as completed!");
+            location.reload();
         }
     });
+};
 
-    calendar.render();
-});
-document.addEventListener("DOMContentLoaded", function () {
-    let calendarEl = document.getElementById("calendar");
+document.getElementById("delete-event-btn").onclick = function () {
+    const id = this.dataset.id;
 
-    if (!calendarEl) {
-        console.error("Calendar container not found!");
-        return;
-    }
-
-    fetch("/get_events")
-        .then(response => response.json())
+    if (confirm("Delete this event?")) {
+        fetch(`/delete_event/${id}`, { method: "DELETE" })
+        .then(res => res.json())
         .then(data => {
             if (data.success) {
-                let calendar = new FullCalendar.Calendar(calendarEl, {
-                    initialView: "dayGridMonth",
-                    headerToolbar: {
-                        left: "prev,next today",
-                        center: "title",
-                        right: "dayGridMonth,timeGridWeek,timeGridDay",
-                    },
-                    events: data.events,
-                    editable: true,
-                    dateClick: function (info) {
-                        let eventName = prompt("Enter the event name:");
-                        if (eventName) {
-                            fetch("/add_event", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                    title: eventName,
-                                    start: info.dateStr
-                                })
-                            })
-                                .then((response) => response.json())
-                                .then((data) => {
-                                    if (data.success) {
-                                        calendar.addEvent({
-                                            id: data.id,
-                                            title: eventName,
-                                            start: info.dateStr,
-                                            backgroundColor: "#007bff", 
-                                            borderColor: "#007bff"
-                                        });
-                                        alert("Event added!");
-                                    } else {
-                                        alert("Error: " + data.message);
-                                    }
-                                })
-                                .catch(error => console.error("Event addition error: ", error));
-                        }
-                    },
-                    eventClick: function (info) {
-                        if (info.event.extendedProps.completed) {
-                            if (confirm("Delete this event?")) {
-                                fetch("/delete_event/" + info.event.id, { method: "DELETE" })
-                                    .then((response) => response.json())
-                                    .then((data) => {
-                                        if (data.success) {
-                                            info.event.remove();
-                                            alert("Event deleted!");
-                                        } else {
-                                            alert("Error: " + data.message);
-                                        }
-                                    })
-                                    .catch((error) => console.error("Deletion error:", error));
-                            }
-                        } else {
-                            if (confirm("Mark the event as completed?")) {
-                                fetch("/complete_user_event", {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ event_id: info.event.id }),
-                                })
-                                    .then((response) => response.json())
-                                    .then((data) => {
-                                        if (data.success) {
-                                            info.event.setExtendedProp("completed", true);
-                                            info.event.setProp("classNames", ["fc-event-completed"]);
-                                            alert("Event marked as completed!");
-                                        } else {
-                                            alert("Error: " + data.message);
-                                        }
-                                    })
-                                    .catch((error) => console.error("Error updating event:", error));
-                            }                            
-                        }
-                    },
-
-                    eventColor: "#007bff", 
-                });
-
-                calendar.render();
+                alert("Deleted!");
+                location.reload();
             }
-        })
-        .catch((error) => console.error("Ошибка загрузки событий:", error));
-});
-
+        });
+    }
+};
 
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -443,3 +442,77 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+window.addEventListener("DOMContentLoaded", function () {
+    const progressBar = document.getElementById("progress-bar");
+
+    if (progressBar) {
+        const currentPhase = parseInt(progressBar.dataset.currentPhase);
+        const totalPhases = parseInt(progressBar.dataset.totalPhases);
+
+        if (!isNaN(currentPhase) && !isNaN(totalPhases) && totalPhases > 0) {
+            const percent = (currentPhase / totalPhases) * 100;
+            progressBar.style.width = percent + "%";
+        }
+    }
+});
+function submitPainProgress(event) {
+    event.preventDefault(); 
+
+    const painLevel = document.getElementById("pain_level").value;
+    const eventId = document.getElementById("view-event-title").dataset.eventId;
+    const exerciseCompleted = true; 
+
+    const eventDate = document.getElementById("view-event-date").innerText;
+
+    if (!painLevel || !eventId || !eventDate) {
+        console.error("Missing pain_level, event_id or event_date");
+        alert("Please provide pain level, event ID, and date.");
+        return;
+    }
+
+    console.log("Pain Level:", painLevel);
+    console.log("Event ID:", eventId);
+
+    fetch("/log_event_progress", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            pain_level: painLevel,
+            event_id: eventId,
+            exercise_completed: exerciseCompleted,  
+            event_date: eventDate 
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById("view-event-modal").style.display = "none"; 
+            location.reload(); 
+        } else {
+            console.error("Failed to log progress.");
+        }
+    })
+    .catch(error => {
+        console.error("Error: " + error.message);
+    });
+}
+
+document.getElementById('log-progress-btn').addEventListener('click', function() {
+    var modal = document.getElementById('pain-form-modal');
+    modal.style.display = 'block';  
+});
+
+document.getElementById('close-modal').addEventListener('click', function() {
+    var modal = document.getElementById('pain-form-modal');
+    modal.style.display = 'none'; 
+});
+
+window.onclick = function(event) {
+    var modal = document.getElementById('pain-form-modal');
+    if (event.target === modal) {
+        modal.style.display = 'none';  
+    }
+};

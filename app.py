@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 from flask import Flask, flash, jsonify, render_template, request, redirect, url_for, session
 import requests
-from database import add_completed_column_user_events, add_progress,   create_tables, connect_user_db,add_injury, delete_user_injury, get_current_rehab_phase,  get_distinct_injury_types, get_profile_image, get_progress_data,  get_recommendation, get_rehab_events, get_rehab_plan, get_user_by_id, get_user_injury, save_user_injury, update_profile_image
+from database import  add_progress, create_connection_injuries,  create_tables, connect_user_db,add_injury, delete_user_injury, get_current_rehab_phase,  get_distinct_injury_types, get_profile_image, get_progress_data,  get_recommendation, get_rehab_events, get_rehab_plan, get_user_by_id, get_user_injury, save_user_injury, update_profile_image
 from werkzeug.utils import secure_filename
 import sqlite3
 from auth import auth_bp
@@ -65,20 +65,80 @@ def bmi():
 def index():
     return render_template('index.html')
 
-@app.route('/home', methods=['GET', 'POST'])
+from datetime import datetime, timedelta
+from database import get_user_injury, get_current_rehab_phase, get_distinct_injury_types, get_progress_data
+
+@app.route("/home")
 def home():
     user_id = session.get('user_id')
     if not user_id:
         return redirect(url_for('auth.login'))
 
-    user_injury = get_user_injury(user_id)  
-    injuries = get_distinct_injury_types()  
-    injuries = [injury[0] for injury in injuries]  
+    user_injury = get_user_injury(user_id)
 
+    if not user_injury:
+        return render_template("home_page.html",
+                               injuries=get_distinct_injury_types(),
+                               user_injury=None)
+
+    injury_type, fitness_level, doctor_confirmed, rehab_start_date = user_injury
+    rehab_start = datetime.strptime(rehab_start_date, "%Y-%m-%d").date()
+    today = datetime.today().date()
+
+    week_offset = request.args.get("week_offset", 0, type=int)
+    monday = today - timedelta(days=today.weekday()) + timedelta(weeks=week_offset)
+    week_dates = [monday + timedelta(days=i) for i in range(7)]
+    week_range = f"{week_dates[0].strftime('%b %d')} – {week_dates[-1].strftime('%b %d')}"
+    current_date = datetime.today().strftime('%Y-%m-%d')
+
+    with connect_user_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT title, completed 
+            FROM user_events 
+            WHERE user_id = ? AND date = ?
+        ''', (user_id, today.strftime('%Y-%m-%d')))
+        today_tasks = [{"title": row[0], "completed": bool(row[1])} for row in cursor.fetchall()]
+
+        week = []
+        for date in week_dates:
+            cursor.execute('''
+                SELECT id, title, start, end, completed 
+                FROM user_events 
+                WHERE user_id = ? AND date = ?
+            ''', (user_id, date.strftime('%Y-%m-%d')))
+            events = [{
+                "id": row[0],
+                "title": row[1],
+                "start": row[2],
+                "end": row[3],
+                "completed": bool(row[4])
+
+            } for row in cursor.fetchall()]
+            week.append({
+                "name": date.strftime("%A"),
+                "date": date.strftime("%Y-%m-%d"),
+                "events": events
+            })
+    
     current_phase, _, total_phases = get_current_rehab_phase(user_id)
+    progress_percent = round((current_phase / total_phases) * 100, 1) if current_phase and total_phases else 0
 
-    return render_template('home_page.html', user_injury=user_injury, injuries=injuries,
-            current_phase=current_phase, phase_name=None, total_phases=total_phases)
+    return render_template("home_page.html",
+                           injury_type=injury_type,
+                           fitness_level=fitness_level,
+                           rehab_start_date=rehab_start_date,
+                           current_phase=current_phase,
+                           total_phases=total_phases,
+                           progress_percent=progress_percent,
+                           today_tasks=today_tasks,
+                           week=week,
+                           week_range=week_range,
+                           week_offset=week_offset,
+                           user_injury=user_injury,
+                           current_date=current_date)
+
+
 
 @app.route('/add_injury', methods=['GET', 'POST'])
 def add_injury_route():
@@ -353,63 +413,155 @@ def delete_video(video_id):
     
     conn.close()
     return jsonify(response)
+
+@app.route('/log_pain', methods=['POST'])
+def log_pain():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+
+    pain_level = request.form.get('pain_level')
+    pain_date = request.form.get('pain_date')
+    exercise_completed = 1  
+
+    user_injury = get_user_injury(user_id)
+    if not user_injury:
+        flash("Нет активной травмы для записи прогресса", "error")
+        return redirect(url_for('home'))
+
+    injury_type = user_injury[0]
+
+    with create_connection_injuries() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT id FROM injuries WHERE injury_type = ?", (injury_type,))
+        row = cursor.fetchone()
+        if not row:
+            flash("Ошибка: тип травмы не найден в базе", "error")
+            return redirect(url_for('home'))
+        injury_id = row[0]
+
+    add_progress(user_id, injury_id, pain_date, pain_level, exercise_completed)
+
+    flash("Progress saved! You can track it in the Progress section.", "success")
+    return redirect(url_for('home'))
+
+@app.route('/log_event_progress', methods=['POST'])
+def log_event_progress():
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"success": False, "message": "User not authorized"}), 401
+
+        pain_level = request.json.get('pain_level')
+        event_id = request.json.get('event_id')
+        exercise_completed = request.json.get('exercise_completed')
+
+        add_progress(user_id, event_id, datetime.today().strftime('%Y-%m-%d'), pain_level, exercise_completed)
+        flash("Progress saved! You can track it in the Progress section.", "success")
+        return jsonify({"success": True, "message": "Progress saved successfully!"})
+
+    except Exception as e:
+        flash("An error occurred while logging progress.", "error")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
 @app.route('/add_event', methods=['POST'])
 def add_event():
-    """Добавляет новое событие в user_events"""
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({"success": False, "message": "Пользователь не авторизован"}), 401
+    try:
+        data = request.json
+        title = data['title']
+        start = data['start']
+        end = data['end']
+        repeat_type = data.get('repeat_type', 'none')
 
-    data = request.json
-    title = data.get("title")
-    date = data.get("start")  
+        start_datetime = datetime.fromisoformat(start)
+        end_datetime = datetime.fromisoformat(end)
+        event_date = start_datetime.date()  
 
-    if not title or not date:
-        return jsonify({"success": False, "message": "Некорректные данные"}), 400
+        if repeat_type == 'daily':
+            for i in range(7):  
+                new_start = start_datetime + timedelta(days=i)
+                new_end = end_datetime + timedelta(days=i)
+                with connect_user_db() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute('''INSERT INTO user_events (user_id, title, date, start, end, repeat_type)
+                                      VALUES (?, ?, ?, ?, ?, ?)''', 
+                                   (session['user_id'], title, event_date, new_start, new_end, repeat_type))
+                    conn.commit()
 
-    with connect_user_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO user_events (user_id, title, date, completed) VALUES (?, ?, ?, 0)",
-            (user_id, title, date)
-        )
-        conn.commit()
-        event_id = cursor.lastrowid  
+        elif repeat_type == 'weekly':
+            for i in range(4):  
+                new_start = start_datetime + timedelta(weeks=i)
+                new_end = end_datetime + timedelta(weeks=i)
+                with connect_user_db() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute('''INSERT INTO user_events (user_id, title, date, start, end, repeat_type)
+                                      VALUES (?, ?, ?, ?, ?, ?)''', 
+                                   (session['user_id'], title, event_date, new_start, new_end, repeat_type))
+                    conn.commit()
 
-    return jsonify({"success": True, "message": "Событие добавлено", "id": event_id})
+        elif repeat_type == 'monthly':
+            for i in range(3):  
+                new_start = start_datetime.replace(month=start_datetime.month + i)
+                new_end = end_datetime.replace(month=end_datetime.month + i)
+                with connect_user_db() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute('''INSERT INTO user_events (user_id, title, date, start, end, repeat_type)
+                                      VALUES (?, ?, ?, ?, ?, ?)''', 
+                                   (session['user_id'], title, event_date, new_start, new_end, repeat_type))
+                    conn.commit()
 
-@app.route('/update_event', methods=['PUT'])
-def update_event():
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({"success": False, "message": "Пользователь не авторизован"}), 401
+        else: 
+            with connect_user_db() as conn:
+                cursor = conn.cursor()
+                cursor.execute('''INSERT INTO user_events (user_id, title, date, start, end, repeat_type)
+                                  VALUES (?, ?, ?, ?, ?, ?)''', 
+                               (session['user_id'], title, event_date, start_datetime, end_datetime, repeat_type))
+                conn.commit()
 
-    data = request.json
-    event_id = data.get("id")
-    new_date = data.get("start")  
+        return jsonify({"success": True, "message": "Event added successfully!"})
 
-    if not event_id or not new_date:
-        return jsonify({"success": False, "message": "Некорректные данные"}), 400
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"success": False, "message": str(e)}), 500
 
-    with connect_user_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute("UPDATE user_events SET date = ? WHERE id = ? AND user_id = ?", (new_date, event_id, user_id))
-        conn.commit()
 
-    return jsonify({"success": True, "message": "Событие обновлено"})
+@app.route('/complete_user_event', methods=['POST'])
+def complete_user_event():
+    try:
+        data = request.json
+        event_id = data['event_id']
+
+        with connect_user_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE user_events SET completed = 1 WHERE id = ?
+            ''', (event_id,))
+            conn.commit()
+
+        return jsonify({"success": True, "message": "Event marked as completed!"})
+
+    except Exception as e:
+        print(f"Error marking event as completed: {e}")
+        return jsonify({"success": False, "message": "Error marking event as completed!"}), 500
+
 
 @app.route('/delete_event/<int:event_id>', methods=['DELETE'])
 def delete_event(event_id):
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({"success": False, "message": "Пользователь не авторизован"}), 401
+    try:
+        with connect_user_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                DELETE FROM user_events WHERE id = ?
+            ''', (event_id,))
+            conn.commit()
 
-    with connect_user_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM user_events WHERE id = ? AND user_id = ?", (event_id, user_id))
-        conn.commit()
+        return jsonify({"success": True, "message": "Event deleted successfully!"})
 
-    return jsonify({"success": True, "message": "Событие удалено"})
+    except Exception as e:
+        print(f"Error deleting event: {e}")
+        return jsonify({"success": False, "message": "Error deleting the event!"}), 500
+
 
 @app.route('/get_events', methods=['GET'])
 def get_events():
@@ -459,26 +611,6 @@ def show_rehabilitation_plan():
     rehab_plan = get_rehab_plan(injury_id, activity_level_id)
 
     return render_template('rehabilitation_plan.html', rehab_plan=rehab_plan, injury_type=injury_type)
-
-
-@app.route('/complete_user_event', methods=['POST'])
-def complete_user_event():
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({"success": False, "message": "Пользователь не авторизован"}), 401
-
-    data = request.json
-    event_id = data.get('event_id')
-
-    if not event_id:
-        return jsonify({"success": False, "message": "Отсутствует ID события"}), 400
-
-    with connect_user_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute("UPDATE user_events SET completed = 1 WHERE id = ? AND user_id = ?", (event_id, user_id))
-        conn.commit()
-
-    return jsonify({"success": True, "message": "Событие отмечено как выполненное", "completed": True})
 
 @app.route('/get_recommendation_for_today', methods=['GET'])
 def get_recommendation_for_today():
@@ -559,5 +691,4 @@ def get_recommendation_for_today():
 
 if __name__ == '__main__':
     create_tables() 
-    add_completed_column_user_events()
     app.run(debug=True)

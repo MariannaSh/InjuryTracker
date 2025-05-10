@@ -1,4 +1,3 @@
-
 from flask import Blueprint, current_app, jsonify, logging, render_template, request, redirect, url_for, flash, session
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from flask_bcrypt import Bcrypt
