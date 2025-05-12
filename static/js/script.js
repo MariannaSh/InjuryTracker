@@ -516,3 +516,54 @@ window.onclick = function(event) {
         modal.style.display = 'none';  
     }
 };
+document.addEventListener("DOMContentLoaded", function () {
+    const completeButton = document.getElementById('complete-rehab-btn');
+
+    if (completeButton) {
+        completeButton.addEventListener('click', function(event) {
+            const ctx = document.getElementById("painLevelChart")?.getContext("2d");
+            const painLevelChart = ctx ? Chart.getChart(ctx) : null;
+
+            if (painLevelChart) {
+                painLevelChart.data.labels = [];
+                painLevelChart.data.datasets[0].data = [];
+                painLevelChart.update();
+            }
+
+            fetch("/complete_rehab", {
+                method: "POST",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                if (data && data.success) {
+                    // alert("Rehabilitation completed! Starting new injury plan.");
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error completing rehab:', error);
+            });
+        });
+    }
+});
+document.addEventListener("DOMContentLoaded", function () {
+    const flashMessages = document.querySelectorAll('.flash-message');
+
+    flashMessages.forEach(msg => {
+        msg.style.opacity = 1;
+        setTimeout(() => {
+            msg.style.transition = "opacity 1s ease-out";
+            msg.style.opacity = 0;
+        }, 4000); // покажи 4 сек, потом исчезает
+    });
+});

@@ -1,4 +1,6 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/progress.css') }}">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <br>
 
 <nav class="menu">
@@ -9,16 +11,39 @@
         <li><a href="/progress">Progress</a></li>
     </ul>
 </nav>
-
 <h2>Pain Level Over Time</h2>
 <div class="chart-container">
     <canvas id="painLevelChart"></canvas>
 </div>
+<!-- <div class="button-container">
+    <button id="clear-db-btn" class="clear-progress-btn">Clear Progress</button>
+</div> -->
 
-<div id="progress-summary"></div>
-<div id="recommendation-box"></div>
-<div id="achievements-box"></div>
- <a href="/chart" class="link-btn">View Recovery Progress</a>
+
+<div class="progress-container">
+    <div id="progress-summary" class="summary-box"></div>
+    <div id="achievements-box" class="achievements-box"></div>
+    <div id="recommendation-box" class="recommendation-box"></div>
+</div>
+{% if injury_history %}
+    <h3>Completed Injury History</h3>
+    <div class="injury-history-list">
+        {% for injury in injury_history %}
+            <div class="injury-entry">
+                <div class="injury-info">
+                    <strong>{{ injury[0] }}</strong><br>
+                    <span>{{ injury[1] }} — {{ injury[2] }} ({{ injury[4] }} days)</span>
+                </div>
+                <a class="pdf-button" href="{{ url_for('static', filename='reports/' ~ injury[3]) }}" download>
+                    <img src="{{ url_for('static', filename='uploads/download.png') }}" alt="Download PDF" class="pdf-icon">
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>You don't have any completed injury history yet.</p>
+{% endif %}
+<br>
 <span id="rehabStart" style="display: none;">{{ rehab_start_date }}</span>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

@@ -632,6 +632,18 @@ li {
 #submit-progress-btn:hover {
     background-color: #028c76;
 }
+/* Включить стандартный календарь для input[type=date] */
+input[type="date"] {
+    appearance: auto !important;
+    -webkit-appearance: auto !important;
+    background-color: #1a1a1a;
+    color: white;
+    cursor: pointer;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
 
 
 .star:nth-child(1) { top: 10%; left: 20%; }

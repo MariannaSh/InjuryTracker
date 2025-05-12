@@ -5,6 +5,7 @@
     <title>Rehab Dashboard</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home_page.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
         
         .event.completed {
@@ -63,8 +64,7 @@
             <form action="{{ url_for('complete_rehab') }}" method="POST">
                 <button type="submit" class="complete-btn">Complete</button>
             </form>
-        </div>
-       
+        </div>       
     </section>
 
 
@@ -262,10 +262,17 @@
         </form>
     </div>
 </div>
+<div id="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
 
 {% endif %}
-
-
 
 <script src="/static/js/script.js"></script>
 

@@ -149,30 +149,30 @@ function renderAchievements(achievements) {
     localStorage.setItem(storageKey, JSON.stringify(shown));
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const clearProgressButton = document.getElementById('clear-db-btn');
+// document.addEventListener('DOMContentLoaded', function() {
+//     const clearProgressButton = document.getElementById('clear-db-btn');
 
-    if (clearProgressButton) {
-        clearProgressButton.addEventListener('click', function() {
-            if (confirm("Вы уверены, что хотите очистить прогресс?")) {
-                fetch('/clear_progress', {  
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.message); 
-                    location.reload(); 
-                })
-                .catch(error => {
-                    console.error('Ошибка при очистке прогресса:', error);
-                });
-            }
-        });
-    } else {
-        console.error('Кнопка с id "clear-db-btn" не найдена.');
-    }
-});
+//     if (clearProgressButton) {
+//         clearProgressButton.addEventListener('click', function() {
+//             if (confirm("Вы уверены, что хотите очистить прогресс?")) {
+//                 fetch('/clear_progress', {  
+//                     method: 'POST',
+//                     headers: { 'Content-Type': 'application/json' }
+//                 })
+//                 .then(response => response.json())
+//                 .then(data => {
+//                     alert(data.message); 
+//                     location.reload(); 
+//                 })
+//                 .catch(error => {
+//                     console.error('Ошибка при очистке прогресса:', error);
+//                 });
+//             }
+//         });
+//     } else {
+//         console.error('Кнопка с id "clear-db-btn" не найдена.');
+//     }
+// });
 
 function showAchievementToast(text) {
     const toast = document.createElement("div");

@@ -594,3 +594,97 @@ def generate_daily_rehab_tasks(user_id, injury_type, fitness_level, start_date):
         user_conn.commit()
 
     return all_tasks
+
+def create_injury_history_table():
+    with connect_user_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS injury_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                injury_type TEXT NOT NULL,
+                fitness_level TEXT NOT NULL,
+                doctor_confirmed BOOLEAN NOT NULL,
+                rehab_start_date TEXT NOT NULL,
+                rehab_end_date TEXT NOT NULL,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+        ''')
+        conn.commit()
+
+def get_injuries_history(user_id):
+    with connect_user_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT injury_type, fitness_level, doctor_confirmed, rehab_start_date, rehab_end_date
+            FROM injury_history
+            WHERE user_id = ?
+            ORDER BY rehab_end_date DESC
+        ''', (user_id,))
+        return cursor.fetchall()
+    
+
+def generate_daily_rehab_tasks(user_id, injury_type, fitness_level, start_date):
+    conn = sqlite3.connect('db/database.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id FROM injuries WHERE injury_type = ?", (injury_type,))
+    injury_row = cursor.fetchone()
+    if not injury_row:
+        print("Injury not found")
+        return
+    injury_id = injury_row[0]
+
+    cursor.execute("SELECT id FROM activity_levels WHERE activity_level = ?", (fitness_level.lower(),))
+    level_row = cursor.fetchone()
+    if not level_row:
+        print("Activity level not found")
+        return
+    activity_level_id = level_row[0]
+
+    cursor.execute('''
+        SELECT id, phase, duration
+        FROM rehab_phases
+        WHERE injury_id = ? AND activity_level_id = ?
+        ORDER BY phase
+    ''', (injury_id, activity_level_id))
+
+    rehab_phases = cursor.fetchall()
+    conn.close()
+
+    if not rehab_phases:
+        print("No rehab phases found")
+        return
+
+    current_day = datetime.strptime(start_date, "%Y-%m-%d")
+    with connect_user_db() as user_conn:
+        user_cursor = user_conn.cursor()
+        conn = sqlite3.connect('db/database.db') 
+        cursor = conn.cursor()
+        user_cursor.execute("DELETE FROM user_events WHERE user_id = ?", (user_id,))
+        for phase_id, _, duration in rehab_phases:
+            for day_number in range(1, duration + 1):
+                date = current_day.strftime("%Y-%m-%d")
+
+                cursor.execute('''
+                    SELECT task FROM phase_day_tasks
+                    WHERE phase_id = ? AND day_number = ?
+                ''', (phase_id, day_number))
+                tasks = cursor.fetchall()
+
+                if tasks:
+                    for task_row in tasks:
+                        user_cursor.execute('''
+                            INSERT INTO user_events (user_id, title, date, completed)
+                            VALUES (?, ?, ?, 0)
+                        ''', (user_id, task_row[0], date))
+                else:
+                    user_cursor.execute('''
+                        INSERT INTO user_events (user_id, title, date, completed)
+                        VALUES (?, ?, ?, 0)
+                    ''', (user_id, f"[No tasks for Phase ID {phase_id} - Day {day_number}]", date))
+
+                current_day += timedelta(days=1)
+
+        user_conn.commit()
+        conn.close()

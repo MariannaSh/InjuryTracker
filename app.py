@@ -1,13 +1,21 @@
 from datetime import datetime
+from urllib.parse import quote
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
 import os
-from flask import Flask, flash, jsonify, render_template, request, redirect, url_for, session
+from flask import Flask,flash, jsonify, render_template, request, redirect, url_for, session
 import requests
-from database import  add_progress, create_connection_injuries,  create_tables, connect_user_db,add_injury, delete_user_injury, get_current_rehab_phase,  get_distinct_injury_types, get_profile_image, get_progress_data,  get_recommendation, get_rehab_events, get_rehab_plan, get_user_by_id, get_user_injury, save_user_injury, update_profile_image
+from database import  add_progress, create_connection_injuries, create_injury_history_table,  create_tables, connect_user_db,add_injury, delete_user_injury, generate_daily_rehab_tasks, get_current_rehab_phase,  get_distinct_injury_types, get_injuries_history,  get_profile_image, get_progress_data,  get_recommendation, get_rehab_events, get_rehab_plan, get_user_by_id, get_user_injury, save_user_injury, update_profile_image
 from werkzeug.utils import secure_filename
 import sqlite3
 from auth import auth_bp
 import config
-
+from reportlab.graphics.shapes import Drawing
+from reportlab.graphics.charts.lineplots import LinePlot
+from reportlab.graphics.charts.axes import XValueAxis, YValueAxis
+from reportlab.lib import colors
+from reportlab.graphics import renderPDF
 
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
@@ -120,7 +128,6 @@ def home():
                 "date": date.strftime("%Y-%m-%d"),
                 "events": events
             })
-    
     current_phase, _, total_phases = get_current_rehab_phase(user_id)
     progress_percent = round((current_phase / total_phases) * 100, 1) if current_phase and total_phases else 0
 
@@ -160,9 +167,9 @@ def submit():
     fitness_level = request.form['fitness_level']
     doctor_confirmed = 1 if 'diagnosis_confirmed' in request.form else 0
     rehab_start_date = request.form['date'] 
-
+    
     save_user_injury(user_id, injury_type, fitness_level, doctor_confirmed, rehab_start_date)
-
+    generate_daily_rehab_tasks(user_id, injury_type, fitness_level, rehab_start_date)
     rehab_events = get_rehab_events(user_id)
 
     conn = connect_user_db()
@@ -181,15 +188,114 @@ def submit():
 
     return render_template('recommendations.html', recommendations=recommendation)
 
+from reportlab.graphics.shapes import Rect
+import re
+
 @app.route('/complete_rehab', methods=['POST'])
 def complete_rehab():
     user_id = session.get('user_id')
     if not user_id:
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))
 
-    delete_user_injury(user_id)
-    
-    flash("Rehabilitation completed! You can now add a new injury.", "success")
+    current = get_user_injury(user_id)
+    if current:
+        injury_type, fitness_level, doctor_confirmed, rehab_start_date = current
+        rehab_end_date = datetime.today().strftime('%Y-%m-%d')
+
+        with connect_user_db() as conn:
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                SELECT date, pain_level
+                FROM progress
+                WHERE user_id = ?
+                ORDER BY date
+            ''', (user_id,))
+            pain_data = cursor.fetchall()
+
+            os.makedirs('static/reports', exist_ok=True)
+            safe_injury_type = re.sub(r'[^a-zA-Z0-9_]', '_', injury_type)
+            filename = f"progress_user_{user_id}_{safe_injury_type}_{rehab_start_date}.pdf"
+            filepath = os.path.join('static/reports', filename)
+
+            c = canvas.Canvas(filepath, pagesize=letter)
+            width, height = letter
+
+            if pain_data:
+                x_values = list(range(len(pain_data)))
+                y_values = [row[1] for row in pain_data]
+                data = list(zip(x_values, y_values))
+
+                drawing = Drawing(400, 200)
+                line = LinePlot()
+                line.x = 50
+                line.y = 30
+                line.height = 125
+                line.width = 300
+                line.data = [data]
+                line.lines[0].strokeColor = colors.HexColor("#0d7a7a")
+                line.joinedLines = True
+
+                x_axis = XValueAxis()
+                x_axis.setPosition(50, 30, 300)
+                x_axis.valueMin = 0
+                x_axis.valueMax = max(x_values)
+                x_axis.visibleGrid = 0
+                x_axis.labelTextFormat = lambda v: pain_data[int(v)][0][-5:] if int(v) < len(pain_data) else ""
+                x_axis.labels.angle = 45
+
+                y_axis = YValueAxis()
+                y_axis.setPosition(50, 30, 125)
+                y_axis.valueMin = 0
+                y_axis.valueMax = 10
+                y_axis.visibleGrid = 1
+
+                line.xValueAxis = x_axis
+                line.yValueAxis = y_axis
+
+                frame = Rect(0, 0, drawing.width, drawing.height)
+                frame.strokeColor = colors.black
+                frame.strokeWidth = 1
+                frame.fillColor = colors.HexColor("#f0f0f0")
+
+                drawing.add(frame)
+                drawing.add(line)
+
+                renderPDF.draw(drawing, c, 1.1 * inch, height - 3.3 * inch)
+
+            text_y = height - 3.5 * inch
+            c.setFont("Helvetica-Bold", 16)
+            c.drawString(1 * inch, text_y, "Rehabilitation Report")
+
+            c.setFont("Helvetica", 12)
+            c.drawString(1 * inch, text_y - 0.4 * inch, f"Injury: {injury_type}")
+            c.drawString(1 * inch, text_y - 0.7 * inch, f"Start Date: {rehab_start_date}")
+            c.drawString(1 * inch, text_y - 1.0 * inch, f"End Date: {rehab_end_date}")
+            c.drawString(1 * inch, text_y - 1.3 * inch, f"Sessions: {len(pain_data)}")
+
+            if pain_data:
+                initial = pain_data[0][1]
+                final = pain_data[-1][1]
+                reduction = round(((initial - final) / initial) * 100, 1)
+                c.drawString(1 * inch, text_y - 1.6 * inch, f"Initial Pain Level: {initial}")
+                c.drawString(1 * inch, text_y - 1.9 * inch, f"Final Pain Level: {final}")
+                c.drawString(1 * inch, text_y - 2.2 * inch, f"Pain Reduction: {reduction}%")
+            else:
+                c.drawString(1 * inch, text_y - 1.6 * inch, "No progress data recorded.")
+
+            c.save()
+
+            cursor.execute('''
+                INSERT INTO injury_history (user_id, injury_type, fitness_level, doctor_confirmed, rehab_start_date, rehab_end_date)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (user_id, injury_type, fitness_level, doctor_confirmed, rehab_start_date, rehab_end_date))
+
+            delete_user_injury(user_id)
+            cursor.execute("DELETE FROM progress WHERE user_id = ?", (user_id,))
+            cursor.execute("DELETE FROM user_events WHERE user_id = ?", (user_id,))
+            conn.commit()
+
+    flash("Rehabilitation completed and PDF report saved!", "success")
     return redirect(url_for('home'))
 
 
@@ -211,19 +317,41 @@ def add_progress_route():
     except Exception as e:
         return jsonify({"success": False, "message": str(e)})
 
-
 @app.route('/progress', methods=['GET', 'POST'])
 def progress():
     user_id = session.get('user_id')
     if not user_id:
         return redirect(url_for('login'))
 
-    progress_data = get_progress_data(user_id)  
+    injury_history = get_injuries_history(user_id)
+    # Добавляем пути к PDF
+    history_with_pdf = []
+    for injury in injury_history:
+        injury_type, _, _, rehab_start_date, rehab_end_date = injury
 
-    injuries = get_distinct_injury_types()
-    injuries = [injury[0] for injury in injuries]
+        # Преобразование дат в формат '11 May 2025'
+        start_dt = datetime.strptime(rehab_start_date, "%Y-%m-%d")
+        end_dt = datetime.strptime(rehab_end_date, "%Y-%m-%d")
+        formatted_start = start_dt.strftime("%d %b %Y")
+        formatted_end = end_dt.strftime("%d %b %Y")
 
-    return render_template('progress.html', username=session['username'], injuries=injuries, progress_data=progress_data)
+        # Продолжительность
+        duration = (end_dt - start_dt).days + 1
+
+        # Имя PDF
+        filename = f"progress_user_{user_id}_{injury_type.replace(' ', '_')}_{rehab_start_date}.pdf"
+        
+        # Добавляем в список для шаблона
+        history_with_pdf.append((injury_type, formatted_start, formatted_end, filename, duration))
+
+    progress_data = get_progress_data(user_id)
+    injuries = [injury[0] for injury in get_distinct_injury_types()]
+
+    return render_template('progress.html',
+                           username=session['username'],
+                           injuries=injuries,
+                           progress_data=progress_data,
+                           injury_history=history_with_pdf)
 
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
@@ -301,21 +429,6 @@ def change_username():
 @app.route('/debug_session')
 def debug_session():
     return f"Сессия: {session}"
-
-@app.route('/chart')
-def chart():
-    user_id = session.get('user_id')
-    if not user_id:
-        return redirect(url_for('login'))
-
-    data = get_progress_data(user_id)
-    if not data:
-        return render_template('chart.html', pain_levels=[], dates=[])
-
-    pain_levels = [row[0] for row in data]
-    dates = [row[1] for row in data]
-
-    return render_template('chart.html', pain_levels=pain_levels, dates=dates)
 
 @app.route('/clear_progress', methods=['POST'])
 def clear_progress():
@@ -691,4 +804,5 @@ def get_recommendation_for_today():
 
 if __name__ == '__main__':
     create_tables() 
+    create_injury_history_table()
     app.run(debug=True)

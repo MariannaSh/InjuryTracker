@@ -41,73 +41,7 @@ body {
 .menu ul li a:hover {
     color: #03dac6;
 }
-/* 
-.progress-form {
-    max-width: 600px;
-    margin: 50px auto;
-    padding: 30px;
-    background-color: #ffffff;
-    color: #333;
-    border-radius: 12px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
 
-h2 {
-    font-size: 24px;
-    font-weight: 600;
-    margin-bottom: 20px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-    text-align: left;
-}
-
-label {
-    font-weight: 500;
-    color: #555;
-}
-
-select, input[type="number"], input[type="date"] {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    color: #333;
-    background-color: #f7f9fa;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    margin-top: 5px;
-}
-
-.submit-btn {
-    width: 100%;
-    padding: 14px;
-    font-size: 16px;
-    color: #ffffff;
-    background-color: #03dac6;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-}
-
-.submit-btn:hover {
-    background-color: #02c2ad;
-}
-
-.link-btn {
-    text-decoration: none;
-    font-size: 16px;
-    color: #03dac6;
-    display: inline-block;
-    margin-top: 10px;
-    text-align: center;
-}
-
-.link-btn:hover {
-    color: #0b0b0b;
-} */
 .star {
     position: absolute;
     width: 2px;
@@ -209,4 +143,154 @@ body {
 .toast.show {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+}
+
+/* Button container positioning */
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.clear-progress-btn {
+    background-color: #03dac6;
+    color: #111;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+    box-shadow: 0 0 15px rgba(0, 255, 200, 0.2);
+}
+
+.clear-progress-btn:hover {
+    background-color: #028c74;
+}
+
+.clear-progress-btn:focus {
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 255, 200, 0.5);
+}
+
+/* @media (max-width: 768px) {
+
+    .menu ul {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .menu ul li {
+        margin-bottom: 10px;
+    }
+
+    .chart-container {
+        padding: 10px;
+        height: 250px;
+    }
+
+    .achievements-grid {
+        padding: 10px;
+        max-width: 100%;
+    }
+
+    .achievement-card {
+        padding: 12px;
+    }
+
+    .achievement-icon {
+        font-size: 20px;
+    }
+
+    .achievement-text {
+        font-size: 12px;
+    }
+
+    .summary-box,
+    .recommendation-box {
+        width: 90%;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .menu ul li a {
+        font-size: 16px;
+        padding: 8px 12px;
+    }
+
+    .achievement-card {
+        padding: 10px;
+    }
+
+    .achievement-icon {
+        font-size: 18px;
+    }
+
+    .achievement-text {
+        font-size: 12px;
+    }
+
+    .chart-container {
+        padding: 5px;
+        height: 220px;
+    }
+
+    .summary-box, 
+    .recommendation-box {
+        padding: 12px;
+    }
+} */
+
+.injury-history-list {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.injury-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1e1e1e;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid #2c2c2c;
+    color: white;
+}
+
+.injury-info {
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+.pdf-button {
+    background-color: #03dac6;
+    padding: 6px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    transition: background 0.2s ease;
+}
+
+.pdf-button:hover {
+    background-color: #00bfa5;
+}
+.injury-entry {
+    border-left: 4px solid #03dac6;
+    padding-left: 12px;
+}
+.pdf-icon {
+    width: 24px;
+    height: 24px;
+    filter: invert(1); /* белая иконка на тёмном фоне */
+    transition: transform 0.2s ease;
+}
+
+.pdf-button:hover .pdf-icon {
+    transform: scale(1.2);
 }
