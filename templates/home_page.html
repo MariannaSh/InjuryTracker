@@ -103,11 +103,21 @@
                             data-end="{{ event.end }}"
                             data-completed="{{ event.completed | string | lower }}"
                             onclick="openEventModal(this)">
-                        {% if event.completed %}
-                            <span class="checkmark">✓</span> {{ event.title }}
-                        {% else %}
-                            {{ event.title }}
-                        {% endif %}
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>
+                                {% if event.completed %}
+                                    <span class="checkmark">✓</span> {{ event.title }}
+                                {% else %}
+                                    {{ event.title }}
+                                {% endif %}
+                            </span>
+                            {% if event.start and event.end %}
+                            <span style="color: #ccc; font-size: 12px; white-space: nowrap; margin-left: 10px;">
+                                {{ event.start[11:16] }} – {{ event.end[11:16] }}
+                            </span>
+                            {% endif %}
+                        </div>
+
                         </div>
 
 

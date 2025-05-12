@@ -577,67 +577,77 @@ def log_event_progress():
         flash("An error occurred while logging progress.", "error")
         return jsonify({"success": False, "message": str(e)}), 500
 
-
+from dateutil.relativedelta import relativedelta
 @app.route('/add_event', methods=['POST'])
 def add_event():
+    if not session.get('user_id'):
+        return jsonify({'status': 'error', 'message': 'Not logged in'}), 403
+
+    data = request.get_json()
+    title = data.get('title')
+    start_str = data.get('start')
+    end_str = data.get('end')
+    repeat_type = data.get('repeat_type', 'none')
+
+    def parse_datetime(dt_str):
+        for fmt in (
+            '%Y-%m-%dT%H:%M',   # ISO 8601: 2025-05-13T10:00
+            '%d.%m.%YT%H:%M',   # Custom: 13.05.2025T10:00
+            '%Y-%m-%d',         # ISO date only
+            '%d.%m.%Y'          # Custom date only
+        ):
+            try:
+                return datetime.strptime(dt_str, fmt)
+            except ValueError:
+                continue
+        raise ValueError(f"Unsupported date format: {dt_str}")
+
     try:
-        data = request.json
-        title = data['title']
-        start = data['start']
-        end = data['end']
-        repeat_type = data.get('repeat_type', 'none')
+        start_datetime = parse_datetime(start_str)
+        end_datetime = parse_datetime(end_str)
+    except Exception as e:
+        print("Invalid date format:", e)
+        return jsonify({'status': 'error', 'message': f'Invalid date format: {e}'}), 400
 
-        start_datetime = datetime.fromisoformat(start)
-        end_datetime = datetime.fromisoformat(end)
-        event_date = start_datetime.date()  
+    with connect_user_db() as conn:
+        cursor = conn.cursor()
 
-        if repeat_type == 'daily':
-            for i in range(7):  
+        for i in range(6):  
+            if repeat_type == 'daily':
                 new_start = start_datetime + timedelta(days=i)
                 new_end = end_datetime + timedelta(days=i)
-                with connect_user_db() as conn:
-                    cursor = conn.cursor()
-                    cursor.execute('''INSERT INTO user_events (user_id, title, date, start, end, repeat_type)
-                                      VALUES (?, ?, ?, ?, ?, ?)''', 
-                                   (session['user_id'], title, event_date, new_start, new_end, repeat_type))
-                    conn.commit()
 
-        elif repeat_type == 'weekly':
-            for i in range(4):  
+            elif repeat_type == 'weekly':
                 new_start = start_datetime + timedelta(weeks=i)
                 new_end = end_datetime + timedelta(weeks=i)
-                with connect_user_db() as conn:
-                    cursor = conn.cursor()
-                    cursor.execute('''INSERT INTO user_events (user_id, title, date, start, end, repeat_type)
-                                      VALUES (?, ?, ?, ?, ?, ?)''', 
-                                   (session['user_id'], title, event_date, new_start, new_end, repeat_type))
-                    conn.commit()
 
-        elif repeat_type == 'monthly':
-            for i in range(3):  
-                new_start = start_datetime.replace(month=start_datetime.month + i)
-                new_end = end_datetime.replace(month=end_datetime.month + i)
-                with connect_user_db() as conn:
-                    cursor = conn.cursor()
-                    cursor.execute('''INSERT INTO user_events (user_id, title, date, start, end, repeat_type)
-                                      VALUES (?, ?, ?, ?, ?, ?)''', 
-                                   (session['user_id'], title, event_date, new_start, new_end, repeat_type))
-                    conn.commit()
+            elif repeat_type == 'monthly':
+                new_start = start_datetime + relativedelta(months=i)
+                new_end = end_datetime + relativedelta(months=i)
 
-        else: 
-            with connect_user_db() as conn:
-                cursor = conn.cursor()
-                cursor.execute('''INSERT INTO user_events (user_id, title, date, start, end, repeat_type)
-                                  VALUES (?, ?, ?, ?, ?, ?)''', 
-                               (session['user_id'], title, event_date, start_datetime, end_datetime, repeat_type))
-                conn.commit()
+            else:  
+                if i > 0:
+                    break
+                new_start = start_datetime
+                new_end = end_datetime
 
-        return jsonify({"success": True, "message": "Event added successfully!"})
+            event_date = new_start.date()
 
-    except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({"success": False, "message": str(e)}), 500
+            cursor.execute('''
+                INSERT INTO user_events (user_id, title, date, start, end, repeat_type)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (
+                session['user_id'],
+                title,
+                event_date,
+                new_start,
+                new_end,
+                repeat_type
+            ))
 
+        conn.commit()
+
+    return jsonify({'success': True})
 
 @app.route('/complete_user_event', methods=['POST'])
 def complete_user_event():

@@ -181,8 +181,8 @@ document.getElementById('submit-event').addEventListener('click', function(e) {
 
     const title = document.getElementById('event-title').value.trim();
     const date = document.getElementById('event-date').value;
-    const startTime = document.getElementById('event-start-time').value || "00:00";
-    const endTime = document.getElementById('event-end-time').value || "00:00";
+    const startTime = document.getElementById('event-start-time').value;
+    const endTime = document.getElementById('event-end-time').value;
     const repeatType = document.getElementById('repeat-event').value;
 
     if (!title || !date) {
@@ -190,8 +190,11 @@ document.getElementById('submit-event').addEventListener('click', function(e) {
         return;
     }
 
-    const startDateTime = `${date}T${startTime}:00`;
-    const endDateTime = `${date}T${endTime}:00`;
+    const startDateTime = startTime ? `${date}T${startTime}` : date;
+    const endDateTime = endTime ? `${date}T${endTime}` : date;
+    console.log("start:", startDateTime);
+    console.log("end:", endDateTime);
+
 
     fetch('/add_event', {
         method: 'POST',
