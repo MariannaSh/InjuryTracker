@@ -1,16 +1,14 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/progress.css') }}">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <br>
-
-<nav class="menu">
-    <ul>
-        <li><a href="/profile">Profile</a></li>
-        <li><a href="/bmi">BMI</a></li>
-        <li><a href="/home">Home</a></li>
-        <li><a href="/progress">Progress</a></li>
-    </ul>
-</nav>
+<div class="bottom-nav">
+  <a href="/profile"><i class="material-icons">person</i><span>Profile</span></a>
+  <a href="/bmi"><i class="material-icons">straighten</i><span>BMI</span></a>
+  <a href="/home"><i class="material-icons">home</i><span>Home</span></a>
+  <a href="/progress"><i class="material-icons">timeline</i><span>Progress</span></a>
+</div>
 <h2>Pain Level Over Time</h2>
 <div class="chart-container">
     <canvas id="painLevelChart"></canvas>
@@ -45,7 +43,7 @@
 {% endif %}
 <br>
 <span id="rehabStart" style="display: none;">{{ rehab_start_date }}</span>
-
+<br><br><br>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="application/json" id="painLevels">{{ progress_data|map(attribute=0)|list|tojson|safe }}</script>
 <script type="application/json" id="dates">{{ progress_data|map(attribute=1)|list|tojson|safe }}</script>

@@ -6,6 +6,8 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home_page.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
 <style>
         
         .event.completed {
@@ -32,14 +34,13 @@
        </style>
 </head>
 <body>
-<nav class="menu">
-    <ul>
-        <li><a href="/profile">Profile</a></li>
-        <li><a href="/bmi">BMI</a></li>
-        <li><a href="/home">Home</a></li>
-        <li><a href="/progress">Progress</a></li>
-    </ul>
-</nav>
+<div class="bottom-nav">
+  <a href="/profile"><i class="material-icons">person</i><span>Profile</span></a>
+  <a href="/bmi"><i class="material-icons">straighten</i><span>BMI</span></a>
+  <a href="/home"><i class="material-icons">home</i><span>Home</span></a>
+  <a href="/progress"><i class="material-icons">timeline</i><span>Progress</span></a>
+</div>
+
 {% if user_injury %}
 <main class="main-container">
     <section class="todays-plan">
@@ -224,9 +225,10 @@
         {% endif %}
     {% endwith %}
 </div>
-
+<br>
 
     </section>
+<br><br>
 </main>
 {% else %}
 <!-- Контейнер формы ввода -->

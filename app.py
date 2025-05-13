@@ -46,8 +46,6 @@ def fetch_nutrition_info(food_item):
         return response.json()
     else:
         return {"error": "Unable to fetch nutrition info"}
-
-
 @app.route('/bmi', methods=['GET', 'POST'])
 def bmi():
     if request.method == 'POST':
@@ -591,10 +589,10 @@ def add_event():
 
     def parse_datetime(dt_str):
         for fmt in (
-            '%Y-%m-%dT%H:%M',   # ISO 8601: 2025-05-13T10:00
-            '%d.%m.%YT%H:%M',   # Custom: 13.05.2025T10:00
-            '%Y-%m-%d',         # ISO date only
-            '%d.%m.%Y'          # Custom date only
+            '%Y-%m-%dT%H:%M',   
+            '%d.%m.%YT%H:%M',   
+            '%Y-%m-%d',         
+            '%d.%m.%Y'          
         ):
             try:
                 return datetime.strptime(dt_str, fmt)

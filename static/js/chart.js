@@ -34,7 +34,15 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             scales: {
                 x: {
-                    ticks: { color: "#ccc" },
+                    ticks: {
+                        color: "#ccc",
+                        callback: function(value, index, ticks) {
+                            const date = new Date(this.getLabelForValue(value));
+                            const day = String(date.getDate()).padStart(2, '0');
+                            const month = String(date.getMonth() + 1).padStart(2, '0');
+                            return `${day}-${month}`;
+                        }
+                    },
                     grid: { color: "#333", lineWidth: 1.5, tickLength: 10 },
                 },
                 y: {
@@ -43,8 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     ticks: { color: "#ccc", stepSize: 2 },
                     grid: { color: "#333", lineWidth: 1.5, tickLength: 10 },
                     title: {
-                        display: true,
-                        text: "Pain Level",
+                        display: false,
                         color: "#ccc",
                     },
                 },
