@@ -1,27 +1,49 @@
 function validateForm(event) {
-    console.log("validateForm called"); 
+    event.preventDefault();
 
     const diagnosisConfirmed = document.getElementById('diagnosis_confirmed')?.checked;
-    console.log("Diagnosis confirmed:", diagnosisConfirmed); 
-
     const ageElement = document.getElementById('age');
-    if (ageElement) {
-        const age = ageElement.value;
-        if (age < 5 || age > 99) {
-            alert("Are you sure you need a recommendation?");
-            event.preventDefault(); 
-            return;
-        }
-    } else {
-        console.error("Age element not found.");
+    const age = ageElement?.value;
+
+    if (age && (age < 5 || age > 99)) {
+        showToast("Please enter a valid age (between 5 and 99).", "error");
+        return;
     }
 
     if (!diagnosisConfirmed) {
-        event.preventDefault(); 
-        alert("The application is not responsible for making diagnoses and does not provide recommendations without consulting a doctor.");
-    } else {
-        alert("All added exercises should be performed at a comfortable pace that does not cause pain or discomfort.");
+        showToast("The application is not responsible for making diagnoses and does not provide recommendations without consulting a doctor.", "error");
+        return;
     }
+
+    // Показать напоминание с кнопкой
+    showInfoToastWithAction(
+        "All added exercises should be performed at a comfortable pace that does not cause pain or discomfort.",
+        event.target
+    );
+}
+
+function showInfoToastWithAction(message, formElement) {
+    const toast = document.getElementById("injury-info-toast");
+    const text = document.getElementById("injury-info-text");
+    const button = document.getElementById("injury-continue-btn");
+
+    text.textContent = message;
+    toast.style.display = "block";
+
+    button.onclick = () => {
+        toast.style.display = "none";
+        formElement.submit();
+    };
+}
+
+function showToast(message) {
+    const toast = document.getElementById("injury-toast");
+    toast.textContent = message;
+    toast.style.display = "block";
+
+    setTimeout(() => {
+        toast.style.display = "none";
+    }, 7000); // 7 секунд
 }
 
 document.addEventListener("DOMContentLoaded", function () {

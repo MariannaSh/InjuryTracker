@@ -7,7 +7,24 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/recommendation.css') }}">
 </head>
 <body>
-    <h1>Recommendations</h1>
+    <h1 style="text-align: center; color: #03dac6;">
+  Recommendations for: {{ injury_type }}
+</h1>
+
+{% if not plan_added %}
+<div style="text-align: center; margin-bottom: 20px;">
+  <form method="get" action="/recommendations">
+    <input type="hidden" name="injury_type" value="{{ injury_type }}">
+    <label for="fitness_level"><strong>Select activity level:</strong></label>
+    <select name="fitness_level" id="fitness_level" class="activity-selector" onchange="this.form.submit()">
+      <option value="low" {% if fitness_level == 'low' %}selected{% endif %}>Low</option>
+      <option value="medium" {% if fitness_level == 'medium' %}selected{% endif %}>Medium</option>
+      <option value="high" {% if fitness_level == 'high' %}selected{% endif %}>High</option>
+    </select>
+  </form>
+</div>
+{% endif %}
+
 
     {% if recommendations %}
         {% for rec in recommendations %}
@@ -41,9 +58,19 @@
         <p>No recommendations available.</p>
     {% endif %}
 
+    {% if not plan_added %}
+    <form method="POST" action="/select_plan" style="text-align: center; margin-top: 30px;">
+        <button type="submit" class="select-plan-button">I choose this plan</button>
+    </form>
+    {% else %}
+    <p style="text-align: center; color: #888;">You have already selected a rehabilitation plan.</p>
+
+    <!-- Показываем кнопку "Home" только если план уже выбран -->
     <div class="home-button-container" style="text-align: center; margin-top: 30px;">
         <a href="/home" class="home-button" style="display: inline-block; padding: 10px 20px; background-color: #03dac6; color: #fff; text-decoration: none; border-radius: 5px;">Home</a>
     </div>
+    {% endif %}
+
 
 </body>
 </html>

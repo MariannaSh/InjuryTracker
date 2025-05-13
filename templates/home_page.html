@@ -60,10 +60,10 @@
             <form action="{{ url_for('show_recommendations') }}" method="GET">
                 <input type="hidden" name="injury_type" value="{{ injury_type }}">
                 <input type="hidden" name="fitness_level" value="{{ fitness_level }}">
-                <button type="submit" class="recommendation-btn">View Full Rehab Plan</button>
+                <button type="submit" class="rehab-btn">View Full Rehab Plan</button>
             </form>
             <form action="{{ url_for('complete_rehab') }}" method="POST">
-                <button type="submit" class="complete-btn">Complete</button>
+                <button type="submit" class="rehab-btn">Complete</button>
             </form>
         </div>       
     </section>
@@ -231,13 +231,21 @@
 <br><br>
 </main>
 {% else %}
-<!-- Контейнер формы ввода -->
+<div id="injury-toast" class="injury-toast-message"></div>
+<div id="injury-info-toast" class="injury-info-toast-message">
+  <div class="injury-info-content">
+    <span class="injury-info-icon">ℹ</span>
+    <p id="injury-info-text"></p>
+  </div>
+  <button id="injury-continue-btn" class="injury-continue-btn">Continue</button>
+</div>
 
-<div class="form-wrapper-center injury-form">
-    <div class="form-container injury-container">
-        <h1 class="form-title">Enter Injury Details</h1>
+
+<div class="injury-block-wrapper">
+    <div class="injury-block-container">
+        <h1 class="injury-block-title">Enter Injury Details</h1>
         <form action="/submit" method="POST" onsubmit="validateForm(event)">
-            <div class="form-group">
+            <div class="injury-block-field">
                 <label for="injury_type">Select Injury:</label>
                 <select name="injury_type" required>
                     {% for injury in injuries %}
@@ -246,17 +254,17 @@
                 </select>
             </div>
 
-            <div class="form-group">
+            <div class="injury-block-field">
                 <label for="age">Age:</label>
                 <input type="number" name="age" id="age" min="10" max="100" required>
             </div>
 
-            <div class="form-group">
+            <div class="injury-block-field">
                 <label for="date">Date:</label>
                 <input type="date" name="date" id="date" required>
             </div>
 
-            <div class="form-group">
+            <div class="injury-block-field">
                 <label for="fitness_level">Fitness Level:</label>
                 <select name="fitness_level" required>
                     <option value="low">Low</option>
@@ -265,15 +273,18 @@
                 </select>
             </div>
 
-            <div class="form-group checkbox-group">
+           <div class="injury-block-field injury-block-checkbox">
+            <label>
                 <input type="checkbox" id="diagnosis_confirmed" name="diagnosis_confirmed">
-                <label for="diagnosis_confirmed">Diagnosis confirmed by doctor</label>
-            </div>
-
-            <button type="submit" class="submit-btn">Get Recommendations</button>
+                Diagnosis confirmed by doctor
+            </label>
+        </div>
+            <button type="submit" class="injury-block-button">Get Recommendations</button>
         </form>
     </div>
 </div>
+
+
 <div id="flash-container">
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

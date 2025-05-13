@@ -154,7 +154,6 @@ def add_injury_route():
         return redirect(url_for('index'))
 
     return render_template('add_injury.html')
-
 @app.route('/submit', methods=['POST'])
 def submit():
     user_id = session.get('user_id')
@@ -164,27 +163,55 @@ def submit():
     injury_type = request.form['injury_type']
     fitness_level = request.form['fitness_level']
     doctor_confirmed = 1 if 'diagnosis_confirmed' in request.form else 0
-    rehab_start_date = request.form['date'] 
-    
+    rehab_start_date = request.form['date']
+
+    session['submitted_injury'] = {
+        "injury_type": injury_type,
+        "fitness_level": fitness_level,
+        "doctor_confirmed": doctor_confirmed,
+        "rehab_start_date": rehab_start_date
+    }
+    recommendation = get_recommendation(injury_type, fitness_level)
+
+    return render_template(
+        'recommendations.html',
+        recommendations=recommendation,
+        injury_type=injury_type,
+        fitness_level=fitness_level
+    )
+
+@app.route('/select_plan', methods=['POST'])
+def select_plan():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+
+    data = session.get('submitted_injury')
+    if not data:
+        flash("Brak danych urazu. Zacznij od początku.", "error")
+        return redirect(url_for('home'))
+
+    injury_type = data['injury_type']
+    fitness_level = data['fitness_level']
+    doctor_confirmed = data['doctor_confirmed']
+    rehab_start_date = data['rehab_start_date']
+
     save_user_injury(user_id, injury_type, fitness_level, doctor_confirmed, rehab_start_date)
     generate_daily_rehab_tasks(user_id, injury_type, fitness_level, rehab_start_date)
-    rehab_events = get_rehab_events(user_id)
 
+    rehab_events = get_rehab_events(user_id)
     conn = connect_user_db()
     cursor = conn.cursor()
-    
     for event in rehab_events:
         cursor.execute('''
             INSERT INTO user_events (user_id, title, date)
             VALUES (?, ?, ?)
         ''', (user_id, event["title"], event["start"]))
-
     conn.commit()
     conn.close()
-    
-    recommendation = get_recommendation(injury_type, fitness_level)
 
-    return render_template('recommendations.html', recommendations=recommendation)
+    flash("Rehabilitation plan successfully selected!", "success")
+    return redirect(url_for('home'))
 
 from reportlab.graphics.shapes import Rect
 import re
@@ -322,24 +349,18 @@ def progress():
         return redirect(url_for('login'))
 
     injury_history = get_injuries_history(user_id)
-    # Добавляем пути к PDF
+
     history_with_pdf = []
     for injury in injury_history:
         injury_type, _, _, rehab_start_date, rehab_end_date = injury
 
-        # Преобразование дат в формат '11 May 2025'
         start_dt = datetime.strptime(rehab_start_date, "%Y-%m-%d")
         end_dt = datetime.strptime(rehab_end_date, "%Y-%m-%d")
         formatted_start = start_dt.strftime("%d %b %Y")
         formatted_end = end_dt.strftime("%d %b %Y")
-
-        # Продолжительность
         duration = (end_dt - start_dt).days + 1
-
-        # Имя PDF
         filename = f"progress_user_{user_id}_{injury_type.replace(' ', '_')}_{rehab_start_date}.pdf"
-        
-        # Добавляем в список для шаблона
+    
         history_with_pdf.append((injury_type, formatted_start, formatted_end, filename, duration))
 
     progress_data = get_progress_data(user_id)
@@ -448,14 +469,18 @@ def clear_progress():
 def show_recommendations():
     injury_type = request.args.get('injury_type')  
     fitness_level = request.args.get('fitness_level')  
+    user_id = session.get('user_id')
 
     if not injury_type or not fitness_level:
         flash("Missing injury type or fitness level!", "error")
         return redirect(url_for('home'))
 
     recommendations = get_recommendation(injury_type, fitness_level)
+    user_injury = get_user_injury(user_id)
+    plan_added = bool(user_injury)
 
-    return render_template('recommendations.html', recommendations=recommendations)
+    return render_template('recommendations.html', recommendations=recommendations,injury_type=injury_type,
+        fitness_level=fitness_level, plan_added=plan_added)
 
 @app.route('/register', methods=['GET'])
 def register():

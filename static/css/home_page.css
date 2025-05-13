@@ -75,42 +75,161 @@ body {
     padding: 20px;
     gap: 20px;
 }
+.injury-block-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    min-height: 100vh;
+    background: transparent;
+}
 
-.form-container {
-    width: 400px;
+.injury-block-container {
+    width: 100%;
+    max-width: 400px;
     background: #ffffff;
     padding: 25px;
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    margin-bottom: 20px;
     color: #333;
 }
 
-.form-container h1 {
+.injury-block-title {
     font-size: 22px;
     color: #222;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.injury-block-field {
+    width: 100%;
     margin-bottom: 15px;
 }
 
-.form-container form label {
+.injury-block-field label {
     display: block;
     text-align: left;
-    margin: 10px 0 5px;
+    margin-bottom: 5px;
     font-weight: bold;
+    font-size: 15px;
 }
 
-.form-container form select,
-.form-container form input {
+.injury-block-field input,
+.injury-block-field select {
     width: 100%;
     padding: 10px;
     font-size: 16px;
-    margin-bottom: 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
+    box-sizing: border-box;
 }
 
-.form-container form button {
+.injury-block-checkbox {
+    margin-bottom: 20px;
+}
+
+.injury-block-checkbox label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold; 
+    font-size: 15px;
+    color: #333;
+}
+.injury-toast-message {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #ee2f92; 
+    color: #fff;
+    padding: 16px 28px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1.5;
+    max-width: 90%;
+    min-width: 300px;
+    text-align: center;
+    z-index: 9999;
+    display: none;
+    animation: fadeInOutBottom 7s ease-in-out;
+}
+.injury-info-toast-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(31, 31, 31, 0.85);
+    color: #f1f1f1;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    font-size: 15px;
+    max-width: 400px;
+    width: 90%;
+    z-index: 9999;
+    display: none;
+    text-align: left;
+    backdrop-filter: blur(6px); 
+}
+
+
+.injury-info-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.injury-info-icon {
+    font-size: 20px;
+    color: #03dac6;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.injury-info-toast-message p {
+    margin: 0;
+    line-height: 1.4;
+    color: #f1f1f1;
+}
+
+.injury-continue-btn {
+    margin-top: 14px;
+    padding: 8px 18px;
+    background-color: #03dac6;
+    color: #000;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+.injury-continue-btn:hover {
+    background-color: #02c2ad;
+}
+
+
+@keyframes fadeInOutBottom {
+    0%   { opacity: 0; transform: translate(-50%, 20px); }
+    10%  { opacity: 1; transform: translate(-50%, 0); }
+    90%  { opacity: 1; transform: translate(-50%, 0); }
+    100% { opacity: 0; transform: translate(-50%, 20px); }
+}
+
+
+
+.injury-block-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #03dac6;
+    margin: 0;
+}
+
+.injury-block-button {
     width: 100%;
     padding: 12px;
     font-size: 16px;
@@ -118,29 +237,22 @@ body {
     color: white;
     border: none;
     border-radius: 5px;
+    font-weight: bold;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-.form-container form button:hover {
+.injury-block-button:hover {
     background-color: #02c2ad;
 }
 
-.checkbox-group {
-    display: flex;
-    align-items: center;
-    gap: 8px; 
+.injury-block-container input[type="date"] {
+    background-color: #fff;
+    color: #000;
 }
-
-.checkbox-group input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    accent-color: #03dac6;
-}
-
-.checkbox-group label {
-    font-size: 16px;
-    color: #333;
-    font-weight: 500;
+.injury-block-container input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0);
+    opacity: 0.8;
     cursor: pointer;
 }
 
@@ -677,6 +789,41 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .bottom-nav i {
   font-size: 20px;
 }
+.rehab-btn {
+    background-color: transparent;
+    color: #03dac6;
+    border: 2px solid #03dac6;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.rehab-btn:hover {
+    background-color: #03dac6;
+    color: #000;
+}
+input[type="time"] {
+    background-color: #1a1a1a;
+    color: #fff;
+    border: 1px solid #444;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.9;
+    cursor: pointer;
+}
+
 
 
 @media (max-width: 480px) {
