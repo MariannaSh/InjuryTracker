@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition and BMI Calculator</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bmi.css') }}"> 
+</head>
+<body data-auth="{{ 'true' if session.get('user_id') else 'false' }}">
+<div class="bottom-nav">
+  <a href="/profile"><i class="material-icons">person</i><span>Profile</span></a>
+  <a href="/injury"><i class="material-icons">healing</i><span>Injury</span></a>
+  <a href="/home"><i class="material-icons">home</i><span>Home</span></a>
+  <a href="/progress"><i class="material-icons">timeline</i><span>Progress</span></a>
+</div>
+
+
+<div class="injury-block-wrapper">
+    <div class="injury-block-container">
+        <h1 class="injury-block-title">Explore Rehab Plans</h1>
+        <form action="/preview_plan" method="POST" onsubmit="validatePublicForm(event)">
+            <div class="injury-block-field">
+                <label for="injury_type">Select Injury:</label>
+                <select name="injury_type" required>
+                    {% for injury in injuries %}
+                    <option value="{{ injury }}">{{ injury }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="injury-block-field">
+                <label for="age">Age:</label>
+                <input type="number" name="age" id="age" min="10" max="100" required>
+            </div>
+
+            <div class="injury-block-field">
+                <label for="fitness_level">Fitness Level:</label>
+                <select name="fitness_level" required>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                </select>
+            </div>
+
+        
+            <button type="submit" class="injury-block-button">View Plans</button>
+        </form>
+    </div>
+</div>
+
+        <div id="injury-info-toast" class="injury-info-toast-message">
+            <div class="injury-info-content">
+                <span class="injury-info-icon">ℹ</span>
+                <p id="injury-info-text">You need to be logged in to access this section</p>
+            </div>
+            <a href="/register" id="injury-continue-btn" class="injury-continue-btn">Gain Full Access</a>
+        </div>
+
+
+
+        <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const isAuthenticated = document.body.dataset.auth === "true";
+            if (!isAuthenticated) {
+                const restrictedLinks = ["/home", "/progress", "/profile"];
+                document.querySelectorAll(".bottom-nav a").forEach(link => {
+                    if (restrictedLinks.includes(link.getAttribute("href"))) {
+                        link.addEventListener("click", function (e) {
+                            e.preventDefault();
+                            document.getElementById("injury-info-toast").style.display = "block";
+                        });
+                    }
+                });
+            }
+        });
+        </script>
+
+
+    </div>    
+    <script src="/static/js/script.js"></script>
+
+</body>
+</html>

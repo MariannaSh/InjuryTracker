@@ -38,7 +38,7 @@ def register():
             return redirect(url_for('auth.register'))
 
         add_user(username, password)
-        session['username'] = username  
+        # session['username'] = username  
         flash("Registration successful! Please log in.", "success")
         return redirect(url_for('auth.login'))
 
@@ -102,6 +102,6 @@ def change_password():
 
 @auth_bp.route('/logout')
 def logout():
-    session.pop('username', None)
+    session.clear()  
     return redirect(url_for('index'))
 

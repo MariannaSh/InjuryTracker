@@ -7,169 +7,6 @@ body {
     padding: 0;
 }
 
-.menu {
-    background-color: #0d0d0d;
-    padding: 15px 0;
-    box-shadow: none;
-}
-
-.menu ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-}
-
-.menu ul li {
-    margin: 0 20px;
-}
-
-.menu ul li a {
-    text-decoration: none;
-    color: #ffffff; 
-    font-size: 18px;
-    font-weight: bold;
-    padding: 10px 15px;
-    border-radius: 5px;
-    position: relative;
-    transition: color 0.3s ease-in-out;
-}
-
-.menu ul li a::after {
-    content: "";
-    display: block;
-    height: 2px;
-    width: 0;
-    background: #03dac6; 
-    transition: width 0.3s ease-in-out;
-    position: absolute;
-    left: 0;
-    bottom: -3px;
-}
-
-.menu ul li a:hover {
-    color: #03dac6;
-}
-
-.menu ul li a:hover::after {
-    width: 100%;
-}
-
-h1 {
-    color: #03dac6; 
-    font-size: 26px;
-    margin-bottom: 20px;
-}
-
-form label {
-    display: block;
-    font-size: 18px;
-    margin: 10px 0 5px;
-}
-
-form input {
-    width: 100%;
-    padding: 10px;
-    border-radius: 6px;
-    border: none;
-    background: #222; 
-    color: #ffffff;
-    font-size: 16px;
-    margin-bottom: 15px;
-}
-
-.buttons button {
-    background-color: #17c3b2;
-    color: #fcfbfb;
-    border: none;
-    padding: 14px 22px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 10px;
-    margin-top: 10px;
-    transition: all 0.3s ease-in-out;
-}
-
-.buttons button:hover {
-    background-color: #149e90;
-    color: white;
-    transform: scale(1.05);
-}
-
-/* Контейнер результатов BMI */
-.result {
-    background-color: #181818; /* Темнее */
-    padding: 20px;
-    margin: 20px auto;
-    width: 60%;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.05);
-    border: 3px solid; /* Динамическая обводка */
-    text-align: center;
-    font-size: 18px;
-}
-
-
-.result h2,
-.result p:first-of-type {
-    color: #ffffff;
-}
-
-.result .bmi-category {
-    font-weight: bold;
-}
-
-.low-high {
-    border-color: #ffeb3b;
-}
-
-.low-high .bmi-category {
-    color: #ffeb3b;
-}
-
-.normal {
-    border-color: #4caf50;
-}
-
-.normal .bmi-category {
-    color: #4caf50;
-}
-
-.overweight {
-    border-color: #ff9800;
-}
-
-.overweight .bmi-category {
-    color: #ff9800;
-}
-
-.obesity {
-    border-color: #f44336;
-}
-
-.obesity .bmi-category {
-    color: #f44336;
-}
-
-.nutrition {
-    background: #181818;
-    padding: 20px;
-    margin: 20px auto;
-    width: 70%;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.05);
-    text-align: left;
-    border: none; 
-}
-
-.nutrition h2 {
-    color: #ffffff;
-    font-size: 22px;
-    font-weight: bold;
-}
-
 .star {
     position: absolute;
     width: 2px;
@@ -188,49 +25,6 @@ form input {
     }
 }
 
-.sections-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 30px;
-    margin-top: 40px;
-    flex-wrap: wrap; 
-}
-
-.bmi-section, .nutrition-section {
-    background: #181818;
-    padding: 30px;
-    width: 50%;
-    max-width: 600px;
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(255, 255, 255, 0.05);
-    text-align: center;
-}
-
-.bmi-section h2, .nutrition-section h2 {
-    color: #03dac6;
-    font-size: 26px;
-    margin-bottom: 20px;
-}
-
-.btn-calculate {
-    background-color: #17c3b2;
-    color: #fcfbfb;
-    border: none;
-    padding: 14px 22px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 10px;
-    margin-top: 10px;
-    transition: all 0.3s ease-in-out;
-}
-
-.btn-calculate:hover {
-    background-color: #149e90;
-    color: white;
-    transform: scale(1.05);
-}
 
 .star:nth-child(1) { top: 10%; left: 20%; }
 .star:nth-child(2) { top: 30%; left: 80%; }
@@ -262,4 +56,137 @@ form input {
 }
 .bottom-nav i {
   font-size: 20px;
+}
+.injury-info-toast-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(31, 31, 31, 0.85);
+    color: #f1f1f1;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    font-size: 15px;
+    max-width: 400px;
+    width: 90%;
+    z-index: 9999;
+    display: none;
+    text-align: left;
+    backdrop-filter: blur(6px); 
+}
+
+.injury-info-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.injury-info-icon {
+    font-size: 20px;
+    color: #03dac6;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.injury-info-toast-message p {
+    margin: 0;
+    line-height: 1.4;
+    color: #f1f1f1;
+}
+
+.injury-continue-btn {
+    margin-top: 14px;
+    padding: 8px 18px;
+    background-color: #03dac6;
+    color: #000;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    box-sizing: border-box;
+    width: 100%;
+    transition: background-color 0.3s ease;
+    text-align: center;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.injury-continue-btn:hover {
+    background-color: #02c2ad;
+}
+
+.injury-block-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    min-height: 100vh;
+    background: transparent;
+}
+
+.injury-block-container {
+    width: 100%;
+    max-width: 420px;
+    background: #ffffff;
+    padding: 30px 25px;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    color: #333;
+}
+
+.injury-block-title {
+    font-size: 24px;
+    color: #222;
+    text-align: center;
+    margin-bottom: 25px;
+    font-weight: bold;
+}
+
+.injury-block-field {
+    width: 100%;
+    margin-bottom: 18px;
+}
+
+.injury-block-field label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 15px;
+    color: #222;
+}
+
+.injury-block-field input,
+.injury-block-field select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 15px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.injury-block-field input:focus,
+.injury-block-field select:focus {
+    border-color: #03dac6;
+    outline: none;
+}
+
+.injury-block-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #03dac6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.injury-block-button:hover {
+    background-color: #02c2ad;
 }

@@ -184,3 +184,103 @@ a:hover {
         padding: 8px 16px;
     }
 }
+.injury-info-toast-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(31, 31, 31, 0.85);
+    color: #f1f1f1;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    font-size: 15px;
+    max-width: 400px;
+    width: 90%;
+    z-index: 9999;
+    display: none;
+    text-align: left;
+    backdrop-filter: blur(6px); 
+}
+
+.injury-info-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.injury-info-icon {
+    font-size: 20px;
+    color: #03dac6;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.injury-info-toast-message p {
+    margin: 0;
+    line-height: 1.4;
+    color: #f1f1f1;
+}
+
+.injury-continue-btn {
+    margin-top: 14px;
+    padding: 8px 18px;
+    background-color: #03dac6;
+    color: #000;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    box-sizing: border-box;
+    width: 100%;
+    transition: background-color 0.3s ease;
+    text-align: center;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.injury-continue-btn:hover {
+    background-color: #02c2ad;
+}
+.header-with-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 40px;
+  margin-bottom: 30px;
+  position: relative;
+  text-align: center;
+}
+
+.back-arrow {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 26px;
+  color: #222; 
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.back-arrow:hover {
+  color: #03dac6;
+}
+
+.recommendation-title {
+  margin: 0;
+  font-size: 28px;
+  color: #03dac6;
+}
+
+@media (max-width: 600px) {
+  .back-arrow {
+    font-size: 20px;
+    left: 12px;
+  }
+
+  .recommendation-title {
+    font-size: 22px;
+    padding: 0 20px;
+  }
+}

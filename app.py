@@ -5,8 +5,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 import os
 from flask import Flask,flash, jsonify, render_template, request, redirect, url_for, session
-import requests
-from database import  add_progress, create_connection_injuries, create_injury_history_table,  create_tables, connect_user_db,add_injury, delete_user_injury, generate_daily_rehab_tasks, get_current_rehab_phase,  get_distinct_injury_types, get_injuries_history,  get_profile_image, get_progress_data,  get_recommendation, get_rehab_events, get_rehab_plan, get_user_by_id, get_user_injury, save_user_injury, update_profile_image
+from database import  add_progress, create_connection_injuries, create_injury_history_table,  create_tables, connect_user_db,add_injury, delete_user_injury, generate_daily_rehab_tasks, get_all_injuries, get_current_rehab_phase,  get_distinct_injury_types, get_injuries_history,  get_profile_image, get_progress_data,  get_recommendation, get_rehab_events, get_rehab_plan, get_user_by_id, get_user_injury, save_user_injury, update_profile_image
 from werkzeug.utils import secure_filename
 import sqlite3
 from auth import auth_bp
@@ -21,51 +20,38 @@ app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
 app.register_blueprint(auth_bp)
 
-
 def connect_db():
     return sqlite3.connect('db/database.db')
 
+@app.route("/injury", methods=["GET"])
+def rehab_preview():
+    injury_type = request.args.get("injury_type")
+    fitness_level = request.args.get("fitness_level")
+    rehab_plan = None
 
-def calculate_bmi(weight_kg, height_cm):
-    height_meters = height_cm / 100 
-    bmi = weight_kg / height_meters ** 2
-    return round(bmi, 1)
+    injuries = get_all_injuries()
 
-def fetch_nutrition_info(food_item):
-    url = "https://trackapi.nutritionix.com/v2/natural/nutrients"
-    headers = {
-        'x-app-id': '2b5cce06',
-        'x-app-key': 'ad6d3675510d898b655722fe6f104dc1',
-        'Content-Type': 'application/json'
-    }
-    data = {
-        "query": food_item
-    }
-    response = requests.post(url, json=data, headers=headers)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        return {"error": "Unable to fetch nutrition info"}
-@app.route('/bmi', methods=['GET', 'POST'])
-def bmi():
-    if request.method == 'POST':
-        height_cm = request.form.get('height_cm')
-        weight_kg = request.form.get('weight_kg')
-        food_item = request.form.get('food_item') 
+    if injury_type and fitness_level:
+        with connect_user_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id FROM injuries WHERE injury_type = ?", (injury_type,))
+            injury_id_row = cursor.fetchone()
+            if not injury_id_row:
+                flash("Injury not found", "error")
+                return render_template("bmi.html", injuries=injuries)
 
-        if height_cm and weight_kg:
-            bmi = calculate_bmi(int(weight_kg), int(height_cm))
-        else:
-            bmi = None 
+            injury_id = injury_id_row[0]
+            cursor.execute("SELECT id FROM activity_levels WHERE activity_level = ?", (fitness_level.lower(),))
+            level_row = cursor.fetchone()
+            if not level_row:
+                flash("Fitness level not found", "error")
+                return render_template("bmi.html", injuries=injuries)
 
-        if food_item:
-            nutrition_info = fetch_nutrition_info(food_item)
-        else:
-            nutrition_info = None  
+            activity_level_id = level_row[0]
+            rehab_plan = get_rehab_plan(injury_id, activity_level_id)
 
-        return render_template('bmi.html', bmi=bmi, nutrition_info=nutrition_info)
+    return render_template("injury.html", injuries=injuries, rehab_plan=rehab_plan)
 
-    return render_template('bmi.html', bmi=None, nutrition_info=None)
 
 @app.route('/')
 def index():
@@ -476,11 +462,48 @@ def show_recommendations():
         return redirect(url_for('home'))
 
     recommendations = get_recommendation(injury_type, fitness_level)
-    user_injury = get_user_injury(user_id)
+    user_injury = get_user_injury(user_id) if user_id else None
     plan_added = bool(user_injury)
 
     return render_template('recommendations.html', recommendations=recommendations,injury_type=injury_type,
         fitness_level=fitness_level, plan_added=plan_added)
+
+@app.route('/preview_plan', methods=['POST'])
+def preview_plan():
+    injury_type = request.form.get("injury_type")
+    fitness_level = request.form.get("fitness_level")
+    age = request.form.get("age")
+
+    if not injury_type or not fitness_level:
+        flash("Missing injury type or fitness level", "error")
+        return redirect(url_for('injury'))
+
+    with create_connection_injuries() as conn:
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT id FROM injuries WHERE injury_type = ?", (injury_type,))
+        injury_id_row = cursor.fetchone()
+        if not injury_id_row:
+            flash("Injury type not found.", "error")
+            return redirect(url_for('injury'))
+        injury_id = injury_id_row[0]
+
+        cursor.execute("SELECT id FROM activity_levels WHERE activity_level = ?", (fitness_level.lower(),))
+        level_row = cursor.fetchone()
+        if not level_row:
+            flash("Fitness level not found.", "error")
+            return redirect(url_for('injury'))
+        activity_level_id = level_row[0]
+
+    recommendations = get_recommendation(injury_type, fitness_level)
+
+    return render_template(
+        "recommendations.html",
+        injury_type=injury_type,
+        fitness_level=fitness_level,
+        recommendations=recommendations,
+        plan_added=False 
+    )
 
 @app.route('/register', methods=['GET'])
 def register():

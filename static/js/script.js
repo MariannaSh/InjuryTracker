@@ -589,6 +589,23 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(() => {
             msg.style.transition = "opacity 1s ease-out";
             msg.style.opacity = 0;
-        }, 4000); // покажи 4 сек, потом исчезает
+        }, 4000); 
     });
 });
+function validatePublicForm(event) {
+    event.preventDefault();
+
+    const ageElement = document.getElementById('age');
+    const age = ageElement?.value;
+
+    if (age && (age < 5 || age > 99)) {
+        showToast("Please enter a valid age (between 5 and 99).", "error");
+        return;
+    }
+
+    event.target.submit();
+}
+
+function showRegisterModal() {
+    document.getElementById("injury-info-toast").style.display = "block";
+}

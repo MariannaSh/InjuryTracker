@@ -7,9 +7,11 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/recommendation.css') }}">
 </head>
 <body>
-    <h1 style="text-align: center; color: #03dac6;">
-  Recommendations for: {{ injury_type }}
-</h1>
+<div class="header-with-back">
+  <a href="javascript:history.back()" class="back-arrow">⬅</a>
+  <h1 class="recommendation-title">Recommendations for: {{ injury_type }}</h1>
+</div>
+
 
 {% if not plan_added %}
 <div style="text-align: center; margin-bottom: 20px;">
@@ -59,17 +61,40 @@
     {% endif %}
 
     {% if not plan_added %}
-    <form method="POST" action="/select_plan" style="text-align: center; margin-top: 30px;">
-        <button type="submit" class="select-plan-button">I choose this plan</button>
-    </form>
+        {% if session['user_id'] %}
+            <form method="POST" action="/select_plan" style="text-align: center; margin-top: 30px;">
+                <button type="submit" class="select-plan-button">I choose this plan</button>
+            </form>
+        {% else %}
+          
+            <div style="text-align: center; margin-top: 30px;">
+                <button onclick="showRegisterModal()" class="select-plan-button">I want to start</button>
+            </div>
+        {% endif %}
     {% else %}
-    <p style="text-align: center; color: #888;">You have already selected a rehabilitation plan.</p>
+        <p style="text-align: center; color: #888;">You have already selected a rehabilitation plan.</p>
 
-    <!-- Показываем кнопку "Home" только если план уже выбран -->
-    <div class="home-button-container" style="text-align: center; margin-top: 30px;">
-        <a href="/home" class="home-button" style="display: inline-block; padding: 10px 20px; background-color: #03dac6; color: #fff; text-decoration: none; border-radius: 5px;">Home</a>
-    </div>
+        <div class="home-button-container" style="text-align: center; margin-top: 30px;">
+            <a href="/home" class="home-button" style="display: inline-block; padding: 10px 20px; background-color: #03dac6; color: #fff; text-decoration: none; border-radius: 5px;">Home</a>
+        </div>
     {% endif %}
+
+    <div id="injury-info-toast" class="injury-info-toast-message">
+        <div class="injury-info-content">
+            <span class="injury-info-icon">ℹ</span>
+            <p>Sign up to unlock your personalized rehab plan.</p>
+        </div>
+        <a href="/register" class="injury-continue-btn">Sign Up Now</a>
+    </div>
+
+<script>
+function showRegisterModal() {
+    const modal = document.getElementById("injury-info-toast");
+    if (modal) {
+        modal.style.display = "block";
+    }
+}
+</script>
 
 
 </body>
