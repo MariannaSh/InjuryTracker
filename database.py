@@ -688,3 +688,37 @@ def generate_daily_rehab_tasks(user_id, injury_type, fitness_level, start_date):
 
         user_conn.commit()
         conn.close()
+
+def get_rehab_report_history_data(user_id, injury_type, rehab_start_date):
+    with create_connection_injuries() as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT id FROM injuries WHERE injury_type = ?', (injury_type,))
+        row = cursor.fetchone()
+        if not row:
+            return None
+        injury_id = row[0]
+    with connect_user_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT date, pain_level
+            FROM progress_history
+            WHERE user_id = ? AND injury_id = ? AND date >= ?
+            ORDER BY date
+        ''', (user_id, injury_id, rehab_start_date))
+        pain_data = cursor.fetchall()
+
+    if pain_data:
+        initial = pain_data[0][1]
+        final = pain_data[-1][1]
+        reduction = round(((initial - final) / initial) * 100, 1) if initial else 0
+    else:
+        initial = final = reduction = None
+
+    return {
+        "pain_data": pain_data,
+        "injury_type": injury_type,
+        "rehab_start_date": rehab_start_date,
+        "initial_pain": initial,
+        "final_pain": final,
+        "pain_reduction": reduction,
+    }

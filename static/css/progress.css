@@ -287,7 +287,7 @@ body {
 .pdf-icon {
     width: 24px;
     height: 24px;
-    filter: invert(1); /* белая иконка на тёмном фоне */
+    filter: invert(1);
     transition: transform 0.2s ease;
 }
 
@@ -319,4 +319,29 @@ body {
 }
 .bottom-nav i {
   font-size: 20px;
+}
+.injury-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.injury-entry:hover {
+    background-color: #2a2a2a;
+}
+
+.injury-info {
+    color: #fff;
+}
+
+.injury-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }

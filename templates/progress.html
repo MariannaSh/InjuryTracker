@@ -14,7 +14,6 @@
     <canvas id="painLevelChart"></canvas>
 </div>
 
-
 <div class="progress-container">
     <div id="progress-summary" class="summary-box"></div>
     <div id="achievements-box" class="achievements-box"></div>
@@ -24,20 +23,27 @@
     <h3>Completed Injury History</h3>
     <div class="injury-history-list">
         {% for injury in injury_history %}
-            <div class="injury-entry">
+            <div class="injury-entry"
+                onclick="window.location='{{ url_for('view_rehab_report', injury_type=injury[0], rehab_start_date=injury[5]) }}'">
                 <div class="injury-info">
                     <strong>{{ injury[0] }}</strong><br>
                     <span>{{ injury[1] }} — {{ injury[2] }} ({{ injury[4] }} days)</span>
                 </div>
-                <a class="pdf-button" href="{{ url_for('static', filename='reports/' ~ injury[3]) }}" download>
-                    <img src="{{ url_for('static', filename='uploads/download.png') }}" alt="Download PDF" class="pdf-icon">
-                </a>
+                <div class="injury-actions">
+                    <a class="pdf-button"
+                    href="{{ url_for('static', filename='reports/' ~ injury[3]) }}"
+                    download onclick="event.stopPropagation();">
+                        <img src="{{ url_for('static', filename='uploads/download.png') }}" alt="Download PDF" class="pdf-icon">
+                    </a>
+                </div>
             </div>
+
         {% endfor %}
     </div>
 {% else %}
     <p>You don't have any completed injury history yet.</p>
 {% endif %}
+
 <br>
 <span id="rehabStart" style="display: none;">{{ rehab_start_date }}</span>
 <br><br><br>

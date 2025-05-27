@@ -1,38 +1,94 @@
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #121212;
+    font-family: 'Arial', sans-serif;
+    background-color: #0d0d0d;
     color: #ffffff;
-    text-align: center;
     margin: 0;
     padding: 0;
 }
 
-.chart-container {
-    background: #1e1e1e;
-    border-radius: 15px;
-    padding: 30px;
-    box-shadow: 0 6px 12px rgba(255, 255, 255, 0.1);
+.container {
+    max-width: 700px;
     margin: 40px auto;
-    width: 98%;
-    max-width: 1200px; 
-    height: 500px; 
+    padding: 20px;
+    background-color: #131212e3;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
-.button {
-    background-color: #03dac6; 
-    color: #fdf9f9; 
-    border: none;
-    padding: 14px 22px;
-    font-size: 17px;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 10px;
-    margin: 10px;
-    transition: all 0.3s ease-in-out;
+h1 {
+    color: #03dac6;
+    font-size: 26px;
+    margin-bottom: 10px;
 }
-.button:hover {
-    background-color: #018786; 
-    color: white;
+
+p {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+canvas {
+    background: #111;
+    border-radius: 8px;
+    margin-top: 20px;
+    box-shadow: 0 0 10px rgba(13, 14, 13, 0.499);
+}
+
+.summary {
+    margin-top: 30px;
+    background-color: #111;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 4px solid #03dac6;
+}
+
+.summary p {
+    margin: 8px 0;
+    color: #ccc;
+}
+
+a {
+    display: inline-block;
+    margin-top: 20px;
+    color: #03dac6;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s ease-in-out;
+}
+
+a:hover {
+    color: #ffffff;
+}
+
+#rehabReportChart {
+    height: 300px;
+    max-height: 400px;
+}
+.download-pdf-container {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.download-pdf-button {
+    background-color: transparent;
+    color: #03dac6;
+    border: 2px solid #03dac6;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+    font-size: 16px;
+}
+
+.download-pdf-button i {
+    margin-right: 8px;
+    color: inherit;
+}
+
+.download-pdf-button:hover {
+    background-color: #03dac6;
+    color: #000;
 }
 
 .star {
@@ -58,3 +114,30 @@ body {
 .star:nth-child(3) { top: 50%; left: 50%; }
 .star:nth-child(4) { top: 70%; left: 30%; }
 .star:nth-child(5) { top: 90%; left: 70%; }
+
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+        margin: 20px auto;
+    }
+
+    h1 {
+        font-size: 20px;
+        text-align: center;
+    }
+
+    p {
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .summary {
+        padding: 15px;
+        font-size: 14px;
+    }
+
+    canvas {
+        width: 100% !important;
+        height: auto !important;
+    }
+}

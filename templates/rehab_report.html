@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Rehabilitation Report - {{ injury_type }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chart.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
+
+
+</head>
+<body>
+    <br>
+    <div class="container" style="max-width: 700px; margin: auto; padding: 20px;">
+        <h1>Rehabilitation Report for {{ injury_type }}</h1>
+        <p><strong>Start Date:</strong> {{ rehab_start_date }}</p>
+
+        <canvas id="rehabReportChart" height="200"></canvas>
+<br>
+        <div class="summary" style="background: #111; padding: 15px; border-radius: 10px; margin-top: 20px; color: #ccc;">
+            <p><strong>Initial Pain Level:</strong> {{ initial_pain }}</p>
+            <p><strong>Final Pain Level:</strong> {{ final_pain }}</p>
+            <p><strong>Pain Reduction:</strong> {{ pain_reduction }}%</p>
+        </div>
+
+       <div class="download-pdf-container">
+            <a href="{{ url_for('static', filename='reports/progress_user_' ~ session['user_id'] ~ '_' ~ injury_type|replace(' ', '_') ~ '_' ~ rehab_start_date ~ '.pdf') }}"
+            class="download-pdf-button"
+            download>
+                <i class="fas fa-file-pdf"></i> Download PDF Report
+            </a>
+        </div>
+
+
+        <p><a href="{{ url_for('progress') }}" style="color: #03dac6; text-decoration: none;">← Back to Progress</a></p>
+    </div>
+
+    <script>
+        window.rehabPainLevels = {{ pain_levels | tojson | safe }};
+        window.rehabDates = {{ dates | tojson | safe }};
+    </script>
+
+    <script src="/static/js/rehab_report_chart.js"></script>
+</body>
+</html>

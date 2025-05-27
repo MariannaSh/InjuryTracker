@@ -9,13 +9,10 @@ function validateForm(event) {
         showToast("Please enter a valid age (between 5 and 99).", "error");
         return;
     }
-
     if (!diagnosisConfirmed) {
         showToast("The application is not responsible for making diagnoses and does not provide recommendations without consulting a doctor.", "error");
         return;
     }
-
-    // Показать напоминание с кнопкой
     showInfoToastWithAction(
         "All added exercises should be performed at a comfortable pace that does not cause pain or discomfort.",
         event.target
@@ -43,7 +40,7 @@ function showToast(message) {
 
     setTimeout(() => {
         toast.style.display = "none";
-    }, 7000); // 7 секунд
+    }, 7000); 
 }
 
 document.addEventListener("DOMContentLoaded", function () {

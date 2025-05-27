@@ -5,7 +5,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 import os
 from flask import Flask,flash, jsonify, render_template, request, redirect, url_for, session
-from database import  add_progress, create_connection_injuries, create_injury_history_table,  create_tables, connect_user_db,add_injury, delete_user_injury, generate_daily_rehab_tasks, get_all_injuries, get_current_rehab_phase,  get_distinct_injury_types, get_injuries_history,  get_profile_image, get_progress_data,  get_recommendation, get_rehab_events, get_rehab_plan, get_user_by_id, get_user_injury, save_user_injury, update_profile_image
+from database import  add_progress, create_connection_injuries, create_injury_history_table,  create_tables, connect_user_db,add_injury, delete_user_injury, generate_daily_rehab_tasks, get_all_injuries, get_current_rehab_phase,  get_distinct_injury_types, get_injuries_history,  get_profile_image, get_progress_data,  get_recommendation, get_rehab_events, get_rehab_plan, get_rehab_report_history_data, get_user_by_id, get_user_injury, save_user_injury, update_profile_image
 from werkzeug.utils import secure_filename
 import sqlite3
 from auth import auth_bp
@@ -213,15 +213,32 @@ def complete_rehab():
         injury_type, fitness_level, doctor_confirmed, rehab_start_date = current
         rehab_end_date = datetime.today().strftime('%Y-%m-%d')
 
+        with create_connection_injuries() as injuries_conn:
+            inj_cursor = injuries_conn.cursor()
+            inj_cursor.execute('SELECT id FROM injuries WHERE injury_type = ?', (injury_type,))
+            injury_row = inj_cursor.fetchone()
+            injury_id = injury_row[0] if injury_row else None
+
+        if not injury_id:
+            flash("Injury ID not found.", "error")
+            return redirect(url_for('progress'))
+
         with connect_user_db() as conn:
             cursor = conn.cursor()
 
             cursor.execute('''
-                SELECT date, pain_level
+                INSERT INTO progress_history (user_id, injury_id, date, pain_level, exercise_completed)
+                SELECT user_id, injury_id, date, pain_level, exercise_completed
                 FROM progress
-                WHERE user_id = ?
+                WHERE user_id = ? AND injury_id = ?
+            ''', (user_id, injury_id))
+
+            cursor.execute('''
+                SELECT date, pain_level
+                FROM progress_history
+                WHERE user_id = ? AND injury_id = ?
                 ORDER BY date
-            ''', (user_id,))
+            ''', (user_id, injury_id))
             pain_data = cursor.fetchall()
 
             os.makedirs('static/reports', exist_ok=True)
@@ -274,7 +291,7 @@ def complete_rehab():
 
                 renderPDF.draw(drawing, c, 1.1 * inch, height - 3.3 * inch)
 
-            text_y = height - 3.5 * inch
+            text_y = height - 4.5 * inch
             c.setFont("Helvetica-Bold", 16)
             c.drawString(1 * inch, text_y, "Rehabilitation Report")
 
@@ -308,6 +325,37 @@ def complete_rehab():
 
     flash("Rehabilitation completed and PDF report saved!", "success")
     return redirect(url_for('home'))
+
+
+@app.route('/view_rehab_report')
+def view_rehab_report():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('auth.login'))
+
+    injury_type = request.args.get('injury_type')
+    rehab_start_date = request.args.get('rehab_start_date')
+
+    if not injury_type or not rehab_start_date:
+        flash("Missing injury data.", "error")
+        return redirect(url_for('progress'))
+
+    data = get_rehab_report_history_data(user_id, injury_type, rehab_start_date)
+    if not data or not data["pain_data"]:
+        flash("No rehabilitation history data found.", "error")
+        return redirect(url_for('progress'))
+
+    dates = [row[0] for row in data["pain_data"]]
+    pain_levels = [row[1] for row in data["pain_data"]]
+
+    return render_template('rehab_report.html',
+                           injury_type=data["injury_type"],
+                           rehab_start_date=data["rehab_start_date"],
+                           pain_levels=pain_levels,
+                           dates=dates,
+                           initial_pain=data["initial_pain"],
+                           final_pain=data["final_pain"],
+                           pain_reduction=data["pain_reduction"])
 
 
 @app.route('/add_progress', methods=['POST'])
@@ -347,7 +395,7 @@ def progress():
         duration = (end_dt - start_dt).days + 1
         filename = f"progress_user_{user_id}_{injury_type.replace(' ', '_')}_{rehab_start_date}.pdf"
     
-        history_with_pdf.append((injury_type, formatted_start, formatted_end, filename, duration))
+        history_with_pdf.append((injury_type, formatted_start, formatted_end, filename, duration, rehab_start_date, rehab_end_date))
 
     progress_data = get_progress_data(user_id)
     injuries = [injury[0] for injury in get_distinct_injury_types()]
